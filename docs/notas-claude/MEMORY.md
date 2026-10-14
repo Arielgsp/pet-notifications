@@ -1,0 +1,7 @@
+- [Pet Notifications project](pet-notifications-project.md) — original requirements, design decisions, open items
+- [Gradle build workaround](gradle-build-workaround.md) — JAVA_TOOL_OPTIONS fix for 'loopback connection' + emulator notes
+- [Pending list](pending-list.md) — docs/PENDIENTES.md holds every open item; update it after each task
+- [Responder en español](reply-in-spanish.md) — el usuario pide respuestas en español salvo que el inglés sea indispensable
+- [Decisión de Billing](billing-decision.md) — tarea 11: sacar INTERNET de la librería de Play (opción A), pasar a B ante el primer problema complejo
+- [Subir versión en cada APK](apk-version-bump.md) — appVersionCode en gradle.properties; Xiaomi no actualiza con el mismo número
+- [Memoria de la PC](pc-memory-limits.md) — preguntar antes de usar el emulador o compilar si el usuario está usando la PC

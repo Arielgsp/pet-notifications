@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vuelta continua</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&display=swap">
+<style>
+:root { --bg:#FBF6EE; --card:#FFFDF9; --line:#E8DCCD; --ink:#3A2E27; --muted:#6E5E52; --cocoa:#8A5536; --blush-soft:#FBE7E3; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:Nunito, sans-serif; }
+main { max-width:760px; margin:0 auto; padding:20px 16px 32px; }
+h1 { font-size:22px; font-weight:800; margin:0 0 4px; }
+p { color:var(--muted); font-weight:600; margin:0 0 16px; font-size:14px; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.stage { background:var(--card); border:1px solid var(--line); border-radius:24px; padding:12px; text-align:center; }
+.stage h2 { font-size:15px; font-weight:800; margin:4px 0 0; }
+.stage small { color:var(--muted); font-weight:600; }
+.pet { height:260px; display:flex; align-items:flex-end; justify-content:center; }
+.pet svg { width:min(200px, 38vw); height:auto; display:block; overflow:visible; }
+.controls { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
+button { font:800 14px Nunito, sans-serif; color:var(--cocoa); background:var(--blush-soft); border:0; border-radius:999px; padding:10px 18px; }
+.slider { margin-top:16px; background:var(--card); border:1px solid var(--line); border-radius:24px; padding:12px 16px; }
+.slider label { font-weight:800; font-size:14px; }
+input[type=range] { width:100%; accent-color:var(--cocoa); }
+</style>
+</head>
+<body><main>
+<h1>Vuelta del perro: giro continuo</h1>
+<p>La de la derecha se calcula en cualquier ángulo (cada parte sabe dónde está alrededor de la cabeza y del cuerpo), así gira de forma pareja, sin cambiar de dibujo de golpe.</p>
+<div class="row">
+  <div class="stage"><div class="pet"><svg id="old" viewBox="0 0 200 240"></svg></div><h2>Ahora</h2><small>4 dibujos</small></div>
+  <div class="stage"><div class="pet"><svg id="new" viewBox="0 0 200 240"></svg></div><h2>Nueva</h2><small>giro continuo</small></div>
+</div>
+<div class="controls"><button id="slow">Ver más lento</button><button id="pause">Pausar</button></div>
+<div class="slider"><label for="ang">Mover a mano: <span id="angv">0°</span></label><input id="ang" type="range" min="0" max="360" value="0"></div>
+</main>
+<script>
+const INK = '#4A3228', BLUSH = '#FF9EAE', MAIN = '#F2C38B', LIGHT = '#FFF4E2', DARK = '#C98A55';
+const W = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
+const rad = d => d * Math.PI / 180;
+const f = n => n.toFixed(1);
+const ell = (cx, cy, rx, ry, fill, rot = 0, extra = '') =>
+  `<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(Math.max(rx, 0.01))}" ry="${f(ry)}" fill="${fill}" ${rot ? `transform="rotate(${f(rot)} ${f(cx)} ${f(cy)})"` : ''} ${extra}></ellipse>`;
+
+// ---------- modelo "2,5D" del perro: cada parte con su ángulo alrededor del eje vertical ----------
+// th: 0 = de frente, 90 = mirando a la derecha, 180 = de espaldas.
+let clipSeq = 0;
+function dog(th, face = 'open') {
+  const s = Math.sin(rad(th)), c = Math.cos(rad(th)), as = Math.abs(s);
+  const around = (phi, R) => ({ x: R * Math.sin(rad(phi + th)), z: Math.cos(rad(phi + th)) });
+  let o = '';
+  const shadow = `<ellipse cx="100" cy="228" rx="54" ry="7" fill="${INK}" opacity=".12" stroke="none"></ellipse>`;
+
+  // cola: punto de base y punta en 3D, girados
+  const rot3 = (x, z) => ({ x: x * c + z * s, z: -x * s + z * c });
+  const tb = rot3(0, -34), tt = rot3(56, -56);
+  const tail = (() => {
+    const bx = 100 + tb.x, by = 190, tx = 100 + tt.x, ty = 142;
+    const dx = tx - bx, dy = ty - by, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len;
+    const wB = 9; // media base
+    const side = dx >= 0 ? 1 : -1, bend = 14 * side;
+    const c1x = bx + dx * 0.5 + nx * (wB + bend * 0.2) + 8 * side, c1y = by + dy * 0.5 + ny * wB + 6;
+    const c2x = bx + dx * 0.5 - nx * wB + 8 * side, c2y = by + dy * 0.5 - ny * wB + 6;
+    const d = `M${f(bx + nx * wB)} ${f(by + ny * wB)} Q${f(c1x)} ${f(c1y)} ${f(tx)} ${f(ty)} Q${f(c2x)} ${f(c2y)} ${f(bx - nx * wB)} ${f(by - ny * wB)} Z`;
+    return `<path d="${d}" fill="${MAIN}"></path>`;
+  })();
+  const tailZ = (tb.z + tt.z) / 2;
+
+  // patas: cuatro alrededor de un anillo en el piso
+  const feet = [-35, 35, -145, 145].map(phi => {
+    const p = around(phi, 30);
+    const near = p.z > -0.2;
+    if (p.z < -0.7) return { z: p.z, svg: '' }; // tapada por el cuerpo
+    return { z: p.z, svg: ell(100 + p.x, 213 - 2 * (1 - p.z) / 2 + (near ? 1 : 0), near ? 15 : 14, near ? 10 : 9, near ? LIGHT : DARK) };
+  }).sort((a, b) => a.z - b.z);
+
+  // brazos
+  const arms = [-58, 58].map(phi => {
+    const p = around(phi, 38);
+    return { z: p.z, svg: ell(100 + p.x, 181, 10, 15, MAIN, -22 * p.x / 34) };
+  });
+
+  // cuerpo
+  const bodyCx = 100 - 4 * s, bodyRx = 42 + 6 * as, bodyRy = 38 - 4 * as, bodyCy = 176 + 2 * as;
+
+  if (tailZ < 0) o += tail;
+  feet.forEach(ft => o += ft.svg);
+  arms.filter(a => a.z < -0.1).forEach(a => o += a.svg);
+  o += ell(bodyCx, bodyCy, bodyRx, bodyRy, MAIN);
+  // Panza: se corre con el cuerpo y se recorta con su contorno, así nunca se sale.
+  if (c > -0.3) {
+    const id = 'panza' + (++clipSeq);
+    o += `<clipPath id="${id}">${ell(bodyCx, bodyCy, bodyRx - 2, bodyRy - 2, '#000', 0, 'stroke="none"')}</clipPath>`;
+    o += `<g clip-path="url(#${id})">${ell(bodyCx + 10 * s, 186 + 10 * as, (25 + 5 * as) * Math.min(1, (c + 0.3) / 0.6), 22 - 11 * as, LIGHT, 0, 'stroke="none"')}</g>`;
+  }
+  arms.filter(a => a.z >= -0.1).forEach(a => o += a.svg);
+  if (tailZ >= 0) o += tail;
+
+  // cabeza
+  const headRx = 68 - 6 * as, headCx = 100 + 6 * s;
+  const ears = [-100, 100].map(phi => {
+    const p = around(phi, 64);
+    return { z: p.z, svg: ell(headCx + p.x, 97, 15, 31, DARK, -18 * p.x / 62) };
+  });
+  const muzX = headCx + 54 * s, muzY = 126 - 5 * as;
+  const muzzle = ell(muzX, muzY, 25 - 1 * as, 18 - 1 * as, LIGHT);
+  const noseX = headCx + 71 * s, noseY = 116 - 4 * as;
+  const nose = ell(noseX, noseY, 8 - 1.5 * as, 6, INK, 0, 'stroke="none"');
+
+  ears.filter(e => e.z < -0.35).forEach(e => o += e.svg);
+  if (c < -0.1) o += muzzle + nose; // de espaldas, el hocico se asoma por detrás
+  o += ell(headCx, 98, headRx, 60 - 2 * as, MAIN);
+
+  // marca de la frente o del lomo de la cabeza
+  if (c > 0.05) {
+    const x = headCx + 40 * s, w = 8 * c;
+    o += `<path d="M${f(x)} 40 Q${f(x + w)} 52 ${f(x)} 60 Q${f(x - w)} 52 ${f(x)} 40 Z" fill="${LIGHT}" stroke="none"></path>`;
+  }
+  if (c < -0.05) {
+    const x = headCx - 40 * s, w = 6 * -c;
+    o += `<path d="M${f(x - w)} 50 Q${f(x)} 40 ${f(x + w)} 50" fill="none" stroke="${DARK}" stroke-width="4"></path>`;
+  }
+  // mejillas y ojos (se angostan hacia el borde y desaparecen al pasar atrás)
+  [-44, 44].forEach(phi => {
+    const p = around(phi, 64);
+    if (p.z > 0.05) o += ell(headCx + p.x, 124, 11 * Math.pow(p.z, 0.7), 6.5, BLUSH, 0, 'opacity=".65" stroke="none"');
+  });
+  [-25, 25].forEach(phi => {
+    const p = around(phi, 64);
+    if (p.z <= 0.22) return;
+    const x = headCx + p.x, y = 100, k = Math.pow(p.z, 0.6);
+    if (face === 'happy') o += `<path d="M${f(x - 10 * k)} ${y + 3} Q${f(x)} ${y - 10} ${f(x + 10 * k)} ${y + 3}" fill="none" stroke-width="4.5"></path>`;
+    else o += ell(x, y, 10 * k, 12, INK, 0, 'stroke="none"') +
+      `<circle cx="${f(x - 3 * k)}" cy="${y - 5}" r="${f(4 * k)}" fill="#FFFFFF" stroke="none"></circle>` +
+      `<circle cx="${f(x + 4 * k)}" cy="${y + 4}" r="${f(1.8 * k)}" fill="#FFFFFF" stroke="none"></circle>`;
+  });
+  if (c >= -0.1) {
+    o += muzzle + nose;
+    if (c > 0.15) { // boca y lengüita
+      const mx = headCx + 56 * s, my = 127 - 4 * as, k = Math.max(0.4, c);
+      o += `<path d="M${f(mx)} ${f(my - 5)} L${f(mx)} ${f(my)}" fill="none" stroke-width="3.5"></path>`;
+      o += `<path d="M${f(mx - 3 * k)} ${f(my + 3)} Q${f(mx)} ${f(my + 11)} ${f(mx + 3 * k)} ${f(my + 3)}" fill="#FF8FA3" stroke-width="2.5"></path>`;
+      o += `<path d="M${f(mx - 9 * k)} ${f(my)} Q${f(mx - 4.5 * k)} ${f(my + 6)} ${f(mx)} ${f(my)} Q${f(mx + 4.5 * k)} ${f(my + 6)} ${f(mx + 9 * k)} ${f(my)}" fill="none" stroke-width="3.5"></path>`;
+    }
+  }
+  ears.filter(e => e.z >= -0.35).forEach(e => o += e.svg);
+  return shadow + `<g ${W}>${o}</g>`;
+}
+
+// ---------- la vuelta actual (4 dibujos que se afinan), para comparar ----------
+const REAL = {"front": "<ellipse cx=\"100\" cy=\"228\" rx=\"54\" ry=\"7\" fill=\"#4A3228\" opacity=\".12\" stroke=\"none\"></ellipse><g stroke=\"#4A3228\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M134 188 C162 186 174 160 164 140 C160 156 150 168 132 172 Z\" fill=\"#F2C38B\"></path><ellipse cx=\"80\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"120\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"100\" cy=\"176\" rx=\"42\" ry=\"38\" fill=\"#F2C38B\"></ellipse><ellipse cx=\"100\" cy=\"186\" rx=\"25\" ry=\"22\" fill=\"#FFF4E2\" stroke=\"none\"></ellipse><ellipse cx=\"66\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(22 66 180)\"></ellipse><ellipse cx=\"134\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(-22 134 180)\"></ellipse><ellipse cx=\"100\" cy=\"98\" rx=\"68\" ry=\"60\" fill=\"#F2C38B\"></ellipse><path d=\"M100 40 Q108 52 100 60 Q92 52 100 40 Z\" fill=\"#FFF4E2\" stroke=\"none\"></path><ellipse cx=\"100\" cy=\"126\" rx=\"25\" ry=\"18\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"40\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(18 40 96)\"></ellipse><ellipse cx=\"160\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(-18 160 96)\"></ellipse><ellipse cx=\"72\" cy=\"100\" rx=\"10\" ry=\"12\" fill=\"#4A3228\" stroke=\"none\"></ellipse><circle cx=\"69\" cy=\"95\" r=\"4\" fill=\"#FFFFFF\" stroke=\"none\"></circle><circle cx=\"76\" cy=\"104\" r=\"1.8\" fill=\"#FFFFFF\" stroke=\"none\"></circle><ellipse cx=\"128\" cy=\"100\" rx=\"10\" ry=\"12\" fill=\"#4A3228\" stroke=\"none\"></ellipse><circle cx=\"125\" cy=\"95\" r=\"4\" fill=\"#FFFFFF\" stroke=\"none\"></circle><circle cx=\"132\" cy=\"104\" r=\"1.8\" fill=\"#FFFFFF\" stroke=\"none\"></circle><ellipse cx=\"54\" cy=\"124\" rx=\"11\" ry=\"6.5\" fill=\"#FF9EAE\" opacity=\".65\" stroke=\"none\"></ellipse><ellipse cx=\"146\" cy=\"124\" rx=\"11\" ry=\"6.5\" fill=\"#FF9EAE\" opacity=\".65\" stroke=\"none\"></ellipse><ellipse cx=\"100\" cy=\"116\" rx=\"8\" ry=\"6\" fill=\"#4A3228\" stroke=\"none\"></ellipse><path d=\"M100 121 L100 126\" fill=\"none\" stroke-width=\"3.5\"></path><path d=\"M97 129 Q100 137 103 129\" fill=\"#FF8FA3\" stroke-width=\"2.5\"></path><path d=\"M91 126 Q95.5 132 100 126 Q104.5 132 109 126\" fill=\"none\" stroke-width=\"3.5\"></path></g>", "side": "<ellipse cx=\"100\" cy=\"228\" rx=\"54\" ry=\"7\" fill=\"#4A3228\" opacity=\".12\" stroke=\"none\"></ellipse><g stroke=\"#4A3228\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M52 170 C30 164 24 140 34 126 C38 140 44 154 58 158 Z\" fill=\"#F2C38B\"></path><ellipse cx=\"88\" cy=\"212\" rx=\"14\" ry=\"9\" fill=\"#C98A55\"></ellipse><ellipse cx=\"142\" cy=\"212\" rx=\"14\" ry=\"9\" fill=\"#C98A55\"></ellipse><ellipse cx=\"72\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"126\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"96\" cy=\"178\" rx=\"48\" ry=\"34\" fill=\"#F2C38B\"></ellipse><ellipse cx=\"104\" cy=\"196\" rx=\"30\" ry=\"11\" fill=\"#FFF4E2\" stroke=\"none\"></ellipse><ellipse cx=\"128\" cy=\"190\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(-10 128 190)\"></ellipse><ellipse cx=\"112\" cy=\"98\" rx=\"62\" ry=\"58\" fill=\"#F2C38B\"></ellipse><ellipse cx=\"92\" cy=\"100\" rx=\"16\" ry=\"32\" fill=\"#C98A55\" transform=\"rotate(12 92 100)\"></ellipse><ellipse cx=\"164\" cy=\"120\" rx=\"24\" ry=\"17\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"142\" cy=\"98\" rx=\"10\" ry=\"12\" fill=\"#4A3228\" stroke=\"none\"></ellipse><circle cx=\"139\" cy=\"93\" r=\"4\" fill=\"#FFFFFF\" stroke=\"none\"></circle><circle cx=\"146\" cy=\"102\" r=\"1.8\" fill=\"#FFFFFF\" stroke=\"none\"></circle><ellipse cx=\"132\" cy=\"128\" rx=\"10\" ry=\"6\" fill=\"#FF9EAE\" opacity=\".65\" stroke=\"none\"></ellipse><ellipse cx=\"185\" cy=\"112\" rx=\"7\" ry=\"6\" fill=\"#4A3228\" stroke=\"none\"></ellipse><path d=\"M160 130 Q168 136 176 129\" fill=\"none\" stroke-width=\"3.5\"></path></g>", "back": "<ellipse cx=\"100\" cy=\"228\" rx=\"54\" ry=\"7\" fill=\"#4A3228\" opacity=\".12\" stroke=\"none\"></ellipse><g stroke=\"#4A3228\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><ellipse cx=\"80\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"120\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"100\" cy=\"176\" rx=\"42\" ry=\"38\" fill=\"#F2C38B\"></ellipse><ellipse cx=\"66\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(22 66 180)\"></ellipse><ellipse cx=\"134\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(-22 134 180)\"></ellipse><ellipse cx=\"100\" cy=\"98\" rx=\"68\" ry=\"60\" fill=\"#F2C38B\"></ellipse><path d=\"M94 50 Q100 40 106 50\" fill=\"none\" stroke=\"#C98A55\" stroke-width=\"4\"></path><ellipse cx=\"40\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(18 40 96)\"></ellipse><ellipse cx=\"160\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(-18 160 96)\"></ellipse><path d=\"M98 200 C94 180 106 162 126 150 C120 166 112 182 110 200 Z\" fill=\"#F2C38B\"></path></g>", "happy": "<ellipse cx=\"100\" cy=\"228\" rx=\"54\" ry=\"7\" fill=\"#4A3228\" opacity=\".12\" stroke=\"none\"></ellipse><g stroke=\"#4A3228\" stroke-width=\"4\" stroke-linejoin=\"round\" stroke-linecap=\"round\"><path d=\"M134 188 C162 186 174 160 164 140 C160 156 150 168 132 172 Z\" fill=\"#F2C38B\"></path><ellipse cx=\"80\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"120\" cy=\"214\" rx=\"15\" ry=\"10\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"100\" cy=\"176\" rx=\"42\" ry=\"38\" fill=\"#F2C38B\"></ellipse><ellipse cx=\"100\" cy=\"186\" rx=\"25\" ry=\"22\" fill=\"#FFF4E2\" stroke=\"none\"></ellipse><ellipse cx=\"66\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(22 66 180)\"></ellipse><ellipse cx=\"134\" cy=\"180\" rx=\"10\" ry=\"15\" fill=\"#F2C38B\" transform=\"rotate(-22 134 180)\"></ellipse><ellipse cx=\"100\" cy=\"98\" rx=\"68\" ry=\"60\" fill=\"#F2C38B\"></ellipse><path d=\"M100 40 Q108 52 100 60 Q92 52 100 40 Z\" fill=\"#FFF4E2\" stroke=\"none\"></path><ellipse cx=\"100\" cy=\"126\" rx=\"25\" ry=\"18\" fill=\"#FFF4E2\"></ellipse><ellipse cx=\"40\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(18 40 96)\"></ellipse><ellipse cx=\"160\" cy=\"96\" rx=\"15\" ry=\"31\" fill=\"#C98A55\" transform=\"rotate(-18 160 96)\"></ellipse><path d=\"M62 103 Q72 90 82 103\" fill=\"none\" stroke-width=\"4.5\"></path><path d=\"M118 103 Q128 90 138 103\" fill=\"none\" stroke-width=\"4.5\"></path><ellipse cx=\"54\" cy=\"124\" rx=\"11\" ry=\"6.5\" fill=\"#FF9EAE\" opacity=\".65\" stroke=\"none\"></ellipse><ellipse cx=\"146\" cy=\"124\" rx=\"11\" ry=\"6.5\" fill=\"#FF9EAE\" opacity=\".65\" stroke=\"none\"></ellipse><ellipse cx=\"100\" cy=\"116\" rx=\"8\" ry=\"6\" fill=\"#4A3228\" stroke=\"none\"></ellipse><path d=\"M100 121 L100 126\" fill=\"none\" stroke-width=\"3.5\"></path><path d=\"M97 129 Q100 137 103 129\" fill=\"#FF8FA3\" stroke-width=\"2.5\"></path><path d=\"M91 126 Q95.5 132 100 126 Q104.5 132 109 126\" fill=\"none\" stroke-width=\"3.5\"></path></g>"};
+function oldFrame(t) { // t en 0..1
+  const steps = [0, 90, 180, 270, 360];
+  const seg = Math.min(3, Math.floor(t * 4)), local = t * 4 - seg;
+  // se afina al cambiar de dibujo
+  const sq = local < 0.06 ? 1 - local / 0.06 * 0.85 : local < 0.12 ? 0.15 + (local - 0.06) / 0.06 * 0.85 : 1;
+  const view = local < 0.06 ? steps[seg] : steps[seg + 1];
+  const v = view % 360;
+  const svg = view === 360 ? REAL.happy : v === 0 ? REAL.front : v === 180 ? REAL.back : REAL.side;
+  return { svg, sx: sq * (v === 270 ? -1 : 1) };
+}
+
+let speed = 1, paused = false, manual = null;
+const oldEl = document.getElementById('old'), newEl = document.getElementById('new');
+const angEl = document.getElementById('ang'), angV = document.getElementById('angv');
+const T = 1800, REST = 1400;
+let start = performance.now();
+function frame(now) {
+  if (manual !== null) {
+    newEl.innerHTML = dog(manual);
+    oldEl.innerHTML = `<g>${oldFrame(manual / 360 * 0.999).svg}</g>`;
+  } else if (!paused) {
+    const el = ((now - start) / speed) % (T + REST);
+    const t = Math.min(1, el / T);
+    const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const th = ease * 360;
+    const hop = -Math.abs(Math.sin(rad(th * 2))) * 5;
+    const tilt = Math.sin(rad(th * 2)) * 3;
+    newEl.innerHTML = `<g transform="translate(0 ${f(hop)}) rotate(${f(tilt)} 100 225)">${dog(th, t >= 1 ? 'happy' : 'open')}</g>`;
+    const o = oldFrame(Math.min(0.999, el / T));
+    oldEl.innerHTML = `<g transform="translate(100 0) scale(${f(o.sx)} 1) translate(-100 0)">${t >= 1 ? REAL.happy : o.svg}</g>`;
+    angEl.value = Math.round(th % 360); angV.textContent = Math.round(th % 360) + '°';
+  }
+  requestAnimationFrame(frame);
+}
+if (location.hash === '#strip') {
+  document.body.innerHTML = '<div id="st" style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:#FFF8EF"></div>';
+  for (let a = 0; a < 360; a += 22.5) document.getElementById('st').insertAdjacentHTML('beforeend',
+    `<div style="text-align:center;font:700 12px sans-serif"><svg viewBox="0 0 200 240" width="140" height="168" style="overflow:visible">${dog(a)}</svg><div>${a}°</div></div>`);
+} else requestAnimationFrame(frame);
+document.getElementById('slow').onclick = e => { speed = speed === 1 ? 3 : 1; start = performance.now(); e.target.textContent = speed === 1 ? 'Ver más lento' : 'Velocidad normal'; };
+document.getElementById('pause').onclick = e => { paused = !paused; manual = null; e.target.textContent = paused ? 'Seguir' : 'Pausar'; start = performance.now(); };
+angEl.oninput = () => { manual = Number(angEl.value); angV.textContent = manual + '°'; paused = true; document.getElementById('pause').textContent = 'Seguir'; };
+</script>
+</body></html>

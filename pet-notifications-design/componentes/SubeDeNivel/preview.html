@@ -1,0 +1,139 @@
+<!-- @dsCard group="Vínculo" height=420 width=640 subtitle="Los momentos que se celebran" -->
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="stylesheet" href="../../tokens.css">
+<meta charset="utf-8">
+<title>Sube de nivel — maqueta</title>
+<style>
+html,body{margin:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.row{display:flex;gap:18px;justify-content:center;padding:16px 16px 4px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stage{position:relative;width:292px;height:250px;border-radius:22px;background:var(--backdrop-mock);overflow:hidden}
+.fake{position:absolute;left:18px;height:10px;border-radius:5px;background:var(--ink);opacity:.07}
+.fake.bar{left:0;right:0;top:0;height:34px;border-radius:0;opacity:.05}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);margin-top:-4px}
+.foot{display:flex;justify-content:center;padding:4px 0 12px}
+.replay{font:inherit;font-size:12px;font-weight:700;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 12px;cursor:pointer}
+.replay:focus-visible,.act:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.meta{color:var(--ink-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:4px}
+.meta.imp{color:var(--honey-deep)}
+.meta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ttl{margin-bottom:var(--space-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:var(--space-2);margin-top:var(--space-3)}
+.act{white-space:nowrap;font:inherit;font-size:13px;line-height:18px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:5px 12px;cursor:pointer}
+.act.main{background:var(--blush-soft);border-color:transparent}
+/* mascota de muestra */
+.fur{fill:var(--fur)}.deep{fill:var(--fur-deep)}.cream{fill:var(--cream)}.pink{fill:var(--blush)}.pi{fill:var(--pet-ink)}.hl{fill:#fffdf9}.collar{fill:var(--sage)}
+.ln{fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round}
+.toe{fill:none;stroke:var(--fur-deep);stroke-width:1.3;stroke-linecap:round}
+.tail{fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round}
+.bub{position:absolute;z-index:3;opacity:0}
+.bub svg.bs{display:block;overflow:visible}
+.bub .sh *{fill:var(--blush);stroke:var(--blush);stroke-width:6;stroke-linejoin:round}
+.bub .ol *{fill:var(--fur);stroke:var(--fur);stroke-width:6;stroke-linejoin:round}
+.bub .fl *{fill:var(--surface-raised)}
+.bub.v-nube .ol *{fill:var(--fur-deep);stroke:var(--fur-deep);stroke-width:5}
+.bub.v-nube .sh *{fill:var(--sage);stroke:var(--sage)}
+.bub.v-caramelo .ol *{fill:var(--blush);stroke:var(--blush);stroke-width:5}
+.bub.v-caramelo .fl *{fill:var(--blush-soft)}
+.bub.v-caramelo .sh *{fill:var(--fur);stroke:var(--fur)}
+.bub.imp .ol *{fill:var(--honey);stroke:var(--honey)}
+.bub.imp .fl *{fill:var(--honey-soft)}
+.btxt{position:absolute;left:6px;top:6px;height:58px;display:flex;align-items:center;justify-content:center;gap:1px;font-family:var(--font-sans);font-weight:900;font-size:25px;line-height:1;letter-spacing:.01em;color:var(--cocoa);text-shadow:0 2px 0 var(--blush)}
+.bub.imp .btxt{color:var(--honey-deep);text-shadow:0 2px 0 var(--honey)}
+[data-theme="dark"] .btxt{text-shadow:0 2px 0 var(--fur-deep)}
+[data-theme="dark"] .bub.imp .btxt{text-shadow:0 2px 0 #7a5a1c}
+.btxt i{font-style:normal;display:inline-block;--r:-6deg;transform:rotate(var(--r))}
+.btxt i:nth-child(even){--r:5deg}
+.btxt i.sp{width:.3em}
+.deco{position:absolute;display:block}
+.deco.heart{width:18px;height:18px;left:-6px;top:-9px;transform:rotate(-14deg)}
+.deco.spark{width:14px;height:14px;top:-10px}
+.deco.spark path{fill:var(--honey)}
+.deco.spark2{width:9px;height:9px;top:2px}
+@keyframes puffLoop{0%{opacity:0;transform:scale(.3) rotate(-3deg)}7%{opacity:1;transform:scale(1.08) rotate(-4deg)}10%{transform:scale(.97) rotate(-2deg)}13%,42%{opacity:1;transform:rotate(-3deg)}52%,100%{opacity:0;transform:translateY(-8px) scale(.95) rotate(-3deg)}}
+@keyframes hop{0%{opacity:0;transform:translateY(8px) rotate(var(--r)) scale(.6)}6%{opacity:1;transform:translateY(-4px) rotate(var(--r)) scale(1.12)}10%,100%{opacity:1;transform:rotate(var(--r))}}
+@keyframes tw{0%,12%{transform:scale(0)}17%{transform:scale(1.25)}21%,44%{transform:scale(1)}50%,100%{transform:scale(0)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.bub{opacity:1}}
+
+.row{display:flex;gap:16px;justify-content:center;padding:16px 16px 4px;align-items:flex-start}
+.phone{position:relative;width:296px;height:600px;border-radius:30px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-soft);overflow:hidden;display:flex;flex-direction:column}
+.sbar{height:22px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:11px;font-weight:700;color:var(--ink-muted)}
+.scroll{flex:1;overflow:hidden;padding:4px 14px 90px}
+.h1{font-size:20px;line-height:26px;font-weight:800;margin:6px 2px 12px}
+.lbl{font-size:12px;line-height:16px;font-weight:800;color:var(--ink-muted);margin:16px 4px 6px;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:12px 14px}
+.muted{color:var(--ink-muted)}
+.t15{font-size:15px;line-height:20px;font-weight:800}
+.t13{font-size:13px;line-height:18px;font-weight:600}
+.t12{font-size:12px;line-height:16px;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:12px;line-height:16px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 11px;white-space:nowrap}
+.chip.fill{background:var(--blush-soft);border-color:transparent}
+.chip svg,.ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:13px;line-height:18px;font-weight:800;border-radius:var(--radius-pill);padding:9px 16px;border:1px solid var(--line);color:var(--cocoa);background:transparent;white-space:nowrap}
+.btn.primary{background:var(--cocoa);color:var(--surface);border-color:transparent}
+.tag{font-size:10px;line-height:14px;font-weight:900;letter-spacing:.04em;color:var(--honey-deep);background:var(--honey-soft);border-radius:6px;padding:1px 6px}
+.nav{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--surface-raised);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:0 8px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;line-height:14px;font-weight:700;color:var(--ink-muted);width:80px}
+.tab .pill{width:52px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--cocoa);font-weight:900}
+.tab.on .pill{background:var(--blush-soft)}
+.fab{position:absolute;right:14px;bottom:76px;display:flex;align-items:center;gap:6px;background:var(--cocoa);color:var(--surface);font-size:14px;font-weight:800;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow-soft)}
+.fab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink);text-align:center;margin-top:8px}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);text-align:center;max-width:296px}
+.col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.toggle{width:40px;height:24px;border-radius:12px;background:var(--line);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);box-shadow:var(--shadow-lift)}
+.toggle.on{background:var(--cocoa)}
+.toggle.on::after{left:19px}
+.toggle.off{opacity:.55}
+.slider{height:6px;border-radius:3px;background:var(--line);position:relative;margin:10px 0 4px}
+.slider i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--cocoa)}
+.slider b{position:absolute;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);border:2px solid var(--cocoa)}
+.slider.lock i{background:var(--ink-muted);opacity:.4}.slider.lock b{border-color:var(--line)}
+.lrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}
+.lrow .grow{flex:1;min-width:0}
+.lrow .ico{width:34px;height:34px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--cocoa);flex:none}
+.lrow .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chev{width:16px;height:16px;fill:none;stroke:var(--ink-muted);stroke-width:2.2;stroke-linecap:round;flex:none}
+.ok{color:var(--cocoa)}.warn{color:var(--honey-deep)}
+
+.row{display:flex;gap:18px;justify-content:center;padding:16px 16px 4px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stage{position:relative;width:292px;height:300px;border-radius:22px;background:var(--backdrop-mock);overflow:hidden}
+.pet{position:absolute;right:22px;bottom:14px;width:80px;height:86px;display:block}
+.card{position:absolute;left:16px;right:16px;top:30px;background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-soft);padding:14px 16px;text-align:center}
+.card .n{display:inline-block;font-size:12px;font-weight:900;color:var(--cocoa);background:var(--blush-soft);border-radius:var(--radius-pill);padding:2px 10px;margin-bottom:6px}
+.card .acts{justify-content:center}
+.burst span{position:absolute;width:16px;height:16px;opacity:0}
+.burst svg{width:100%;height:100%;display:block}
+.plus{position:absolute;right:62px;bottom:104px;display:flex;align-items:center;gap:3px;font-size:14px;font-weight:900;color:var(--cocoa);background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-pill);padding:3px 10px 3px 6px;box-shadow:var(--shadow-lift);opacity:0}
+.plus svg{width:16px;height:16px}
+.done{position:absolute;left:16px;right:110px;bottom:24px;background:var(--surface-raised);border:1px solid var(--line);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow-soft)}
+.done .t{font-size:13px;font-weight:800;text-decoration:line-through;color:var(--ink-muted)}
+.play .plus{animation:plusUp 2.6s .3s ease-out infinite}
+.play .done{animation:fadeOut 2.6s .3s ease-out infinite}
+@keyframes plusUp{0%{opacity:0;transform:translateY(8px) scale(.7)}12%{opacity:1;transform:translateY(0) scale(1.08)}18%,60%{opacity:1;transform:none}80%,100%{opacity:0;transform:translateY(-14px)}}
+@keyframes fadeOut{0%,40%{opacity:1}60%,100%{opacity:0;transform:translateY(6px)}}
+.play .card{animation:rise .5s .5s cubic-bezier(.22,1,.36,1) both}
+.play .burst span{animation:pop 1.8s ease-out infinite}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pop{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+.band{animation:band .6s .2s cubic-bezier(.34,1.35,.64,1) both}
+@keyframes band{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body class="play">
+<div class="row"><div class="col"><div class="stage"><div class="fake bar"></div><div class="fake" style="top:50px;width:58%"></div><div class="fake" style="top:68px;width:40%"></div><div class="fake" style="top:100px;width:72%"></div><div class="fake" style="top:118px;width:52%"></div><div class="fake" style="top:150px;width:64%"></div><div class="fake" style="top:168px;width:36%"></div><div class="done"><div class="t">Tomar agua</div><div class="t12 muted">Listo · 11:02</div></div><div class="plus"><svg viewBox="0 0 24 24"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg>+1</div><svg class="pet" viewBox="0 0 80 86" aria-hidden="true"><g class="tailg"><path class="tail" d="M57 72 q14 -2 12 -18"/></g><ellipse class="fur" cx="40" cy="66" rx="20" ry="17"/><ellipse class="cream" cx="40" cy="70" rx="11" ry="10"/><ellipse class="cream" cx="31" cy="81" rx="6.5" ry="4.2"/><ellipse class="cream" cx="49" cy="81" rx="6.5" ry="4.2"/><rect class="collar" x="28" y="49" width="24" height="5.5" rx="2.75"/><g class="headg"><circle class="fur" cx="40" cy="32" r="18"/><ellipse class="deep" cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)"/><ellipse class="deep" cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)"/><ellipse class="cream" cx="40" cy="40" rx="9.5" ry="7.5"/><ellipse class="pi" cx="40" cy="36.4" rx="3.2" ry="2.3"/><path class="ln" d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0"/><circle class="pi" cx="32.5" cy="29" r="2.7"/><circle class="pi" cx="47.5" cy="29" r="2.7"/><circle class="hl" cx="33.4" cy="28.1" r=".9"/><circle class="hl" cx="48.4" cy="28.1" r=".9"/><ellipse class="pink" cx="28.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/><ellipse class="pink" cx="51.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/></g></svg></div><div class="cap">Al tocar "Listo"</div><div class="sub">Un corazón "+1" sube desde la mascota</div></div><div class="col"><div class="stage"><div class="fake bar"></div><div class="fake" style="top:50px;width:58%"></div><div class="fake" style="top:68px;width:40%"></div><div class="fake" style="top:100px;width:72%"></div><div class="fake" style="top:118px;width:52%"></div><div class="fake" style="top:150px;width:64%"></div><div class="fake" style="top:168px;width:36%"></div><div class="card"><span class="n">Nivel 3 · Amigos</span><div class="notif-title">Luna aprendió a dar la patita</div><div class="notif-body muted" style="margin-top:4px">Tocala 3 veces y te la da.</div><div class="acts"><button class="act main" type="button">Mostrame</button><button class="act" type="button">Después</button></div></div><div class="burst"><span style="right:54px;bottom:70px;--dx:-40px;--dy:-50px;animation-delay:0.2s"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></span><span style="right:40px;bottom:84px;--dx:0px;--dy:-64px;animation-delay:0.45s"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></span><span style="right:26px;bottom:70px;--dx:34px;--dy:-48px;animation-delay:0.7s"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></span><span style="right:60px;bottom:54px;--dx:-54px;--dy:-14px;animation-delay:0.95s"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></span><span style="right:20px;bottom:52px;--dx:44px;--dy:-12px;animation-delay:1.2s"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="pink" d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></span></div><svg class="pet" viewBox="0 0 80 86" aria-hidden="true"><g class="tailg"><path class="tail" d="M57 72 q14 -2 12 -18"/></g><ellipse class="fur" cx="40" cy="66" rx="20" ry="17"/><ellipse class="cream" cx="40" cy="70" rx="11" ry="10"/><ellipse class="cream" cx="31" cy="81" rx="6.5" ry="4.2"/><ellipse class="cream" cx="49" cy="81" rx="6.5" ry="4.2"/><rect class="collar" x="28" y="49" width="24" height="5.5" rx="2.75"/><g class="headg"><circle class="fur" cx="40" cy="32" r="18"/><ellipse class="deep" cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)"/><ellipse class="deep" cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)"/><ellipse class="cream" cx="40" cy="40" rx="9.5" ry="7.5"/><ellipse class="pi" cx="40" cy="36.4" rx="3.2" ry="2.3"/><path class="ln" d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0"/><circle class="pi" cx="32.5" cy="29" r="2.7"/><circle class="pi" cx="47.5" cy="29" r="2.7"/><circle class="hl" cx="33.4" cy="28.1" r=".9"/><circle class="hl" cx="48.4" cy="28.1" r=".9"/><ellipse class="pink" cx="28.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/><ellipse class="pink" cx="51.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/></g><path d="M28 49.5 Q40 53.5 52 49.5 L41.2 63 Q40 64.6 38.8 63 Z" style="fill:var(--blush)"/><circle cx="36" cy="53.5" r="1.1" fill="#fffdf9"/><circle cx="43.5" cy="53.8" r="1.1" fill="#fffdf9"/><circle cx="40" cy="58.5" r="1.1" fill="#fffdf9"/></svg></div><div class="cap">Sube de nivel</div><div class="sub">Lluvia de corazones + lo que aprendió</div></div></div><div class="foot"><button class="replay" type="button">Ver de nuevo</button></div>
+<script>
+document.querySelector('.replay').addEventListener('click',function(){document.body.classList.remove('play');void document.body.offsetWidth;document.body.classList.add('play');});
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+/app/build/
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# Llave de firma para Google Play: nunca se sube al repositorio.
+/keystore.properties
+*.jks
+*.keystore
+
+# APKs generados para probar en el celular (se pueden volver a armar).
+*.apk
+# Registros de errores de Java/Gradle.
+*.log
+hs_err_pid*
+replay_pid*
+# Lienzo generado por tools/pet_art/gen.py.
+/tools/pet_art/canvas/

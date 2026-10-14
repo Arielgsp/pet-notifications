@@ -1,0 +1,12 @@
+:root, [data-theme="light"]{--surface:#fbf6ee;--surface-raised:#fffdf9;--paper:#fff6e6;--line:#e8dccd;--ink:#3a2e27;--ink-muted:#6e5e52;--cocoa:#8a5536;--focus-ring:var(--cocoa);--fur:#c98a55;--fur-deep:#8a5a3b;--cream:#f7e6cc;--pet-ink:#3a2e27;--blush:#efa9a0;--blush-soft:#fbe7e3;--sage:#7fa88b;--sage-soft:#e4f0e6;--honey:#ebb854;--honey-deep:#8c5f0e;--honey-soft:#fdf2d8;--backdrop-mock:#e7e1d9;--shadow-soft:0 8px 24px rgba(58, 46, 39, 0.14);--shadow-lift:0 2px 6px rgba(58, 46, 39, 0.12)}
+[data-theme="dark"]{--surface:#1e1a17;--surface-raised:#2a2420;--paper:#332b24;--line:#433a32;--ink:#f4ece2;--ink-muted:#c0b1a3;--cocoa:#e7b98e;--focus-ring:var(--cocoa);--fur:#c98a55;--fur-deep:#8a5a3b;--cream:#f7e6cc;--pet-ink:#3a2e27;--blush:#e79c92;--blush-soft:#3a2826;--sage:#8db598;--sage-soft:#203027;--honey:#e6b24e;--honey-deep:#e6b24e;--honey-soft:#3a301b;--backdrop-mock:#15130f;--shadow-soft:0 8px 24px rgba(0, 0, 0, 0.5);--shadow-lift:0 2px 6px rgba(0, 0, 0, 0.45)}
+:root{--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--radius-sm:10px;--radius-md:18px;--radius-lg:26px;--radius-pill:999px;--font-sans:"Nunito", system-ui, sans-serif}
+.onomatopeya{font-family:var(--font-sans);font-size:20px;line-height:24px;font-weight:900}
+.notif-title{font-family:var(--font-sans);font-size:16px;line-height:22px;font-weight:800}
+.notif-body{font-family:var(--font-sans);font-size:14px;line-height:20px;font-weight:600}
+.notif-meta{font-family:var(--font-sans);font-size:12px;line-height:16px;font-weight:700}
+.notif-action{font-family:var(--font-sans);font-size:13px;line-height:18px;font-weight:800}
+.display{font-family:var(--font-sans);font-size:32px;line-height:38px;font-weight:900}
+.heading{font-family:var(--font-sans);font-size:20px;line-height:26px;font-weight:800}
+.body{font-family:var(--font-sans);font-size:15px;line-height:22px;font-weight:500}
+@font-face{font-family:'Nunito';src:url(fonts/Nunito-Variable-latin.woff2) format('woff2');font-weight:200 1000}

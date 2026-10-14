@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pet Notifications — Pendientes y recomendaciones</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root {
+    --ink: #2b2118; --muted: #6b5d52; --line: #e6dcd2; --bg: #fffaf5;
+    --brand: #b5530b; --brand-soft: #fde6cf;
+    --high: #b3261e; --high-bg: #fde7e5; --mid: #8a5a00; --mid-bg: #fdf0d2; --low: #2f6b3a; --low-bg: #e3f2e5;
+    --info: #37517e; --info-bg: #e5ecf8;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: var(--brand); letter-spacing: -0.3px; }
+  h2 { font-size: 14pt; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 2px solid var(--brand-soft); break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 0; }
+  p { margin: 4px 0; }
+  .sub { color: var(--muted); margin-bottom: 14px; }
+  .hero { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0 6px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; }
+  .stat b { display: block; font-size: 18pt; color: var(--brand); line-height: 1.1; }
+  .stat span { font-size: 8.5pt; color: var(--muted); }
+  .card { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; margin: 8px 0; break-inside: avoid; background: #fff; }
+  .card .head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .id { font-size: 8.5pt; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .tag { font-size: 7.8pt; font-weight: 700; border-radius: 20px; padding: 1px 8px; white-space: nowrap; margin-left: auto; }
+  .high { background: var(--high-bg); color: var(--high); }
+  .mid { background: var(--mid-bg); color: var(--mid); }
+  .low { background: var(--low-bg); color: var(--low); }
+  .info { background: var(--info-bg); color: var(--info); }
+  .lbl { font-weight: 700; color: var(--brand); }
+  .meta { font-size: 8.8pt; color: var(--muted); margin-top: 4px; }
+  ol, ul { margin: 4px 0 4px 18px; padding: 0; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 9.5pt; break-inside: auto; }
+  th, td { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  th { background: var(--bg); font-size: 8.8pt; color: var(--muted); }
+  tr { break-inside: avoid; }
+  .note { background: var(--info-bg); border-radius: 8px; padding: 8px 10px; font-size: 9.3pt; margin: 8px 0; }
+  .steps { counter-reset: s; list-style: none; margin-left: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 30px; margin: 8px 0; break-inside: avoid; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--brand); color: #fff; font-weight: 700; font-size: 9pt; display: flex; align-items: center; justify-content: center; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: var(--bg); padding: 0 3px; border-radius: 3px; }
+  .footer { margin-top: 20px; color: var(--muted); font-size: 8.5pt; border-top: 1px solid var(--line); padding-top: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Pet Notifications — temas pendientes</h1>
+<div class="sub">Qué falta resolver y cómo recomiendo hacerlo · 27/09/2026</div>
+
+<div class="hero">
+  <p><b>Dónde estamos:</b> las 12 tareas prioritarias del plan de Cowork están hechas: avisos confiables,
+  mascota, configuración guiada, idiomas, Pro con prueba gratis y diagnóstico. Lo que queda son sobre todo
+  <b>pasos para publicar en Google Play</b>, algunas <b>decisiones de producto</b> y <b>pruebas en celulares reales</b>.</p>
+  <div class="grid">
+    <div class="stat"><b>9</b><span>temas antes de publicar</span></div>
+    <div class="stat"><b>5</b><span>decisiones de producto</span></div>
+    <div class="stat"><b>8</b><span>pruebas en celular real</span></div>
+    <div class="stat"><b>6</b><span>limitaciones conocidas (sin acción)</span></div>
+  </div>
+</div>
+
+<p class="meta">Etiquetas: <span class="tag high">Imprescindible</span> bloquea la publicación ·
+<span class="tag mid">Recomendado</span> conviene antes de publicar ·
+<span class="tag low">Puede esperar</span> no urge · <span class="tag info">Solo informativo</span> no requiere acción.
+Los códigos (D1, J, X6…) son los mismos de <code>docs/PENDIENTES.md</code>.</p>
+
+<!-- ============================================================ -->
+<h2>1. Antes de publicar en Google Play</h2>
+
+<div class="card">
+  <div class="head"><h3>Cuenta de desarrollador y configuración de la app en Play Console</h3><span class="id">X9 · D4 · T8</span><span class="tag high">Imprescindible</span></div>
+  <p><span class="lbl">Qué pasa:</span> la compra de Pro solo funciona con la app cargada en la Play Console. Hoy no se puede probar una compra real.</p>
+  <p><span class="lbl">Recomendación:</span></p>
+  <ol>
+    <li>Crear la cuenta de desarrollador de Google Play (pago único de US$25). Conviene una cuenta de Google nueva, dedicada a la app.</li>
+    <li>Crear la app y el producto de pago único con el identificador exacto <code>pro_lifetime</code>.</li>
+    <li><b>Precio (D4):</b> se define ahí, no en la app. Usá el precio que sugiere el análisis de Cowork y activá los precios por país, para que en Argentina sea acorde al mercado local.</li>
+    <li>Agregar tu cuenta y la de los testers como <b>testers de licencias</b>: pueden comprar sin que se les cobre.</li>
+    <li>Subir la app a <b>prueba interna</b> y hacer las pruebas de compra, restaurar, pago pendiente y reembolso (PRUEBAS.md §20).</li>
+  </ol>
+  <p class="meta">Quién: vos (cuenta y pagos) + Claude Code (versión firmada para subir). Esfuerzo: 1–2 días, sobre todo trámites.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Prueba cerrada obligatoria con testers</h3><span class="id">nuevo</span><span class="tag high">Imprescindible</span></div>
+  <p><span class="lbl">Qué pasa:</span> Google exige a las cuentas personales nuevas una <b>prueba cerrada con al menos 12 testers durante 14 días</b> antes de publicar. Es la regla vigente que conozco; conviene confirmarla en la Play Console al crear la cuenta.</p>
+  <p><span class="lbl">Recomendación:</span> aprovechar esa prueba como programa de testers: juntar 12 o más personas con celulares de distintas marcas (Samsung, Motorola, Xiaomi) y pedirles la lista corta M1–M8 de PRUEBAS.md. Así se cumple el requisito y a la vez se resuelven las pruebas pendientes de la sección 3.</p>
+  <p class="meta">Quién: vos. Esfuerzo: 2 semanas de calendario, poco trabajo.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Política de privacidad y formulario "Seguridad de los datos"</h3><span class="id">X8</span><span class="tag high">Imprescindible</span></div>
+  <p><span class="lbl">Qué pasa:</span> Google Play pide un enlace a una política de privacidad y que completes qué datos recopila la app.</p>
+  <p><span class="lbl">Recomendación:</span> la app no tiene internet, así que la política es corta: qué lee (calendario, solo para avisar), que nada sale del celular y que la compra la hace Google Play. Publicala gratis (por ejemplo, en Google Sites). En el formulario, en principio corresponde "no recopila ni comparte datos". Confirmalo con la guía oficial de Google, porque la librería de compras quedó sin permisos de internet. Claude Code te puede redactar el texto de la política.</p>
+  <p class="meta">Quién: vos + Claude Code (texto). Esfuerzo: medio día.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Declaración del "servicio en primer plano" de la mascota</h3><span class="id">nuevo</span><span class="tag high">Imprescindible</span></div>
+  <p><span class="lbl">Qué pasa:</span> la mascota vive en un servicio en primer plano de tipo "uso especial". Google Play pide explicar por qué la app lo necesita. Suele pedir también un video corto.</p>
+  <p><span class="lbl">Recomendación:</span> preparar un texto simple ("mantiene visible la mascota que anuncia los recordatorios del usuario") y un video de 20–30 segundos mostrando la mascota avisando un recordatorio. Claude Code puede redactar el texto.</p>
+  <p class="meta">Quién: vos (video) + Claude Code (texto). Esfuerzo: 1 hora.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Optimizar la versión final (reducir y proteger el código)</h3><span class="id">L</span><span class="tag high">Imprescindible</span></div>
+  <p><span class="lbl">Qué pasa:</span> la versión final todavía no pasa por la herramienta de optimización de Android (R8). Así queda más pesada, unos 12 MB, y el código es más fácil de copiar.</p>
+  <p><span class="lbl">Recomendación:</span> activarla como una tarea propia, probar la versión final completa en el emulador (sobre todo compras, base de datos y avisos) y recién ahí subirla. Debería quedar bastante más liviana.</p>
+  <p class="meta">Quién: Claude Code. Esfuerzo: 1 tarea con pruebas.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Copia automática de los datos en Google Drive</h3><span class="id">J</span><span class="tag mid">Recomendado</span></div>
+  <p><span class="lbl">Qué pasa:</span> hoy Android copia los datos de la app (recordatorios y ajustes) al Google Drive del usuario. Choca con la promesa "tus datos no salen del celular".</p>
+  <p><span class="lbl">Recomendación:</span> <b>desactivar la copia a la nube pero mantener el traspaso por cable o Wi-Fi directo</b> al cambiar de celular (Android permite separar las dos cosas). Así la promesa es 100% cierta y el usuario no pierde sus recordatorios al cambiar de teléfono. Pro no se pierde nunca, porque se recupera desde Google Play.</p>
+  <p class="meta">Quién: Claude Code. Esfuerzo: bajo.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Borrar un recordatorio que se repite</h3><span class="id">I</span><span class="tag mid">Recomendado</span></div>
+  <p><span class="lbl">Qué pasa:</span> "Borrar" sobre un recordatorio diario o semanal borra toda la serie sin preguntar. Perder datos sin aviso genera reseñas negativas.</p>
+  <p><span class="lbl">Recomendación:</span> al borrar uno que se repite, preguntar: <i>"¿Saltear solo el de hoy o borrar todos?"</i>. Para los de una sola vez, ofrecer "Deshacer" durante unos segundos.</p>
+  <p class="meta">Quién: Claude Code. Esfuerzo: bajo.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Mail para "Enviar comentarios"</h3><span class="id">X6</span><span class="tag mid">Recomendado</span></div>
+  <p><span class="lbl">Qué pasa:</span> el botón hoy manda a una dirección de ejemplo (<code>CAMBIAR@ejemplo.com</code>).</p>
+  <p><span class="lbl">Recomendación:</span> crear un Gmail dedicado (por ejemplo, con el nombre de la app) y pasárselo a Claude Code: se cambia en un solo lugar. Sirve también como mail de contacto en la ficha de Google Play.</p>
+  <p class="meta">Quién: vos. Esfuerzo: 10 minutos.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Revisión de los textos en inglés</h3><span class="id">X4</span><span class="tag mid">Recomendado</span></div>
+  <p><span class="lbl">Qué pasa:</span> los textos en inglés los escribió Claude Code. Están bien, pero no los revisó alguien nativo.</p>
+  <p><span class="lbl">Recomendación:</span> pedirle a un tester angloparlante que recorra la app en inglés, o revisar solo lo más visible: la ficha de la tienda, la configuración guiada y la pantalla Pro.</p>
+  <p class="meta">Quién: vos. Esfuerzo: 1 hora de alguien nativo.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Decisiones de producto</h2>
+
+<div class="card">
+  <div class="head"><h3>¿Avisar antes de que termine la prueba gratis?</h3><span class="id">D5</span><span class="tag mid">Recomendado</span></div>
+  <p><span class="lbl">Hoy:</span> no avisa. Cuando terminan los 7 días, la app pide elegir las 2 mascotas gratis.</p>
+  <p><span class="lbl">Recomendación:</span> <b>sí, avisar el día 6</b> con una notificación amable de la mascota ("Mañana termina tu prueba de Pro"). Que las funciones "desaparezcan" sin aviso es una causa típica de reseñas de una estrella, y un aviso honesto además suele mejorar las ventas.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>¿Se pueden cambiar las 2 mascotas gratis?</h3><span class="id">D6</span><span class="tag low">Puede esperar</span></div>
+  <p><span class="lbl">Hoy:</span> no. Si se pudieran cambiar libremente, en la práctica las 10 serían gratis.</p>
+  <p><span class="lbl">Recomendación:</span> permitir <b>un solo cambio</b>, para quien se arrepienta de la elección, y después dejarlas fijas. Evita frustración sin regalar Pro.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Eventos del calendario vencidos: ¿cuánto hacia atrás avisar?</h3><span class="id">D2</span><span class="tag low">Puede esperar</span></div>
+  <p><span class="lbl">Hoy:</span> si el celular estuvo apagado, avisa los eventos que vencieron en las últimas 12 horas.</p>
+  <p><span class="lbl">Recomendación:</span> <b>dejar 12 horas</b>. Cubre una noche con el celular apagado sin llenar la pantalla de avisos viejos. Revisar solo si los testers se quejan.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Emuladores de Android 14 y 15</h3><span class="id">D1</span><span class="tag low">Puede esperar</span></div>
+  <p><span class="lbl">Hoy:</span> la app se probó en Android 16 y 17 (emulador). No hay emuladores de 14 y 15 instalados.</p>
+  <p><span class="lbl">Recomendación:</span> <b>no descargarlos</b> si en la prueba cerrada hay testers con Android 14 o 15, que es lo más probable. Solo si nadie tiene esas versiones.</p>
+</div>
+
+<div class="card">
+  <div class="head"><h3>Toques "bloqueados" encima del globo</h3><span class="id">G</span><span class="tag low">Puede esperar</span></div>
+  <p><span class="lbl">Qué pasa:</span> mientras el globo está abierto (unos segundos), el espacio vacío arriba del globo no deja tocar la app de abajo.</p>
+  <p><span class="lbl">Recomendación:</span> dejarlo para la versión 1.1: el impacto es chico y tocar esa parte de las ventanas tiene riesgo. Si un tester lo nota, se ajusta el tamaño de la ventana del globo.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Pruebas que solo se pueden hacer en un celular real</h2>
+<p>El emulador no tiene cuenta de Google, marcas reales ni voz en algunas versiones. <b>Recomendación:</b> hacerlas vos primero con tu celular (PRUEBAS.md completo) y después sumar a los testers de la prueba cerrada con la lista corta M1–M8.</p>
+<table>
+  <tr><th style="width:8%">#</th><th>Qué probar</th><th style="width:22%">Dónde (PRUEBAS.md)</th></tr>
+  <tr><td>T1</td><td>Que el globo ya no quede "pegado" en tu celular (el problema que viste al principio)</td><td>§1</td></tr>
+  <tr><td>T3</td><td>Calendario de Gmail con tu cuenta real</td><td>§4</td></tr>
+  <tr><td>T4</td><td>Comportamiento por marca (Samsung, Motorola, Xiaomi) y nombres de los menús de batería</td><td>§12 y lista M1–M8</td></tr>
+  <tr><td>T5</td><td>Que la mascota vuelva sola después de actualizar la app</td><td>§9</td></tr>
+  <tr><td>T2</td><td>Voz en Android 17</td><td>§10</td></tr>
+  <tr><td>T7</td><td>Voz en inglés (necesita la voz inglesa instalada)</td><td>§19</td></tr>
+  <tr><td>T8</td><td>Compra real de Pro, restaurar, pago pendiente y reembolso (necesita Play Console)</td><td>§20</td></tr>
+  <tr><td>T6</td><td>Toda la lista de pruebas</td><td>todo el documento</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>4. Limitaciones conocidas</h2>
+<p><span class="tag info">Solo informativo</span> Son decisiones tomadas o reglas de Android. No requieren acción, pero conviene conocerlas para responder dudas de usuarios o armar las preguntas frecuentes.</p>
+<table>
+  <tr><th style="width:8%">#</th><th>Limitación</th><th style="width:38%">Por qué</th></tr>
+  <tr><td>L1</td><td>La mascota no se esconde cuando otra app abre el teclado</td><td>Requeriría el permiso de Accesibilidad, que decidimos no pedir</td></tr>
+  <tr><td>L2</td><td>En Android 11 o anterior tarda hasta 1 minuto en esconderse al empezar una llamada</td><td>Esas versiones no avisan el cambio</td></tr>
+  <tr><td>L3</td><td>En Android 15+ la mascota solo puede arrancar sola en ciertos momentos (abrir la app, reiniciar, actualizar)</td><td>Regla de Android; los avisos igual llegan por notificación</td></tr>
+  <tr><td>L4</td><td>Tocar el cuerpo de la notificación de un evento abre el calendario pero no corta "insistir"</td><td>Para cortar: Hecho, Posponer o deslizar</td></tr>
+  <tr><td>L5</td><td>Con la mascota escondida (llamada o pantalla completa), el aviso suena como notificación común</td><td>A propósito, para no perder avisos</td></tr>
+  <tr><td>L6</td><td>En Android 12 o anterior no se puede elegir un idioma solo para la app</td><td>Esa opción existe desde Android 13</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>5. Detalles menores</h2>
+<p><span class="tag low">Puede esperar</span> Ninguno afecta al usuario de forma importante.</p>
+<table>
+  <tr><th style="width:8%">#</th><th>Tema</th><th style="width:38%">Recomendación</th></tr>
+  <tr><td>X1</td><td>La notificación fija usa el emoji de la mascota y no el dibujo nuevo</td><td>Dejar así; opcional en v1.1</td></tr>
+  <tr><td>X2</td><td>La herramienta de dibujos deja una carpeta de trabajo que hay que borrar a mano</td><td>Arreglarlo la próxima vez que se toquen los dibujos</td></tr>
+  <tr><td>X3</td><td>Los "Hecho" se guardan pero todavía no se muestran</td><td>Son la base de las rachas (v1.1)</td></tr>
+  <tr><td>X5</td><td>Portugués preparado pero sin traducir</td><td>v1.1, idealmente con un traductor nativo</td></tr>
+  <tr><td>X7</td><td>Plan B de la librería de compras (aceptar el permiso de internet)</td><td>Solo si la opción A da problemas en los testers</td></tr>
+  <tr><td>X10</td><td>Atrasar el reloj más de un día termina la prueba gratis</td><td>Dejar así (evita estirar la prueba)</td></tr>
+  <tr><td>X11</td><td>El resumen técnico de "Enviar comentarios" está siempre en español</td><td>Dejar así (lo leés vos)</td></tr>
+  <tr><td>X12</td><td>La librería de compras guarda sus reportes dentro del celular (nunca se envían)</td><td>Nada que hacer; la librería limita su tamaño</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>6. Después del lanzamiento</h2>
+<table>
+  <tr><th style="width:14%">Grupo</th><th>Qué incluye</th><th style="width:30%">Recomendación</th></tr>
+  <tr><td>P1 (v1.1)</td><td>Frases variadas, modo discreto, rachas, disfraces, clips para redes, portugués y widget</td><td>Priorizar según lo que pidan los primeros usuarios</td></tr>
+  <tr><td>P2</td><td>Mensajes de otras apps, recordatorios compartidos, suscripción, iOS</td><td>Validar demanda antes; varios rompen el "sin internet"</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>Orden sugerido</h2>
+<ol class="steps">
+  <li><b>Esta semana (Claude Code):</b> los arreglos técnicos antes de publicar: optimización de la versión final (L), copia en Drive (J), borrar recordatorios que se repiten (I) y el aviso del día 6 de la prueba (D5). Son tareas chicas, de a una, con pruebas.</li>
+  <li><b>En paralelo (vos):</b> crear el Gmail de la app (X6), la cuenta de desarrollador y la app con el producto <code>pro_lifetime</code> en la Play Console, y conseguir 12 o más testers.</li>
+  <li><b>Textos para Google:</b> política de privacidad, formulario de seguridad de los datos y declaración del servicio en primer plano. Claude Code redacta y vos cargás.</li>
+  <li><b>Prueba cerrada (14 días):</b> testers con la lista M1–M8, prueba de compra con testers de licencias y tus propias pruebas de PRUEBAS.md. Se corrige lo que aparezca.</li>
+  <li><b>Publicación</b> y, con las primeras reseñas, elegir qué entra en la versión 1.1.</li>
+</ol>
+
+<div class="footer">Pet Notifications · Documento generado a partir de <code>docs/PENDIENTES.md</code> y <code>docs/PRUEBAS.md</code> · 27/09/2026.
+Las reglas de Google Play (prueba cerrada, formularios, declaraciones) cambian con el tiempo: confirmalas en la Play Console al hacer cada paso.</div>
+
+</body>
+</html>

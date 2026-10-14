@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.PetNotifications" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Ventanas de la mascota: sin la animación de entrada del sistema (desliza y desvanece
+         el globo cada vez que aparece). Las animaciones las hace Compose. -->
+    <style name="PetWindowNoAnimation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
+        <item name="android:windowShowAnimation">@null</item>
+        <item name="android:windowHideAnimation">@null</item>
+    </style>
+</resources>

@@ -1,0 +1,107 @@
+<!-- @dsCard group="Mensaje" height=350 width=640 subtitle="Para rutinas cortas" -->
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="stylesheet" href="../../tokens.css">
+<meta charset="utf-8">
+<title>Plaquita — vista previa</title>
+<style>
+html,body{margin:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.row{display:flex;gap:18px;justify-content:center;padding:16px 16px 4px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stage{position:relative;width:292px;height:250px;border-radius:22px;background:var(--backdrop-mock);overflow:hidden}
+.fake{position:absolute;left:18px;height:10px;border-radius:5px;background:var(--ink);opacity:.07}
+.fake.bar{left:0;right:0;top:0;height:34px;border-radius:0;opacity:.05}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);margin-top:-4px}
+.foot{display:flex;justify-content:center;padding:4px 0 12px}
+.replay{font:inherit;font-size:12px;font-weight:700;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 12px;cursor:pointer}
+.replay:focus-visible,.act:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.meta{color:var(--ink-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:4px}
+.meta.imp{color:var(--honey-deep)}
+.meta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ttl{margin-bottom:var(--space-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:var(--space-2);margin-top:var(--space-3)}
+.act{white-space:nowrap;font:inherit;font-size:13px;line-height:18px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:5px 12px;cursor:pointer}
+.act.main{background:var(--blush-soft);border-color:transparent}
+/* mascota de muestra */
+.fur{fill:var(--fur)}.deep{fill:var(--fur-deep)}.cream{fill:var(--cream)}.pink{fill:var(--blush)}.pi{fill:var(--pet-ink)}.hl{fill:#fffdf9}.collar{fill:var(--sage)}
+.ln{fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round}
+.toe{fill:none;stroke:var(--fur-deep);stroke-width:1.3;stroke-linecap:round}
+.tail{fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round}
+.bub{position:absolute;z-index:3;opacity:0}
+.bub svg.bs{display:block;overflow:visible}
+.bub .sh *{fill:var(--blush);stroke:var(--blush);stroke-width:6;stroke-linejoin:round}
+.bub .ol *{fill:var(--fur);stroke:var(--fur);stroke-width:6;stroke-linejoin:round}
+.bub .fl *{fill:var(--surface-raised)}
+.bub.v-nube .ol *{fill:var(--fur-deep);stroke:var(--fur-deep);stroke-width:5}
+.bub.v-nube .sh *{fill:var(--sage);stroke:var(--sage)}
+.bub.v-caramelo .ol *{fill:var(--blush);stroke:var(--blush);stroke-width:5}
+.bub.v-caramelo .fl *{fill:var(--blush-soft)}
+.bub.v-caramelo .sh *{fill:var(--fur);stroke:var(--fur)}
+.bub.imp .ol *{fill:var(--honey);stroke:var(--honey)}
+.bub.imp .fl *{fill:var(--honey-soft)}
+.btxt{position:absolute;left:6px;top:6px;height:58px;display:flex;align-items:center;justify-content:center;gap:1px;font-family:var(--font-sans);font-weight:900;font-size:25px;line-height:1;letter-spacing:.01em;color:var(--cocoa);text-shadow:0 2px 0 var(--blush)}
+.bub.imp .btxt{color:var(--honey-deep);text-shadow:0 2px 0 var(--honey)}
+[data-theme="dark"] .btxt{text-shadow:0 2px 0 var(--fur-deep)}
+[data-theme="dark"] .bub.imp .btxt{text-shadow:0 2px 0 #7a5a1c}
+.btxt i{font-style:normal;display:inline-block;--r:-6deg;transform:rotate(var(--r))}
+.btxt i:nth-child(even){--r:5deg}
+.btxt i.sp{width:.3em}
+.deco{position:absolute;display:block}
+.deco.heart{width:18px;height:18px;left:-6px;top:-9px;transform:rotate(-14deg)}
+.deco.spark{width:14px;height:14px;top:-10px}
+.deco.spark path{fill:var(--honey)}
+.deco.spark2{width:9px;height:9px;top:2px}
+@keyframes puffLoop{0%{opacity:0;transform:scale(.3) rotate(-3deg)}7%{opacity:1;transform:scale(1.08) rotate(-4deg)}10%{transform:scale(.97) rotate(-2deg)}13%,42%{opacity:1;transform:rotate(-3deg)}52%,100%{opacity:0;transform:translateY(-8px) scale(.95) rotate(-3deg)}}
+@keyframes hop{0%{opacity:0;transform:translateY(8px) rotate(var(--r)) scale(.6)}6%{opacity:1;transform:translateY(-4px) rotate(var(--r)) scale(1.12)}10%,100%{opacity:1;transform:rotate(var(--r))}}
+@keyframes tw{0%,12%{transform:scale(0)}17%{transform:scale(1.25)}21%,44%{transform:scale(1)}50%,100%{transform:scale(0)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.bub{opacity:1}}
+
+.pet{position:absolute;right:20px;bottom:12px;width:80px;height:86px;display:block}
+.string{position:absolute;inset:0;width:292px;height:250px;pointer-events:none}
+.string{z-index:1}
+.string path{fill:none;stroke:var(--fur);stroke-width:2;stroke-linecap:round}
+.tag{position:absolute;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow-lift);padding:var(--space-3) 34px var(--space-3) 14px}
+.tag .ttl{margin-bottom:2px}
+.tag .meta{margin:0}
+.hole{position:absolute;right:10px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--backdrop-mock);border:2.5px solid var(--sage)}
+.t1{left:28px;top:162px;width:168px;transform:rotate(-4deg);transform-origin:calc(100% - 17px) 50%}
+.t2{left:16px;top:64px;width:190px;transform-origin:calc(100% - 17px) 50%}
+.t2 .meta{margin-bottom:var(--space-1)}
+.play .t1{animation:swing 3.2s .3s ease-in-out 2 both}
+.play .t2{animation:grow .45s cubic-bezier(.22,1,.36,1) both}
+@keyframes swing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(-1deg)}}
+@keyframes grow{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body class="play">
+<div class="row">
+<div class="col"><div class="stage"><div class="fake bar"></div><div class="fake" style="top:50px;width:58%"></div><div class="fake" style="top:68px;width:40%"></div><div class="fake" style="top:100px;width:72%"></div><div class="fake" style="top:118px;width:52%"></div><div class="fake" style="top:150px;width:64%"></div><div class="fake" style="top:168px;width:36%"></div>
+<div class="tag t1"><div class="ttl notif-title">Tomar agua</div><div class="meta notif-meta">Luna · 11:00</div><span class="hole"></span></div>
+<svg class="string" viewBox="0 0 292 250" aria-hidden="true"><path/></svg>
+<svg class="pet" viewBox="0 0 80 86" aria-hidden="true"><g class="tailg"><path class="tail" d="M57 72 q14 -2 12 -18"/></g><ellipse class="fur" cx="40" cy="66" rx="20" ry="17"/><ellipse class="cream" cx="40" cy="70" rx="11" ry="10"/><ellipse class="cream" cx="31" cy="81" rx="6.5" ry="4.2"/><ellipse class="cream" cx="49" cy="81" rx="6.5" ry="4.2"/><rect class="collar" x="28" y="49" width="24" height="5.5" rx="2.75"/><g class="headg"><circle class="fur" cx="40" cy="32" r="18"/><ellipse class="deep" cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)"/><ellipse class="deep" cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)"/><ellipse class="cream" cx="40" cy="40" rx="9.5" ry="7.5"/><ellipse class="pi" cx="40" cy="36.4" rx="3.2" ry="2.3"/><path class="ln" d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0"/><circle class="pi" cx="32.5" cy="29" r="2.7"/><circle class="pi" cx="47.5" cy="29" r="2.7"/><circle class="hl" cx="33.4" cy="28.1" r=".9"/><circle class="hl" cx="48.4" cy="28.1" r=".9"/><ellipse class="pink" cx="28.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/><ellipse class="pink" cx="51.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/></g></svg>
+</div><div class="cap">1 · Cuelga del collar</div><div class="sub">Solo título y hora; se balancea dos veces</div></div>
+<div class="col"><div class="stage"><div class="fake bar"></div><div class="fake" style="top:50px;width:58%"></div><div class="fake" style="top:68px;width:40%"></div><div class="fake" style="top:100px;width:72%"></div><div class="fake" style="top:118px;width:52%"></div><div class="fake" style="top:150px;width:64%"></div><div class="fake" style="top:168px;width:36%"></div>
+<div class="tag t2"><div class="meta notif-meta">Luna · 11:00</div><div class="ttl notif-title">Tomar agua</div><div class="notif-body">Un vasito y seguimos.</div><div class="acts"><button class="act main" type="button">Listo</button><button class="act" type="button">En 30 min</button></div><span class="hole"></span></div>
+<svg class="string" viewBox="0 0 292 250" aria-hidden="true"><path/></svg>
+<svg class="pet" viewBox="0 0 80 86" aria-hidden="true"><g class="tailg"><path class="tail" d="M57 72 q14 -2 12 -18"/></g><ellipse class="fur" cx="40" cy="66" rx="20" ry="17"/><ellipse class="cream" cx="40" cy="70" rx="11" ry="10"/><ellipse class="cream" cx="31" cy="81" rx="6.5" ry="4.2"/><ellipse class="cream" cx="49" cy="81" rx="6.5" ry="4.2"/><rect class="collar" x="28" y="49" width="24" height="5.5" rx="2.75"/><g class="headg"><circle class="fur" cx="40" cy="32" r="18"/><ellipse class="deep" cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)"/><ellipse class="deep" cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)"/><ellipse class="cream" cx="40" cy="40" rx="9.5" ry="7.5"/><ellipse class="pi" cx="40" cy="36.4" rx="3.2" ry="2.3"/><path class="ln" d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0"/><path class="ln" d="M29.8 29 q2.7 2.6 5.4 0"/><path class="ln" d="M44.8 29 q2.7 2.6 5.4 0"/><ellipse class="pink" cx="28.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/><ellipse class="pink" cx="51.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/></g></svg>
+</div><div class="cap">2 · Al tocar, se agranda</div><div class="sub">Cuerpo y acciones aparecen recién acá</div></div>
+</div><script>
+document.querySelectorAll('.stage').forEach(function(st){
+  var p=st.querySelector('.string path'),h=st.querySelector('.hole'),c=st.querySelector('.pet .collar');if(!p||!h||!c)return;
+  var s=st.getBoundingClientRect(),a=h.getBoundingClientRect(),b=c.getBoundingClientRect();
+  var x1=a.left+a.width/2-s.left,y1=a.top+a.height/2-s.top,x2=b.left+b.width*0.3-s.left,y2=b.top+b.height/2-s.top;
+  var mx=(x1+x2)/2,my=Math.max(y1,y2)+18;
+  p.setAttribute('d','M'+x1.toFixed(1)+' '+y1.toFixed(1)+' Q '+mx.toFixed(1)+' '+my.toFixed(1)+' '+x2.toFixed(1)+' '+y2.toFixed(1));
+});
+</script>
+<div class="foot"><button class="replay" type="button">Ver la entrada otra vez</button></div>
+<script>
+(function(){var b=document.querySelector('.replay');if(!b)return;b.addEventListener('click',function(){
+document.body.classList.remove('play');void document.body.offsetWidth;document.body.classList.add('play');});})();
+</script>
+</body>
+</html>

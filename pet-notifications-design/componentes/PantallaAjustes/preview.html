@@ -1,0 +1,126 @@
+<!-- @dsCard group="Pantallas" height=690 width=640 subtitle="Ajustes y permisos" -->
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="stylesheet" href="../../tokens.css">
+<meta charset="utf-8">
+<title>Ajustes — maqueta</title>
+<style>
+html,body{margin:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.row{display:flex;gap:18px;justify-content:center;padding:16px 16px 4px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stage{position:relative;width:292px;height:250px;border-radius:22px;background:var(--backdrop-mock);overflow:hidden}
+.fake{position:absolute;left:18px;height:10px;border-radius:5px;background:var(--ink);opacity:.07}
+.fake.bar{left:0;right:0;top:0;height:34px;border-radius:0;opacity:.05}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);margin-top:-4px}
+.foot{display:flex;justify-content:center;padding:4px 0 12px}
+.replay{font:inherit;font-size:12px;font-weight:700;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 12px;cursor:pointer}
+.replay:focus-visible,.act:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.meta{color:var(--ink-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:4px}
+.meta.imp{color:var(--honey-deep)}
+.meta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ttl{margin-bottom:var(--space-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:var(--space-2);margin-top:var(--space-3)}
+.act{white-space:nowrap;font:inherit;font-size:13px;line-height:18px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:5px 12px;cursor:pointer}
+.act.main{background:var(--blush-soft);border-color:transparent}
+/* mascota de muestra */
+.fur{fill:var(--fur)}.deep{fill:var(--fur-deep)}.cream{fill:var(--cream)}.pink{fill:var(--blush)}.pi{fill:var(--pet-ink)}.hl{fill:#fffdf9}.collar{fill:var(--sage)}
+.ln{fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round}
+.toe{fill:none;stroke:var(--fur-deep);stroke-width:1.3;stroke-linecap:round}
+.tail{fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round}
+.bub{position:absolute;z-index:3;opacity:0}
+.bub svg.bs{display:block;overflow:visible}
+.bub .sh *{fill:var(--blush);stroke:var(--blush);stroke-width:6;stroke-linejoin:round}
+.bub .ol *{fill:var(--fur);stroke:var(--fur);stroke-width:6;stroke-linejoin:round}
+.bub .fl *{fill:var(--surface-raised)}
+.bub.v-nube .ol *{fill:var(--fur-deep);stroke:var(--fur-deep);stroke-width:5}
+.bub.v-nube .sh *{fill:var(--sage);stroke:var(--sage)}
+.bub.v-caramelo .ol *{fill:var(--blush);stroke:var(--blush);stroke-width:5}
+.bub.v-caramelo .fl *{fill:var(--blush-soft)}
+.bub.v-caramelo .sh *{fill:var(--fur);stroke:var(--fur)}
+.bub.imp .ol *{fill:var(--honey);stroke:var(--honey)}
+.bub.imp .fl *{fill:var(--honey-soft)}
+.btxt{position:absolute;left:6px;top:6px;height:58px;display:flex;align-items:center;justify-content:center;gap:1px;font-family:var(--font-sans);font-weight:900;font-size:25px;line-height:1;letter-spacing:.01em;color:var(--cocoa);text-shadow:0 2px 0 var(--blush)}
+.bub.imp .btxt{color:var(--honey-deep);text-shadow:0 2px 0 var(--honey)}
+[data-theme="dark"] .btxt{text-shadow:0 2px 0 var(--fur-deep)}
+[data-theme="dark"] .bub.imp .btxt{text-shadow:0 2px 0 #7a5a1c}
+.btxt i{font-style:normal;display:inline-block;--r:-6deg;transform:rotate(var(--r))}
+.btxt i:nth-child(even){--r:5deg}
+.btxt i.sp{width:.3em}
+.deco{position:absolute;display:block}
+.deco.heart{width:18px;height:18px;left:-6px;top:-9px;transform:rotate(-14deg)}
+.deco.spark{width:14px;height:14px;top:-10px}
+.deco.spark path{fill:var(--honey)}
+.deco.spark2{width:9px;height:9px;top:2px}
+@keyframes puffLoop{0%{opacity:0;transform:scale(.3) rotate(-3deg)}7%{opacity:1;transform:scale(1.08) rotate(-4deg)}10%{transform:scale(.97) rotate(-2deg)}13%,42%{opacity:1;transform:rotate(-3deg)}52%,100%{opacity:0;transform:translateY(-8px) scale(.95) rotate(-3deg)}}
+@keyframes hop{0%{opacity:0;transform:translateY(8px) rotate(var(--r)) scale(.6)}6%{opacity:1;transform:translateY(-4px) rotate(var(--r)) scale(1.12)}10%,100%{opacity:1;transform:rotate(var(--r))}}
+@keyframes tw{0%,12%{transform:scale(0)}17%{transform:scale(1.25)}21%,44%{transform:scale(1)}50%,100%{transform:scale(0)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.bub{opacity:1}}
+
+.row{display:flex;gap:16px;justify-content:center;padding:16px 16px 4px;align-items:flex-start}
+.phone{position:relative;width:296px;height:600px;border-radius:30px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-soft);overflow:hidden;display:flex;flex-direction:column}
+.sbar{height:22px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:11px;font-weight:700;color:var(--ink-muted)}
+.scroll{flex:1;overflow:hidden;padding:4px 14px 90px}
+.h1{font-size:20px;line-height:26px;font-weight:800;margin:6px 2px 12px}
+.lbl{font-size:12px;line-height:16px;font-weight:800;color:var(--ink-muted);margin:16px 4px 6px;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:12px 14px}
+.muted{color:var(--ink-muted)}
+.t15{font-size:15px;line-height:20px;font-weight:800}
+.t13{font-size:13px;line-height:18px;font-weight:600}
+.t12{font-size:12px;line-height:16px;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:12px;line-height:16px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 11px;white-space:nowrap}
+.chip.fill{background:var(--blush-soft);border-color:transparent}
+.chip svg,.ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:13px;line-height:18px;font-weight:800;border-radius:var(--radius-pill);padding:9px 16px;border:1px solid var(--line);color:var(--cocoa);background:transparent;white-space:nowrap}
+.btn.primary{background:var(--cocoa);color:var(--surface);border-color:transparent}
+.tag{font-size:10px;line-height:14px;font-weight:900;letter-spacing:.04em;color:var(--honey-deep);background:var(--honey-soft);border-radius:6px;padding:1px 6px}
+.nav{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--surface-raised);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:0 8px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;line-height:14px;font-weight:700;color:var(--ink-muted);width:80px}
+.tab .pill{width:52px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--cocoa);font-weight:900}
+.tab.on .pill{background:var(--blush-soft)}
+.fab{position:absolute;right:14px;bottom:76px;display:flex;align-items:center;gap:6px;background:var(--cocoa);color:var(--surface);font-size:14px;font-weight:800;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow-soft)}
+.fab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink);text-align:center;margin-top:8px}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);text-align:center;max-width:296px}
+.col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.toggle{width:40px;height:24px;border-radius:12px;background:var(--line);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);box-shadow:var(--shadow-lift)}
+.toggle.on{background:var(--cocoa)}
+.toggle.on::after{left:19px}
+.toggle.off{opacity:.55}
+.slider{height:6px;border-radius:3px;background:var(--line);position:relative;margin:10px 0 4px}
+.slider i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--cocoa)}
+.slider b{position:absolute;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);border:2px solid var(--cocoa)}
+.slider.lock i{background:var(--ink-muted);opacity:.4}.slider.lock b{border-color:var(--line)}
+.lrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}
+.lrow .grow{flex:1;min-width:0}
+.lrow .ico{width:34px;height:34px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--cocoa);flex:none}
+.lrow .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chev{width:16px;height:16px;fill:none;stroke:var(--ink-muted);stroke-width:2.2;stroke-linecap:round;flex:none}
+.ok{color:var(--cocoa)}.warn{color:var(--honey-deep)}
+
+.plan{display:flex;align-items:center;gap:10px;background:var(--sage-soft);border-radius:18px;padding:12px 14px;margin-bottom:12px}
+.plan .ico{width:34px;height:34px;border-radius:12px;background:var(--surface-raised);display:flex;align-items:center;justify-content:center;color:var(--cocoa);flex:none}
+.plan .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.badge-w{display:inline-flex;align-items:center;gap:3px;font-size:11px;line-height:14px;font-weight:800;color:var(--honey-deep)}
+.badge-w svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.backbar{display:flex;align-items:center;gap:6px;margin:4px 0 10px}
+.backbar svg{width:22px;height:22px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+.sum{display:flex;gap:10px;align-items:center;background:var(--honey-soft);border:1px solid var(--honey);border-radius:18px;padding:10px 12px;margin-bottom:12px}
+.st{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:800}
+.st svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.guide{background:var(--surface-raised);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-top:12px}
+.guide .btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.ver{text-align:center;font-size:11px;font-weight:700;color:var(--ink-muted);margin-top:12px}
+</style>
+</head>
+<body>
+<div class="row"><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="h1">Ajustes</div><div class="plan"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.7L12 16.4l-5.1 2.8 1.1-5.7-4.3-4 5.8-.7z"/></svg></span><div style="flex:1"><div class="t13" style="font-weight:800">Prueba de Pro</div><div class="t12 muted" style="font-weight:600">Te quedan 5 días</div></div><span class="chip">Ver planes</span></div><div class="card" style="padding:0 12px"><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Mascota en pantalla</div><div class="t12 muted" style="font-weight:600">Prendida</div></div><span class="toggle on"></span></div><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Cómo te aviso</div><div class="t12 muted" style="font-weight:600">Globo 8 s · insiste cada 10 min</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Cuándo no molestar</div><div class="t12 muted" style="font-weight:600">De 22:00 a 07:00</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Calendario</div><div class="t12 muted" style="font-weight:600">2 calendarios · 10 min antes</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="3"/><path d="M21 10.5v3M7 10v4M10.5 10v4"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Permisos y batería</div><div class="t12 muted" style="font-weight:600"><span class="badge-w"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg>Falta 1</span></div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.5M12 17v.5"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Ayuda</div><div class="t12 muted" style="font-weight:600">Cómo se usa, comentarios, diagnóstico</div></div><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></div></div><div class="ver">Versión 1.0.14</div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Ajustes</div><div class="sub">Agrupados por intención, cada fila resume su valor actual</div></div><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="backbar"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="t15" style="font-size:18px">Permisos y batería</span></div><div class="sum"><span class="warn"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/></svg></span><div class="t13"><b>Me falta 1 permiso.</b> Sin él puedo llegar tarde a tus avisos.</div></div><div class="card" style="padding:0 12px"><div class="lrow"><div class="grow"><div class="t13" style="font-weight:700">Mostrar sobre otras apps</div></div><span class="st ok"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo</span></div><div class="lrow"><div class="grow"><div class="t13" style="font-weight:700">Notificaciones</div></div><span class="st ok"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo</span></div><div class="lrow"><div class="grow"><div class="t13" style="font-weight:700">Alarmas exactas</div></div><span class="chip fill">Permitir</span></div><div class="lrow"><div class="grow"><div class="t13" style="font-weight:700">Calendario</div></div><span class="t12 muted">Opcional</span></div><div class="lrow"><div class="grow"><div class="t13" style="font-weight:700">Batería sin restricciones</div></div><span class="st ok"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Listo</span></div></div><div class="guide"><div class="t13" style="font-weight:800">Guía para tu Samsung</div><div class="t12 muted" style="font-weight:600;margin-top:2px">Para que no me duerma.</div><div class="btns"><span class="chip fill">Abrir ajustes</span><span class="chip">Ver guía</span></div></div><div class="card" style="padding:0 12px;margin-top:12px"><div class="lrow"><span class="ico"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span><div class="grow"><div class="t13" style="font-weight:800">Aviso fijo de Android</div><div class="t12 muted" style="font-weight:600">"Se muestra sobre otras apps"</div></div><span class="chip">Ocultar</span></div></div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Permisos y batería</div><div class="sub">Resumen arriba; el detalle solo cuando lo buscás</div></div></div>
+</body>
+</html>

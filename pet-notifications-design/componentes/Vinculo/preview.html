@@ -1,0 +1,142 @@
+<!-- @dsCard group="Vínculo" height=690 width=640 subtitle="Que la mascota crezca con vos" -->
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="stylesheet" href="../../tokens.css">
+<meta charset="utf-8">
+<title>Vínculo — maqueta</title>
+<style>
+html,body{margin:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.row{display:flex;gap:18px;justify-content:center;padding:16px 16px 4px}
+.col{display:flex;flex-direction:column;gap:6px;align-items:center}
+.stage{position:relative;width:292px;height:250px;border-radius:22px;background:var(--backdrop-mock);overflow:hidden}
+.fake{position:absolute;left:18px;height:10px;border-radius:5px;background:var(--ink);opacity:.07}
+.fake.bar{left:0;right:0;top:0;height:34px;border-radius:0;opacity:.05}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);margin-top:-4px}
+.foot{display:flex;justify-content:center;padding:4px 0 12px}
+.replay{font:inherit;font-size:12px;font-weight:700;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:4px 12px;cursor:pointer}
+.replay:focus-visible,.act:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.meta{color:var(--ink-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:4px}
+.meta.imp{color:var(--honey-deep)}
+.meta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ttl{margin-bottom:var(--space-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:var(--space-2);margin-top:var(--space-3)}
+.act{white-space:nowrap;font:inherit;font-size:13px;line-height:18px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:5px 12px;cursor:pointer}
+.act.main{background:var(--blush-soft);border-color:transparent}
+/* mascota de muestra */
+.fur{fill:var(--fur)}.deep{fill:var(--fur-deep)}.cream{fill:var(--cream)}.pink{fill:var(--blush)}.pi{fill:var(--pet-ink)}.hl{fill:#fffdf9}.collar{fill:var(--sage)}
+.ln{fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round}
+.toe{fill:none;stroke:var(--fur-deep);stroke-width:1.3;stroke-linecap:round}
+.tail{fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round}
+.bub{position:absolute;z-index:3;opacity:0}
+.bub svg.bs{display:block;overflow:visible}
+.bub .sh *{fill:var(--blush);stroke:var(--blush);stroke-width:6;stroke-linejoin:round}
+.bub .ol *{fill:var(--fur);stroke:var(--fur);stroke-width:6;stroke-linejoin:round}
+.bub .fl *{fill:var(--surface-raised)}
+.bub.v-nube .ol *{fill:var(--fur-deep);stroke:var(--fur-deep);stroke-width:5}
+.bub.v-nube .sh *{fill:var(--sage);stroke:var(--sage)}
+.bub.v-caramelo .ol *{fill:var(--blush);stroke:var(--blush);stroke-width:5}
+.bub.v-caramelo .fl *{fill:var(--blush-soft)}
+.bub.v-caramelo .sh *{fill:var(--fur);stroke:var(--fur)}
+.bub.imp .ol *{fill:var(--honey);stroke:var(--honey)}
+.bub.imp .fl *{fill:var(--honey-soft)}
+.btxt{position:absolute;left:6px;top:6px;height:58px;display:flex;align-items:center;justify-content:center;gap:1px;font-family:var(--font-sans);font-weight:900;font-size:25px;line-height:1;letter-spacing:.01em;color:var(--cocoa);text-shadow:0 2px 0 var(--blush)}
+.bub.imp .btxt{color:var(--honey-deep);text-shadow:0 2px 0 var(--honey)}
+[data-theme="dark"] .btxt{text-shadow:0 2px 0 var(--fur-deep)}
+[data-theme="dark"] .bub.imp .btxt{text-shadow:0 2px 0 #7a5a1c}
+.btxt i{font-style:normal;display:inline-block;--r:-6deg;transform:rotate(var(--r))}
+.btxt i:nth-child(even){--r:5deg}
+.btxt i.sp{width:.3em}
+.deco{position:absolute;display:block}
+.deco.heart{width:18px;height:18px;left:-6px;top:-9px;transform:rotate(-14deg)}
+.deco.spark{width:14px;height:14px;top:-10px}
+.deco.spark path{fill:var(--honey)}
+.deco.spark2{width:9px;height:9px;top:2px}
+@keyframes puffLoop{0%{opacity:0;transform:scale(.3) rotate(-3deg)}7%{opacity:1;transform:scale(1.08) rotate(-4deg)}10%{transform:scale(.97) rotate(-2deg)}13%,42%{opacity:1;transform:rotate(-3deg)}52%,100%{opacity:0;transform:translateY(-8px) scale(.95) rotate(-3deg)}}
+@keyframes hop{0%{opacity:0;transform:translateY(8px) rotate(var(--r)) scale(.6)}6%{opacity:1;transform:translateY(-4px) rotate(var(--r)) scale(1.12)}10%,100%{opacity:1;transform:rotate(var(--r))}}
+@keyframes tw{0%,12%{transform:scale(0)}17%{transform:scale(1.25)}21%,44%{transform:scale(1)}50%,100%{transform:scale(0)}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.bub{opacity:1}}
+
+.row{display:flex;gap:16px;justify-content:center;padding:16px 16px 4px;align-items:flex-start}
+.phone{position:relative;width:296px;height:600px;border-radius:30px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-soft);overflow:hidden;display:flex;flex-direction:column}
+.sbar{height:22px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:11px;font-weight:700;color:var(--ink-muted)}
+.scroll{flex:1;overflow:hidden;padding:4px 14px 90px}
+.h1{font-size:20px;line-height:26px;font-weight:800;margin:6px 2px 12px}
+.lbl{font-size:12px;line-height:16px;font-weight:800;color:var(--ink-muted);margin:16px 4px 6px;display:flex;justify-content:space-between;align-items:center}
+.card{background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:12px 14px}
+.muted{color:var(--ink-muted)}
+.t15{font-size:15px;line-height:20px;font-weight:800}
+.t13{font-size:13px;line-height:18px;font-weight:600}
+.t12{font-size:12px;line-height:16px;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:12px;line-height:16px;font-weight:800;color:var(--cocoa);background:transparent;border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 11px;white-space:nowrap}
+.chip.fill{background:var(--blush-soft);border-color:transparent}
+.chip svg,.ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:13px;line-height:18px;font-weight:800;border-radius:var(--radius-pill);padding:9px 16px;border:1px solid var(--line);color:var(--cocoa);background:transparent;white-space:nowrap}
+.btn.primary{background:var(--cocoa);color:var(--surface);border-color:transparent}
+.tag{font-size:10px;line-height:14px;font-weight:900;letter-spacing:.04em;color:var(--honey-deep);background:var(--honey-soft);border-radius:6px;padding:1px 6px}
+.nav{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--surface-raised);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:0 8px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;line-height:14px;font-weight:700;color:var(--ink-muted);width:80px}
+.tab .pill{width:52px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--cocoa);font-weight:900}
+.tab.on .pill{background:var(--blush-soft)}
+.fab{position:absolute;right:14px;bottom:76px;display:flex;align-items:center;gap:6px;background:var(--cocoa);color:var(--surface);font-size:14px;font-weight:800;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow-soft)}
+.fab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.cap{font-size:12px;line-height:16px;font-weight:800;color:var(--ink);text-align:center;margin-top:8px}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);text-align:center;max-width:296px}
+.col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.toggle{width:40px;height:24px;border-radius:12px;background:var(--line);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);box-shadow:var(--shadow-lift)}
+.toggle.on{background:var(--cocoa)}
+.toggle.on::after{left:19px}
+.toggle.off{opacity:.55}
+.slider{height:6px;border-radius:3px;background:var(--line);position:relative;margin:10px 0 4px}
+.slider i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--cocoa)}
+.slider b{position:absolute;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--surface-raised);border:2px solid var(--cocoa)}
+.slider.lock i{background:var(--ink-muted);opacity:.4}.slider.lock b{border-color:var(--line)}
+.lrow{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}
+.lrow .grow{flex:1;min-width:0}
+.lrow .ico{width:34px;height:34px;border-radius:12px;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--cocoa);flex:none}
+.lrow .ico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chev{width:16px;height:16px;fill:none;stroke:var(--ink-muted);stroke-width:2.2;stroke-linecap:round;flex:none}
+.ok{color:var(--cocoa)}.warn{color:var(--honey-deep)}
+
+.hero{display:flex;gap:12px;align-items:center;padding:4px 2px 0}
+.hero .disc{width:84px;height:84px;border-radius:50%;background:var(--blush-soft);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;flex:none}
+.hero .disc svg{width:68px;height:73px;display:block;margin-bottom:-5px}
+.bond{margin-top:12px;background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-lift);padding:14px}
+.lvl{display:flex;justify-content:space-between;align-items:baseline}
+.lvl .n{font-size:12px;font-weight:900;color:var(--cocoa);background:var(--blush-soft);border-radius:var(--radius-pill);padding:2px 9px}
+.hearts{display:flex;gap:3px;margin:10px 0 6px}
+.hearts svg{width:21px;height:21px}
+.hearts .e path{fill:none;stroke:var(--line);stroke-width:2}
+.hearts .h path{fill:var(--blush)}
+.nextr{display:flex;gap:10px;align-items:center;background:var(--surface);border-radius:14px;padding:9px 10px;margin-top:10px}
+.nextr .gift{width:32px;height:32px;border-radius:10px;background:var(--sage-soft);display:flex;align-items:center;justify-content:center;color:var(--cocoa);flex:none}
+.nextr .gift svg,.lv .gift svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.how{font-size:11px;line-height:15px;font-weight:600;color:var(--ink-muted);margin:8px 2px 0}
+.path{position:relative;padding-left:4px}
+.lv{position:relative;display:flex;gap:10px;align-items:center;padding:7px 0}
+.lv .dot{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:var(--surface-raised);border:2px solid var(--line);color:var(--ink-muted)}
+.lv.done .dot{background:var(--cocoa);border-color:var(--cocoa);color:var(--surface)}
+.lv.done .dot svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lv.now .dot{border-color:var(--cocoa);color:var(--cocoa);box-shadow:0 0 0 4px var(--blush-soft)}
+.lv .grow{flex:1;min-width:0}
+.lv .nm{font-size:13px;line-height:17px;font-weight:800}
+.lv .rw{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted)}
+.lv.lock .nm{color:var(--ink-muted)}
+.lv .pts{font-size:11px;font-weight:800;color:var(--ink-muted)}
+.lv.now{background:var(--blush-soft);border-radius:16px;margin:2px -8px;padding:7px 8px}
+.rail{position:absolute;left:18px;top:20px;bottom:20px;width:2px;background:var(--line)}
+.backbar{display:flex;align-items:center;gap:6px;margin:4px 0 6px}
+.backbar svg{width:22px;height:22px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+</style>
+</head>
+<body>
+<div class="row"><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="hero"><div class="disc"><svg class="" viewBox="0 0 80 86" aria-hidden="true"><g class="tailg"><path class="tail" d="M57 72 q14 -2 12 -18"/></g><ellipse class="fur" cx="40" cy="66" rx="20" ry="17"/><ellipse class="cream" cx="40" cy="70" rx="11" ry="10"/><ellipse class="cream" cx="31" cy="81" rx="6.5" ry="4.2"/><ellipse class="cream" cx="49" cy="81" rx="6.5" ry="4.2"/><rect class="collar" x="28" y="49" width="24" height="5.5" rx="2.75"/><g class="headg"><circle class="fur" cx="40" cy="32" r="18"/><ellipse class="deep" cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)"/><ellipse class="deep" cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)"/><ellipse class="cream" cx="40" cy="40" rx="9.5" ry="7.5"/><ellipse class="pi" cx="40" cy="36.4" rx="3.2" ry="2.3"/><path class="ln" d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0"/><circle class="pi" cx="32.5" cy="29" r="2.7"/><circle class="pi" cx="47.5" cy="29" r="2.7"/><circle class="hl" cx="33.4" cy="28.1" r=".9"/><circle class="hl" cx="48.4" cy="28.1" r=".9"/><ellipse class="pink" cx="28.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/><ellipse class="pink" cx="51.5" cy="37.5" rx="3.2" ry="2" opacity=".85"/></g><path d="M28 49.5 Q40 53.5 52 49.5 L41.2 63 Q40 64.6 38.8 63 Z" style="fill:var(--blush)"/><circle cx="36" cy="53.5" r="1.1" fill="#fffdf9"/><circle cx="43.5" cy="53.8" r="1.1" fill="#fffdf9"/><circle cx="40" cy="58.5" r="1.1" fill="#fffdf9"/></svg></div><div><div class="t15" style="font-size:18px">Luna</div><div class="t12 muted">Perro · dice "guau"</div><span class="chip" style="padding:3px 9px;margin-top:6px">Cambiar nombre</span></div></div><div class="bond"><div class="lvl"><span class="t15">Somos amigos</span><span class="n">Nivel 3</span></div><div class="hearts" aria-label="Progreso al nivel 4: 70%"><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="e" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="e" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg><svg class="e" viewBox="0 0 24 24"><path d="M12 21C12 21 3 14.5 3 8.8 3 5.6 5.5 3.5 8.3 3.5c1.7 0 3 .9 3.7 2.1.7-1.2 2-2.1 3.7-2.1 2.8 0 5.3 2.1 5.3 5.3C21 14.5 12 21 12 21z"/></svg></div><div class="t12 muted">Faltan 9 «Listo» para el nivel 4</div><div class="nextr"><span class="gift"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-1.5-3-5-4-5-1.5S10 9 12 9zM12 9c1.5-3 5-4 5-1.5S14 9 12 9z"/></svg></span><div><div class="t12 muted" style="font-weight:700">Lo próximo que aprendo</div><div class="t13" style="font-weight:800">Saludo de buenos días</div></div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span class="how">Cada "Listo" suma un corazón.</span><span class="chip">Ver el camino</span></div></div><div class="lbl">Tus 2 mascotas</div><div class="t12 muted" style="margin:0 4px;font-weight:600">Abajo sigue la grilla de mascotas y "Cómo se ve", igual que en PantallaMascota.</div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Pestaña Mascota</div><div class="sub">El vínculo arriba: nivel, corazones y lo próximo que aprende</div></div><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="backbar"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="t15" style="font-size:18px">Nuestro camino</span></div><div class="t12 muted" style="margin:0 2px 10px;font-weight:600">Cada vez que me decís "Listo", nos conocemos un poco más. Nunca se pierde lo ganado.</div><div class="path"><span class="rail"></span><div class="lv done"><span class="dot"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div class="grow"><div class="nm">Recién llegada</div><div class="rw">Te saluda con la cola</div></div></div><div class="lv done"><span class="dot"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div class="grow"><div class="nm">Conocidos</div><div class="rw">Pañuelo para el cuello</div></div></div><div class="lv now"><span class="dot">3</span><div class="grow"><div class="nm">Amigos</div><div class="rw">Truco: dar la patita · lo aprendiste hoy</div></div></div><div class="lv lock"><span class="dot">4</span><div class="grow"><div class="nm">Compinches</div><div class="rw">Saludo de buenos días</div></div><span class="pts">60</span></div><div class="lv lock"><span class="dot">5</span><div class="grow"><div class="nm">Inseparables</div><div class="rw">Camita para dormir</div></div><span class="pts">100</span></div><div class="lv lock"><span class="dot">6</span><div class="grow"><div class="nm">Familia</div><div class="rw">Gorrito de lana</div></div><span class="pts">150</span></div><div class="lv lock"><span class="dot">7</span><div class="grow"><div class="nm">Almas gemelas</div><div class="rw">Truco: bailar</div></div><span class="pts">220</span></div><div class="lv lock"><span class="dot">8</span><div class="grow"><div class="nm">Para siempre</div><div class="rw">Corona de flores</div></div><span class="pts">300</span></div></div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Nuestro camino</div><div class="sub">8 niveles; los ganados con tilde, el actual resaltado</div></div></div>
+</body>
+</html>
