@@ -65,13 +65,24 @@ def anims(enum, fn):
         fr.append(f'<g transform="translate(0 {-6 * up:.1f})">' +
                   M.render(sit, 0, face="happy", pose={"armL": {"rot": 140 * up}, "armR": {"rot": -140 * up}}) + "</g>")
     out["hurray"] = fr
-    # orejas (las mascotas que las mueven): bajar, subir y mover una sola, como si escuchara algo
+    # orejas (las mascotas que las mueven): cada una a su manera
     fr = []
     for i in range(20):
         t = i / 19
-        down = ramp(t, 0.0, 0.2) * (1 - ramp(t, 0.45, 0.6))
-        twitch = math.sin(max(0.0, t - 0.65) / 0.35 * math.pi * 3) * 25 if t > 0.65 else 0
-        pose = {"earL": {"rot": -110 * down}, "earR": {"rot": 110 * down + twitch}}
+        if enum == "RABBIT":  # bajar, subir y mover una sola, como si escuchara algo
+            down = ramp(t, 0.0, 0.2) * (1 - ramp(t, 0.45, 0.6))
+            twitch = math.sin(max(0.0, t - 0.65) / 0.35 * math.pi * 3) * 25 if t > 0.65 else 0
+            pose = {"earL": {"rot": -110 * down}, "earR": {"rot": 110 * down + twitch}}
+        elif enum == "DOG":  # se balancean y después se levantan un poquito (presta atención)
+            swing = math.sin(t * math.pi * 4) * 12 * (1 - ramp(t, 0.5, 0.6))
+            perk = ramp(t, 0.6, 0.7) * (1 - ramp(t, 0.9, 1.0)) * 28
+            pose = {"earL": {"rot": swing - perk}, "earR": {"rot": swing + perk}}
+        elif enum == "CAT":  # tic rápido de una oreja y después de la otra
+            a = 14 * math.sin(min(1.0, max(0.0, (t - 0.1) / 0.2)) * math.pi * 2)
+            b = 14 * math.sin(min(1.0, max(0.0, (t - 0.55) / 0.2)) * math.pi * 2)
+            pose = {"earL": {"rot": -a}, "earR": {"rot": b}}
+        else:
+            pose = {}
         fr.append(M.render(sit, 0, pose=pose))
     out["ears"] = fr
     # en reposo: sentada, abre y cierra los ojos
@@ -88,7 +99,7 @@ def main():
         names[enum] = fn()["name"]
     buttons = "".join(f'<button class="pet" data-p="{k}">{names[k]}</button>' for k in pets)
     acts = [("rest", "En reposo"), ("spin", "Vuelta"), ("head", "Girar la cabeza"), ("wave", "Saludar"),
-            ("paws", "Patitas"), ("hurray", "¡Hurra!"), ("ears", "Orejas (conejo)")]
+            ("paws", "Patitas"), ("hurray", "¡Hurra!"), ("ears", "Orejas (conejo, perro, gato)")]
     act_buttons = "".join(f'<button class="act" data-a="{k}">{t}</button>' for k, t in acts)
     html = f"""<!doctype html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Mascotas en 3D</title>

@@ -176,6 +176,10 @@ def render(model, th, face="open", pose=None, head=None):
                 e_svg = (f'<clipPath id="{cid}">{ellipse_svg(*clips[el["clip"]], "#000", stroke=False)}</clipPath>'
                          f'<g clip-path="url(#{cid})">{e_svg}</g>')
                 key = el["layer"] + 0.1  # justo encima de su volumen
+            base_rot = vary(el.get("base_rot", 0), sa)
+            if base_rot and abs(x) > 1 and (px - 100) * x < 0:
+                base_rot = -base_rot  # de espaldas la oreja quedó del otro lado: cae hacia afuera igual
+            drot_pose += base_rot
             if drot_pose:
                 ry_ = vary(el["ry"], sa)
                 pvy = el["pivot_y"] + dy_pose if el.get("pivot_y") is not None else y - ry_ * 0.8
@@ -196,12 +200,20 @@ def render(model, th, face="open", pose=None, head=None):
             if el["hide"] is not None and fz < el["hide"]:
                 continue
             d = el["d"].format(*[f"{f1(px)} {f1(y + dy_pose)}" for px, _, y in pts])
+            if drot_pose and el.get("pivot"):
+                pvx, _ = F.proj(el["pivot"][0], el["pivot"][2])
+                d_rot = (pvx, el["pivot"][1] + dy_pose)
+            else:
+                d_rot = None
             stroke = "" if el["color"] == INK else f' stroke="{el["color"]}"'
             if el["width"] == 0:
                 stroke = ' stroke="none"'
             w = f' stroke-width="{el["width"]}"' if el["width"] not in (0, 4) else ""
             key = el["layer"] + (-0.5 if fz < el["behind"] else 0.5)
-            items.append((key, sum(p[1] for p in pts) / len(pts), f'<path d="{d}" fill="{el["fill"]}"{stroke}{w}></path>'))
+            p_svg = f'<path d="{d}" fill="{el["fill"]}"{stroke}{w}></path>'
+            if d_rot:
+                p_svg = f'<g transform="rotate({f1(drot_pose)} {f1(d_rot[0])} {f1(d_rot[1])})">{p_svg}</g>'
+            items.append((key, sum(p[1] for p in pts) / len(pts), p_svg))
         elif k == "tail":
             (bx3, bz3), (tx3, tz3) = el["base"], el["tip"]
             bx, bz = F.proj(bx3, bz3)
@@ -346,6 +358,9 @@ def build(fn, sit=False, colors=None):
                 el["y"] = (y[0] + SIT_HEAD_DY, y[1] + SIT_HEAD_DY) if isinstance(y, tuple) else y + SIT_HEAD_DY
             if el.get("pivot_y") is not None:
                 el["pivot_y"] += SIT_HEAD_DY
+            if el.get("pivot") is not None:
+                px_, py_, pz_ = el["pivot"]
+                el["pivot"] = (px_, py_ + SIT_HEAD_DY, pz_)
             if "pts" in el:
                 el["pts"] = [(a, b + SIT_HEAD_DY, c) for a, b, c in el["pts"]]
     m["sit"] = sit
@@ -373,7 +388,7 @@ def dog(c=None):
     p.append(vol(HEAD, 0, 98, hz, (68, 62), (60, 58), main))
     for sx in (-1, 1):  # orejas caídas a los costados
         x, z = sx * 64 * math.sin(math.radians(100)), 64 * math.cos(math.radians(100))
-        p.append(part(HEAD, x, 97, z + 6, 15, 31, dark, rot=-sx * 18 * (63 / 62)))
+        p.append(part(HEAD, x, 97, z + 6, 15, 31, dark, rot=-sx * 18 * (63 / 62), tag=("earL" if sx < 0 else "earR"), pivot_y=70))
     p.append(path(HEAD, [(0, 40, 44), (8, 52, 44), (0, 60, 46), (-8, 52, 44)], "M{0} Q{1} {2} Q{3} {0} Z",
                   fill=light, width=0, hide=0.05))
     p.append(path(HEAD, [(-6, 50, -46), (0, 40, -48), (6, 50, -46)], "M{0} Q{1} {2}", color=dark, hide=0.05))

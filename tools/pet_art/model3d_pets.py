@@ -69,6 +69,7 @@ PALETTES = {
                ("Gris", dict(main="#C9C6CC", light="#F4F3F6", inner="#F3BFCB")),
                ("Marrón", dict(main="#C9A07E", light="#F6E9DC", inner="#F2B9B9")),
                ("Negro", dict(main="#5C5352", light="#EFE7E2", inner="#E7A9B4")),
+               ("Orejas caídas", dict(main="#F4DCC4", light="#FFF8F0", inner="#F7B3BE", lop=True)),
                ("Manchado", dict(main="#FFFFFF", light="#FFFFFF", inner="#FFC9D4", spots=[('head', 68, 74, 20, 17, '#8C6A55', 0), ('head', 130, 60, 9, 8, '#8C6A55', 0), ('head', 84, 70, 20, 17, '#8C6A55', 1), ('head', 120, 90, 12, 10, '#8C6A55', 1), ('body', 128, 176, 12, 10, '#8C6A55', 0), ('body', 84, 172, 15, 13, '#8C6A55', 1), ('body', 118, 196, 10, 8, '#8C6A55', 1)]))],
 }
 
@@ -88,8 +89,9 @@ def cat(c=None):
     for sx in (-1, 1):  # orejas redondeadas, siempre detrás de la cabeza
         ear = [(100 + sx * 58, 76), (100 + sx * 58, 30), (100 + sx * 48, 24), (100 + sx * 34, 30), (100 + sx * 10, 48)]
         inner = [(100 + sx * 46, 58), (100 + sx * 46, 40), (100 + sx * 42, 36), (100 + sx * 34, 40), (100 + sx * 24, 49)]
-        p.append(path(HEAD, round_pts(ear), "M{0} Q{1} {2} Q{3} {4} Z", fill=main, behind=2))
-        p.append(path(HEAD, round_pts(inner, zoff=-29), "M{0} Q{1} {2} Q{3} {4} Z", fill="#FFB3BF", width=0, behind=2))
+        tag, piv = ("earL" if sx < 0 else "earR"), (sx * 34, 62, 30)
+        p.append(path(HEAD, round_pts(ear), "M{0} Q{1} {2} Q{3} {4} Z", fill=main, behind=2, tag=tag, pivot=piv))
+        p.append(path(HEAD, round_pts(inner, zoff=-29), "M{0} Q{1} {2} Q{3} {4} Z", fill="#FFB3BF", width=0, behind=2, tag=tag, pivot=piv))
     p.append(vol(HEAD, 0, 98, hz, (68, 62), (60, 58), main))
     p.append(path(HEAD, flat_pts([(92, 42), (94, 48), (93, 53)], cz=6), "M{0} Q{1} {2}", color=soft, hide=0.05))
     p.append(path(HEAD, flat_pts([(100, 39), (100, 50)], cz=6), "M{0} L{1}", color=soft, hide=0.05))
@@ -342,10 +344,13 @@ def rabbit(c=None):
     p += legs(main, light, belly=light)
     p.append(body(main))
     # orejas largas, anchas y redondeadas; giran desde la base (pose earL/earR: subir y bajar)
+    lop = c.get("lop", False)  # orejas caídas: siempre bajas a los costados, por delante de la cabeza
     for sx, tag in ((-1, "earL"), (1, "earR")):
-        p.append(part(HEAD, sx * 26, 30, 4, 18, 44, main, rot=sx * 12, behind=2, tag=tag, pivot_y=66))
-        p.append(part(HEAD, sx * 26, 36, 5, 9.5, 33, inner, rot=sx * 12, flat=True, p=0.6, hide=0.05, stroke=False, behind=2,
-                      tag=tag, pivot_y=66))
+        base = (sx * 128, sx * 172) if lop else 0  # de perfil cuelgan derecho hacia abajo
+        behind = -0.35 if lop else 2               # de espaldas pasan detrás de la cabeza
+        p.append(part(HEAD, sx * 26, 30, 4, 18, 44, main, rot=sx * 12, behind=behind, tag=tag, pivot_y=66, base_rot=base))
+        p.append(part(HEAD, sx * 26, 36, 5, 9.5, 33, inner, rot=sx * 12, flat=True, p=0.6, hide=0.05, stroke=False, behind=behind,
+                      tag=tag, pivot_y=66, base_rot=base))
     p.append(vol(HEAD, 0, 104, hz, (70, 64), (60, 58), main))
     # mechoncito arriba de la cabeza
     p.append(path(HEAD, fixed_pts([(90, 48), (93, 38), (99, 45), (102, 35), (108, 45), (112, 40), (112, 50)], 40),
