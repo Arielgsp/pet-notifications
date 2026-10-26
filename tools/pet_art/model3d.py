@@ -44,8 +44,9 @@ def part(group, x, y, z, rx, ry, fill, rot=0, behind=-0.35, **kw):
     return dict(kind="part", layer=group, x=x, y=y, z=z, rx=rx, ry=ry, fill=fill, rot=rot, behind=behind, **kw)
 
 
-def eye(x, y, z, r=(10, 12), hide=0.22):
-    return dict(kind="eye", layer=HEAD, x=x, y=y, z=z, r=r, hide=hide)
+def eye(x, y, z, r=(10, 12), hide=0.22, kawaii=False):
+    """Ojo. kawaii: brillo grande arriba y uno chico abajo, más notorios (mirada "tierna")."""
+    return dict(kind="eye", layer=HEAD, x=x, y=y, z=z, r=r, hide=hide, kawaii=kawaii)
 
 
 def path(group, pts, d, fill="none", width=4, color=INK, behind=-0.35, hide=None, **kw):
@@ -149,7 +150,11 @@ def render(model, th, face="open", pose=None, head=None):
             if k == "eye":
                 kk = max(fz, 0) ** 0.6
                 r = el["r"]
-                if face == "open":
+                if face == "open" and el.get("kawaii"):
+                    svg = (ellipse_svg(px, y, r[0] * kk, r[1], INK, stroke=False) +
+                           f'<circle cx="{f1(px - r[0] * 0.3 * kk)}" cy="{f1(y - r[1] * 0.38)}" r="{f1(r[0] * 0.48 * kk)}" fill="{WHITE}" stroke="none"></circle>'
+                           f'<circle cx="{f1(px + r[0] * 0.42 * kk)}" cy="{f1(y + r[1] * 0.4)}" r="{f1(r[0] * 0.24 * kk)}" fill="{WHITE}" stroke="none"></circle>')
+                elif face == "open":
                     svg = (ellipse_svg(px, y, r[0] * kk, r[1], INK, stroke=False) +
                            f'<circle cx="{f1(px - 3 * kk)}" cy="{f1(y - 5)}" r="{f1(r[0] * 0.4 * kk)}" fill="{WHITE}" stroke="none"></circle>'
                            f'<circle cx="{f1(px + 4 * kk)}" cy="{f1(y + 4)}" r="{f1(1.8 * kk)}" fill="{WHITE}" stroke="none"></circle>')
@@ -173,7 +178,8 @@ def render(model, th, face="open", pose=None, head=None):
                 key = el["layer"] + 0.1  # justo encima de su volumen
             if drot_pose:
                 ry_ = vary(el["ry"], sa)
-                e_svg = f'<g transform="rotate({f1(drot_pose)} {f1(px)} {f1(y - ry_ * 0.8)})">{e_svg}</g>'
+                pvy = el["pivot_y"] + dy_pose if el.get("pivot_y") is not None else y - ry_ * 0.8
+                e_svg = f'<g transform="rotate({f1(drot_pose)} {f1(px)} {f1(pvy)})">{e_svg}</g>'
                 # brazo levantado: pasa por delante de la cabeza (si no, la cabeza lo tapa)
                 if abs(drot_pose) > 60 and fz >= el["behind"]:
                     key = HEAD + 0.6
@@ -338,6 +344,8 @@ def build(fn, sit=False, colors=None):
             if "y" in el:
                 y = el["y"]
                 el["y"] = (y[0] + SIT_HEAD_DY, y[1] + SIT_HEAD_DY) if isinstance(y, tuple) else y + SIT_HEAD_DY
+            if el.get("pivot_y") is not None:
+                el["pivot_y"] += SIT_HEAD_DY
             if "pts" in el:
                 el["pts"] = [(a, b + SIT_HEAD_DY, c) for a, b, c in el["pts"]]
     m["sit"] = sit

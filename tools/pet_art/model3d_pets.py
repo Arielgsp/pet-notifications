@@ -64,7 +64,7 @@ PALETTES = {
             ("Nieve", dict(main="#F4F1EC", dark="#CFC6BA", light="#FFFFFF", disc="#FFFFFF")),
             ("Gris", dict(main="#9D9A9C", dark="#6F6B6E", light="#E9E6E6", disc="#DCD8D8")),
             ("Rojizo", dict(main="#C27A4E", dark="#8F5534", light="#F6E1CC", disc="#EDCBB0"))],
-    "RABBIT": [("Crema", dict(main="#FFF4EA", light="#FFFFFF", inner="#FFC2CF")),
+    "RABBIT": [("Crema", dict(main="#FFF1E6", light="#FFFFFF", inner="#FFB9C8")),
                ("Blanco", dict(main="#FFFFFF", light="#FFFFFF", inner="#FFC9D4")),
                ("Gris", dict(main="#C9C6CC", light="#F4F3F6", inner="#F3BFCB")),
                ("Marrón", dict(main="#C9A07E", light="#F6E9DC", inner="#F2B9B9")),
@@ -334,30 +334,33 @@ def owl(c=None):
 
 
 def rabbit(c=None):
+    """Conejo kawaii: ojos grandes con dos brillos, cachetes rosados, boquita ω y mechoncito."""
     c = colors("RABBIT", c)
     main, light, inner = c["main"], c["light"], c["inner"]
     hz = (0, 6)
-    p = [part(BODY, 0, 196, -42, 14, 14, light, behind=0)]  # pompón (se ve de costado y de espaldas)
+    p = [part(BODY, 0, 196, -42, 15, 15, light, behind=0)]  # pompón (se ve de costado y de espaldas)
     p += legs(main, light, belly=light)
     p.append(body(main))
-    for sx in (-1, 1):  # orejas largas paradas, siempre detrás de la cabeza
-        p.append(part(HEAD, sx * 24, 32, 4, 15, 40, main, rot=sx * 8, behind=2))
-        p.append(part(HEAD, sx * 24, 38, 5, 7.5, 30, inner, rot=sx * 8, flat=True, p=0.6, hide=0.05, stroke=False, behind=2))
-    p.append(vol(HEAD, 0, 102, hz, (66, 60), (58, 56), main))
-    p += eyes2(28, 100, 6)
-    p += blush2(46, 122, 6)
-    nz = on_head(0, 114, cz=6) + 4
-    p.append(path(HEAD, fixed_pts([(94, 112), (100, 110), (106, 112), (100, 118)], nz), "M{0} Q{1} {2} Q{3} {0} Z", fill="#FF9FB2", width=2.5, hide=0.1))
-    p.append(path(HEAD, fixed_pts([(100, 118), (100, 122)], nz), "M{0} L{1}", width=3, hide=0.15))
-    p.append(path(HEAD, fixed_pts([(96, 124), (104, 124), (104, 131), (96, 131)], nz - 1), "M{0} L{1} L{2} L{3} Z", fill="#FFFFFF", width=2.5, hide=0.2))
-    p.append(path(HEAD, fixed_pts([(100, 124), (100, 131)], nz - 0.5), "M{0} L{1}", width=2, hide=0.2))
-    p.append(path(HEAD, fixed_pts([(90, 122), (95, 127), (100, 122), (105, 127), (110, 122)], nz), "M{0} Q{1} {2} Q{3} {4}", width=3, hide=0.15))
-    for sx in (-1, 1):
-        for y0, y1, y2 in ((114, 116, 119), (126, 124, 123)):
-            w = flat_pts([(100 + sx * 58, y0), (100 + sx * 50, y1), (100 + sx * 42, y2)], cz=6, lift=4)
-            p.append(path(HEAD, w, "M{0} Q{1} {2}", width=2.5, color="#B9A79A", hide=-0.1))
-    p += spot_parts(c, head=(102, 64, 60, 6))
+    # orejas largas, anchas y redondeadas; giran desde la base (pose earL/earR: subir y bajar)
+    for sx, tag in ((-1, "earL"), (1, "earR")):
+        p.append(part(HEAD, sx * 26, 30, 4, 18, 44, main, rot=sx * 12, behind=2, tag=tag, pivot_y=66))
+        p.append(part(HEAD, sx * 26, 36, 5, 9.5, 33, inner, rot=sx * 12, flat=True, p=0.6, hide=0.05, stroke=False, behind=2,
+                      tag=tag, pivot_y=66))
+    p.append(vol(HEAD, 0, 104, hz, (70, 64), (60, 58), main))
+    # mechoncito arriba de la cabeza
+    p.append(path(HEAD, fixed_pts([(90, 48), (93, 38), (99, 45), (102, 35), (108, 45), (112, 40), (112, 50)], 40),
+                  "M{0} Q{1} {2} Q{3} {4} Q{5} {6}", fill=main, width=3.5, behind=-2, bb=(0, 40)))
+    p += [eye(sx * 30, 106, on_head(sx * 30, 106, cy=104, cz=6), (12, 14), kawaii=True) for sx in (-1, 1)]
+    p += [part(HEAD, sx * 46, 128, on_head(sx * 46, 128, cy=104, cz=6), 14, 9, BLUSH, flat=True, hide=0.05, stroke=False, opacity=0.55)
+          for sx in (-1, 1)]
+    nz = on_head(0, 120, cy=104, cz=6) + 4
+    p.append(path(HEAD, fixed_pts([(95, 117), (105, 117), (100, 122)], nz), "M{0} Q{2} {1} Z", fill="#FF9FB2", width=2.5, hide=0.1))
+    p.append(path(HEAD, fixed_pts([(93, 124), (96.5, 129), (100, 124), (103.5, 129), (107, 124)], nz), "M{0} Q{1} {2} Q{3} {4}",
+                  width=3, hide=0.15))
+    for sx in (-1, 1):  # bigotes cortitos y suaves
+        w = flat_pts([(100 + sx * 60, 118), (100 + sx * 54, 119), (100 + sx * 48, 121)], cy=104, cz=6, lift=4)
+        p.append(path(HEAD, w, "M{0} Q{1} {2}", width=2.5, color="#C9B8AA", hide=-0.1))
+    p += spot_parts(c, head=(104, 64, 60, 6))
     return dict(name="Conejo", parts=p)
-
 
 MORE = {"CAT": cat, "DUCK": duck, "FROG": frog, "COW": cow, "PIG": pig, "CHICK": chick, "LION": lion, "MONKEY": monkey, "OWL": owl, "RABBIT": rabbit}
