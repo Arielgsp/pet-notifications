@@ -23,3 +23,6 @@ hs_err_pid*
 replay_pid*
 # Lienzo generado por tools/pet_art/gen.py.
 /tools/pet_art/canvas/
+
+# Caché de Python de las herramientas.
+__pycache__/

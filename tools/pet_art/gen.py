@@ -40,9 +40,30 @@ def shadow():
     return f'<ellipse cx="100" cy="228" rx="54" ry="7" fill="{INK}" opacity=".12" stroke="none"></ellipse>'
 
 
+# Pose sentada (vistas SIT del exportador): como un peluche, con las patas estiradas hacia adelante y
+# la cabeza un poco más abajo. base_body deja abierto un grupo que baja todo lo que sigue
+# (la cabeza); quien la usa lo cierra con "</g>".
+SITTING = False
+SIT_HEAD_DY = 8
+PAW_PAD = "#FFC9D2"  # almohadillas de las plantitas
+
+
 def base_body(main, belly=None, feet=None, arms=None):
     feet = feet or main
     arms = arms or main
+    if SITTING:
+        # Sentada "peluche": patas estiradas hacia adelante (se ven las plantitas) y bracitos al costado.
+        s = f'<ellipse cx="100" cy="186" rx="42" ry="34" fill="{main}"></ellipse>'
+        if belly:
+            s += f'<ellipse cx="100" cy="192" rx="24" ry="20" fill="{belly}" stroke="none"></ellipse>'
+        s += (f'<ellipse cx="64" cy="186" rx="10" ry="15" fill="{arms}" transform="rotate(22 64 186)"></ellipse>'
+              f'<ellipse cx="136" cy="186" rx="10" ry="15" fill="{arms}" transform="rotate(-22 136 186)"></ellipse>')
+        for cx in (72, 128):
+            s += f'<ellipse cx="{cx}" cy="212" rx="18" ry="13" fill="{feet}"></ellipse>'
+            s += f'<ellipse cx="{cx}" cy="214" rx="8" ry="6" fill="{PAW_PAD}" stroke="none"></ellipse>'
+            for dx, dy in ((-9, 207), (0, 205), (9, 207)):
+                s += f'<circle cx="{cx + dx}" cy="{dy}" r="2.6" fill="{PAW_PAD}" stroke="none"></circle>'
+        return s + f'<g transform="translate(0 {SIT_HEAD_DY})">'
     s = (f'<ellipse cx="80" cy="214" rx="15" ry="10" fill="{feet}"></ellipse>'
          f'<ellipse cx="120" cy="214" rx="15" ry="10" fill="{feet}"></ellipse>'
          f'<ellipse cx="100" cy="176" rx="42" ry="38" fill="{main}"></ellipse>')
@@ -93,19 +114,38 @@ def dog_head(expr="open", mouth="smile"):
     return s
 
 
-def cat(e="open"):
-    main, light, dark = "#F7B77A", "#FFF3E4", "#E08E4B"
-    s = f'<path d="M136 198 C176 198 186 150 164 130 C156 124 148 134 156 140 C168 154 162 184 134 184 Z" fill="{main}"></path>'
-    s += f'<path d="M42 74 L48 20 L90 46 Z" fill="{main}"></path><path d="M158 74 L152 20 L110 46 Z" fill="{main}"></path>'
-    s += f'<path d="M54 56 L56 34 L76 47 Z" fill="#FFB3BF" stroke="none"></path><path d="M146 56 L144 34 L124 47 Z" fill="#FFB3BF" stroke="none"></path>'
-    s += base_body(main, light, light)
-    s += f'<ellipse cx="100" cy="98" rx="68" ry="60" fill="{main}"></ellipse>'
-    s += f'<path d="M91 44 L93 58 M100 40 L100 56 M109 44 L107 58" fill="none" stroke="{dark}" stroke-width="4.5"></path>'
-    s += eyes(72, 128, 100, e) + blush(54, 146, 122)
+CAT_MAIN, CAT_LIGHT, CAT_SOFT = "#F7B77A", "#FFF3E4", "#F0A066"
+
+
+def cat_ears():
+    """Orejas redondeadas (más amigables que las puntiagudas de antes)."""
+    m = CAT_MAIN
+    return (f'<path d="M42 76 Q42 30 52 24 Q66 30 90 48 Z" fill="{m}"></path><path d="M158 76 Q158 30 148 24 Q134 30 110 48 Z" fill="{m}"></path>'
+            f'<path d="M54 58 Q54 40 58 36 Q66 40 76 49 Z" fill="#FFB3BF" stroke="none"></path><path d="M146 58 Q146 40 142 36 Q134 40 124 49 Z" fill="#FFB3BF" stroke="none"></path>')
+
+
+def cat_face(e):
+    """Cara del gato de frente ("Contenta"): rayitas suaves, hocico claro, ojos grandes, sonrisa abierta."""
+    s = f'<ellipse cx="100" cy="98" rx="68" ry="60" fill="{CAT_MAIN}"></ellipse>'
+    s += f'<path d="M92 42 Q94 48 93 53 M100 39 L100 50 M108 42 Q106 48 107 53" fill="none" stroke="{CAT_SOFT}" stroke-width="4"></path>'
+    s += f'<ellipse cx="100" cy="123" rx="23" ry="15" fill="{CAT_LIGHT}" stroke="none"></ellipse>'
+    s += eyes(72, 128, 100, e, r=(11, 13)) + blush(52, 148, 122)
+    s += (f'<ellipse cx="52" cy="122" rx="13" ry="7.5" fill="{BLUSH}" opacity=".5" stroke="none"></ellipse>'
+          f'<ellipse cx="148" cy="122" rx="13" ry="7.5" fill="{BLUSH}" opacity=".5" stroke="none"></ellipse>')
     s += f'<path d="M95 113 L105 113 L100 119 Z" fill="#FF8FA3" stroke-width="2.5"></path>'
-    s += f'<path d="M100 119 Q96 127 89 123 M100 119 Q104 127 111 123" fill="none" stroke-width="3.5"></path>'
-    s += f'<path d="M36 112 L56 116 M36 126 L56 122 M164 112 L144 116 M164 126 L144 122" fill="none" stroke-width="3"></path>'
+    s += (f'<path d="M100 119 L100 122" fill="none" stroke-width="3"></path>'
+          f'<path d="M89 122 Q100 138 111 122 Q100 127 89 122 Z" fill="#B8475A" stroke-width="3"></path>'
+          f'<path d="M95 129 Q100 126 105 129 Q100 133 95 129 Z" fill="#FF8FA3" stroke="none"></path>')
+    s += f'<path d="M40 110 Q48 112 56 116 M40 124 Q48 122 56 121 M160 110 Q152 112 144 116 M160 124 Q152 122 144 121" fill="none" stroke-width="3"></path>'
     return s
+
+
+def cat(e="open"):
+    main, light = CAT_MAIN, CAT_LIGHT
+    s = f'<path d="M136 198 C176 198 186 150 164 130 C156 124 148 134 156 140 C168 154 162 184 134 184 Z" fill="{main}"></path>'
+    s += base_body(main, light, light)
+    # las orejas van después del cuerpo: así bajan con la cabeza cuando está sentada
+    return s + cat_ears() + cat_face(e)
 
 
 def duck():
@@ -584,17 +624,7 @@ def svg_lying(inner, width=180):
 # --- cabezas de frente con ojos variables (para acostados) ---
 
 def head_cat(e):
-    main, dark = "#F7B77A", "#E08E4B"
-    s = f'<path d="M42 74 L48 20 L90 46 Z" fill="{main}"></path><path d="M158 74 L152 20 L110 46 Z" fill="{main}"></path>'
-    s += f'<path d="M54 56 L56 34 L76 47 Z" fill="#FFB3BF" stroke="none"></path><path d="M146 56 L144 34 L124 47 Z" fill="#FFB3BF" stroke="none"></path>'
-    s += f'<ellipse cx="100" cy="98" rx="68" ry="60" fill="{main}"></ellipse>'
-    s += f'<path d="M91 44 L93 58 M100 40 L100 56 M109 44 L107 58" fill="none" stroke="{dark}" stroke-width="4.5"></path>'
-    s += eyes(72, 128, 100, e) + blush(54, 146, 122)
-    s += f'<path d="M95 113 L105 113 L100 119 Z" fill="#FF8FA3" stroke-width="2.5"></path>'
-    s += f'<path d="M100 119 Q96 127 89 123 M100 119 Q104 127 111 123" fill="none" stroke-width="3.5"></path>'
-    s += f'<path d="M36 112 L56 116 M36 126 L56 122 M164 112 L144 116 M164 126 L144 122" fill="none" stroke-width="3"></path>'
-    return s
-
+    return cat_ears() + cat_face(e)
 
 def head_frog(e):
     main = "#A6D98A"
@@ -729,7 +759,7 @@ def cat_side():
     s += f'<path d="M118 50 L140 20 L152 60 Z" fill="{main}"></path>'
     s += f'<path d="M80 66 L88 22 L122 48 Z" fill="{main}"></path><path d="M90 54 L94 34 L110 48 Z" fill="#FFB3BF" stroke="none"></path>'
     s += f'<ellipse cx="112" cy="98" rx="62" ry="58" fill="{main}"></ellipse>'
-    s += f'<path d="M104 44 L106 58 M114 42 L114 56" fill="none" stroke="{dark}" stroke-width="4.5"></path>'
+    s += f'<path d="M104 44 Q106 50 105 55 M114 42 L114 52" fill="none" stroke="{CAT_SOFT}" stroke-width="4"></path>'
     s += f'<ellipse cx="164" cy="118" rx="18" ry="14" fill="{light}"></ellipse>'
     s += eye1(142, 98) + blush1(134, 124)
     s += f'<path d="M176 108 L184 110 L178 116 Z" fill="#FF8FA3" stroke-width="2.5"></path>'
@@ -865,10 +895,10 @@ def owl_side():
 
 def cat_back():
     main, dark = "#F7B77A", "#E08E4B"
-    s = f'<path d="M42 74 L48 20 L90 46 Z" fill="{main}"></path><path d="M158 74 L152 20 L110 46 Z" fill="{main}"></path>'
+    s = f'<path d="M42 76 Q42 30 52 24 Q66 30 90 48 Z" fill="{main}"></path><path d="M158 76 Q158 30 148 24 Q134 30 110 48 Z" fill="{main}"></path>'
     s += back_body(main, "#FFF3E4")
     s += f'<ellipse cx="100" cy="98" rx="68" ry="60" fill="{main}"></ellipse>'
-    s += f'<path d="M86 48 L88 66 M100 42 L100 64 M114 48 L112 66 M100 150 L100 168" fill="none" stroke="{dark}" stroke-width="4.5"></path>'
+    s += f'<path d="M86 48 Q88 57 87 64 M100 42 L100 62 M114 48 Q112 57 113 64 M100 150 L100 166" fill="none" stroke="{CAT_SOFT}" stroke-width="4"></path>'
     s += f'<path d="M100 206 C102 180 128 170 140 150 C142 144 150 146 148 154 C136 174 118 186 114 206 Z" fill="{main}"></path>'
     return s
 

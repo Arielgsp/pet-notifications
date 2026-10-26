@@ -203,6 +203,7 @@ fun SettingsScreen(
     var unlockRepeat by remember { mutableIntStateOf(prefs.unlockRepeat) }
     var ghost by remember { mutableStateOf(prefs.ghostMode) }
     var liveliness by remember { mutableIntStateOf(prefs.liveliness) }
+    var showOwner by remember { mutableStateOf(false) }
     var hideFullscreen by remember { mutableStateOf(prefs.hideInFullscreen) }
     var opacity by remember { mutableIntStateOf(prefs.petOpacity) }
     var pausedUntil by remember { mutableLongStateOf(prefs.petPausedUntil) }
@@ -869,9 +870,21 @@ fun SettingsScreen(
             val version = remember {
                 runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull().orEmpty()
             }
+            // Versiones de prueba: 7 toques en la versión abren las herramientas de dueño.
+            var versionTaps by remember { mutableIntStateOf(0) }
             Text(
-                stringResource(R.string.version_label, version), fontSize = 12.sp, color = c.inkMuted,
-                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+                stringResource(R.string.version_label, version) +
+                    if (com.petnotifications.BuildConfig.OWNER_TOOLS && prefs.ownerPlan != Prefs.OWNER_NORMAL) " · " + stringResource(R.string.owner_badge) else "",
+                fontSize = 12.sp, color = c.inkMuted,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().then(
+                    if (com.petnotifications.BuildConfig.OWNER_TOOLS) Modifier.clickable {
+                        if (++versionTaps >= 7) {
+                            versionTaps = 0
+                            showOwner = true
+                        }
+                    } else Modifier,
+                ),
             )
         }
     }
@@ -1246,6 +1259,8 @@ fun SettingsScreen(
             onDismiss = ::close,
         )
     }
+
+    if (showOwner) OwnerToolsDialog { showOwner = false }
 
     deleting?.let { r ->
         val next = nextOccurrence(r.timeMillis, Repeat.from(r.repeat), r.timeMillis)

@@ -534,8 +534,22 @@
 
     <!-- Vida propia de la mascota -->
     <string name="lively_title">Qué tan inquieta es</string>
-    <string name="lively_help">Cada cuánto hace algo sola: mirar a los costados, estirarse, bostezar, dar unos pasitos…</string>
+    <string name="lively_help">Cada cuánto hace algo sola, en su lugar: mirar a los costados, dar una vuelta, estirarse, bostezar, tirar un corazón…</string>
     <string name="lively_calm">Tranquila</string>
     <string name="lively_normal">Normal</string>
     <string name="lively_active">Inquieta</string>
+
+    <!-- Herramientas de dueño (solo versiones de prueba) -->
+    <string name="owner_title">Herramientas de dueño</string>
+    <string name="owner_note">Solo existen en las versiones de prueba: no están en la de Google Play.</string>
+    <string name="owner_plan">Plan</string>
+    <string name="owner_plan_normal">Normal (compra y prueba gratis)</string>
+    <string name="owner_plan_pro">Pro de dueño</string>
+    <string name="owner_plan_free">Simular plan gratis</string>
+    <string name="owner_badge">dueño</string>
+    <string name="owner_bond">Vínculo</string>
+    <string name="owner_hearts">Corazones: %1$d (nivel %2$d)</string>
+    <string name="owner_bond_add">+10 corazones</string>
+    <string name="owner_bond_reset">Reiniciar vínculo</string>
+    <string name="owner_close">Cerrar</string>
 </resources>

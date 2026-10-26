@@ -71,6 +71,24 @@ object PetModel {
         }
     }
 
+    /**
+     * Solo la cabeza girada [theta] grados, bajada [headDy] (la cabeza de la pose sentada está más
+     * abajo). Se dibuja encima del cuerpo sentado sin cabeza (PetView.SIT_BODY).
+     */
+    fun drawHead(ds: DrawScope, pet: PetType, theta: Float, happy: Boolean, headDy: Float) {
+        val k = ds.size.width / 256f
+        ds.scale(k, k, pivot = Offset.Zero) {
+            translate(left = 28f, top = headDy) {
+                when (pet) {
+                    else -> dogHead(Ctx(this), theta, happy)
+                }
+            }
+        }
+    }
+
+    /** Cuánto más abajo está la cabeza en la pose sentada (tools/pet_art/gen.py SIT_HEAD_DY). */
+    const val SIT_HEAD_DY = 8f
+
     private fun rad(d: Float) = Math.toRadians(d.toDouble()).toFloat()
 
     // ---------------------------------------------------------------- perro
@@ -80,6 +98,11 @@ object PetModel {
     private val DogDark = Color(0xFFC98A55)
 
     private fun dog(g: Ctx, th: Float, happy: Boolean) {
+        dogBody(g, th)
+        dogHead(g, th, happy)
+    }
+
+    private fun dogBody(g: Ctx, th: Float) {
         val s = sin(rad(th))
         val c = cos(rad(th))
         val sa = abs(s)
@@ -137,7 +160,15 @@ object PetModel {
         }
         arms.filter { it.z >= -0.1f }.forEach { it.draw() }
         if (tailZ >= 0) g.path(tail, DogMain)
+    }
 
+    private fun dogHead(g: Ctx, th: Float, happy: Boolean) {
+        val s = sin(rad(th))
+        val c = cos(rad(th))
+        val sa = abs(s)
+        fun aroundX(phi: Float, r: Float) = r * sin(rad(phi + th))
+        fun aroundZ(phi: Float) = cos(rad(phi + th))
+        data class Part(val z: Float, val draw: () -> Unit)
         // cabeza
         val headRx = 68 - 6 * sa; val headCx = 100 + 6 * s
         val ears = listOf(-100f, 100f).map { phi ->
@@ -202,4 +233,5 @@ object PetModel {
         }
         ears.filter { it.z >= -0.35f }.forEach { it.draw() }
     }
+
 }

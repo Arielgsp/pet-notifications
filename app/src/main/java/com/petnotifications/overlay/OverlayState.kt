@@ -67,14 +67,19 @@ class OverlayState {
      * el globo y los corazones van debajo y la colita del globo apunta hacia arriba.
      */
     var fxBelow by mutableStateOf(false)
+    /**
+     * Si arriba no entra, lo que dice la mascota va al costado: 1 = la ventana de efectos está a la
+     * derecha de la mascota, -1 = a la izquierda, 0 = arriba o abajo (ver [fxBelow]).
+     */
+    var fxSide by mutableIntStateOf(0)
+    /** Al costado: altura (px, desde arriba de la ventana de efectos) de la cabeza de la mascota. */
+    var anchorY by mutableFloatStateOf(0f)
     val hearts = mutableStateListOf<Long>()
     /** "+1" del vínculo que sube desde la mascota al marcar "Listo". */
     val plusOnes = mutableStateListOf<Long>()
     /** Truco a hacer; cada incremento de [trickTick] lo dispara (aunque sea el mismo). */
     var trick by mutableStateOf(Trick.WAG)
     var trickTick by mutableIntStateOf(0)
-    /** Caminando sola unos pasitos: -1 hacia la izquierda, 1 hacia la derecha, 0 quieta. */
-    var walkDir by mutableIntStateOf(0)
     /** Tarjeta flotante arriba de la pantalla (festejo del vínculo o saludo de buenos días). */
     var card by mutableStateOf<BondCard?>(null)
 
@@ -86,9 +91,9 @@ class OverlayState {
 
 /**
  * Trucos que aprende con el vínculo (WAG, PAW, DANCE; CHEER: contenta con un rebote, para mostrar un
- * premio) y cosas que hace sola cada tanto para parecer viva (LOOK a SHAKE).
+ * premio) y cosas que hace sola cada tanto para parecer viva (LOOK a HEAD; HEAD: gira solo la cabeza).
  */
-enum class Trick { WAG, PAW, DANCE, CHEER, LOOK, PEEK, STRETCH, YAWN, SIT, HOP, SHAKE }
+enum class Trick { WAG, PAW, DANCE, CHEER, LOOK, PEEK, STRETCH, YAWN, SIT, HOP, SHAKE, HEAD }
 
 /** Tarjetas de [OverlayState.card]. */
 sealed interface BondCard {

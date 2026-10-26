@@ -520,6 +520,44 @@ Solo el **perro** usa el giro nuevo por ahora (se dibuja en cada ángulo, como e
 | 35.4 | Mirá bien durante el giro. | Nada se sale de lugar (panza, orejas, cola, hocico), no parpadea ni salta la imagen al empezar o terminar. Si algo se ve raro, mandame una captura o un video. | |
 | 35.5 | Cambiá a otra mascota y tocala 3 veces. | Sigue girando como antes (con los 4 dibujos). | |
 
+## 36. Mascota sentada en reposo (versión 1.0.21)
+
+Incluye también el giro continuo del perro de la 1.0.20 (sección 35).
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 36.1 | Mirala sin tocarla. | Está **sentada** (patas de atrás plegadas a los costados, patitas de adelante juntas). Sigue respirando, parpadeando y a veces pone cara contenta, sentada. Las aves están esponjadas; la rana, igual que antes. | |
+| 36.2 | Tocala 2 o 3 veces. | Se **para** para saltar o girar y, unos 3 segundos después de terminar, se vuelve a sentar con un rebotito. | |
+| 36.3 | Dejala hacer cosas sola (vida propia). | Para caminar, mirar a los costados, darse vuelta, estirarse o saltar se para; para mover la cola, bostezar o sacudirse queda sentada. | |
+| 36.4 | Cuando avisa algo. | Se para para dar el aviso; con el globo abierto sigue parada y al cerrarse, al ratito, se sienta. | |
+| 36.5 | Que nunca quede a medias. | Siempre termina sentada o parada entera, nunca cortada ni estirada. Si ves algo raro, mandame una captura o un video. | |
+| 36.6 | Dormida. | Se acuesta igual que antes y al despertar queda sentada. | |
+
+## 37. Herramientas de dueño (versión 1.0.22, solo de prueba)
+
+Existen solo en las versiones de prueba que te paso; la que se sube a Google Play no las tiene.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 37.1 | Ajustes › tocá **7 veces** la línea “Versión 1.0.22” (abajo de todo). | Se abre “Herramientas de dueño”. | |
+| 37.2 | Elegí **Pro de dueño** y cerrá. | Todo lo Pro queda desbloqueado (tamaño, transparencia, calendario, las 10 mascotas, etc.). La versión dice “· dueño”. Sigue así aunque termine la prueba gratis. | |
+| 37.3 | Elegí **Simular plan gratis**. | La app se comporta como alguien sin Pro y sin prueba (2 mascotas, candados PRO). | |
+| 37.4 | Elegí **Normal**. | Vuelve a depender de la compra y de la prueba gratis, como un usuario real. | |
+| 37.5 | **+10 corazones** varias veces y cerrá. | Sube de nivel y aparecen los festejos (“¡Aprendí a dar la patita!”, etc.), así podés probar los trucos sin esperar. | |
+| 37.6 | **Reiniciar vínculo**. | Vuelve al nivel 1 con 0 corazones. | |
+
+## 38. Pose “peluche”, gato nuevo, vida propia en su lugar y globos al costado (versión 1.0.23)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 38.1 | Mirala en reposo. | Sentada como un peluche: patas estiradas hacia adelante con las plantitas rosadas y bracitos al costado (perro, gato, vaca, chancho, león, mono). Ya no parece una araña. | |
+| 38.2 | Elegí el **gato**. | Cara más amigable: orejas redondeadas, rayitas suaves, hocico claro, ojos grandes y sonrisa abierta; igual al estar parado, sentado, dormido, de perfil y de espaldas. | |
+| 38.3 | Dejala sola unos minutos (mejor en “Inquieta”). | **Ya no se desplaza** por la pantalla. Hace cosas en su lugar: mira a los costados, da la vuelta de 360°, tira un corazón, mueve la cola, bosteza, se estira, se sacude. | |
+| 38.4 | Con el **perro**, esperá a que gire solo la cabeza. | Sentado, gira la cabeza hacia un costado (a veces al otro) y vuelve; el cuerpo queda quieto. | |
+| 38.5 | Poné la mascota **arriba de todo** de la pantalla y tocá “Probar un aviso”. | El sonido y el globo aparecen **al costado** de la mascota (del lado con más lugar), con la colita apuntando a su cabeza. Lo mismo con el panel de lo próximo (tirón a la izquierda). | |
+| 38.6 | Arriba de todo, tocala una vez. | Los corazones salen al costado. | |
+| 38.7 | Con la mascota en el medio o abajo. | Todo sigue apareciendo arriba, como antes. | |
+
 ---
 
 ## Si algo falla

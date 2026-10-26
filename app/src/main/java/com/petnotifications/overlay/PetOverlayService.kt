@@ -1,6 +1,5 @@
 package com.petnotifications.overlay
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -43,7 +42,6 @@ import com.petnotifications.Prefs
 import com.petnotifications.R
 import com.petnotifications.Repeat
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.suspendCancellableCoroutine
 import com.petnotifications.Bond
 import com.petnotifications.calendar.CalendarSource
 import com.petnotifications.TapAction
@@ -65,7 +63,6 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 import kotlin.math.hypot
 import kotlin.math.abs
-import kotlin.coroutines.resume
 import kotlin.random.Random
 import kotlin.math.roundToInt
 
@@ -210,7 +207,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         fxView?.let { runCatching { wm.removeView(it) } }
         closeQuickNote()
         closeCard()
-        walkAnim?.cancel()
         petView = null
         fxView = null
         owner.stop()
@@ -221,8 +217,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (petView == null) return
-        wanderJob?.cancel()
-        homeX = null
         // Al girar la pantalla (por ejemplo, un juego horizontal) se parte siempre de la posición que
         // eligió el usuario: si se acomodara la posición actual, al volver a vertical quedaría corrida.
         restorePosition()
@@ -255,7 +249,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 layoutFx()
             }
             in Prefs.SLEEP_KEYS -> evaluateSleep()
-            Prefs.KEY_PRO, Prefs.KEY_FREE_PETS -> onProChanged()
+            Prefs.KEY_PRO, Prefs.KEY_FREE_PETS, Prefs.KEY_OWNER_PLAN -> onProChanged()
             // Cambió el nombre de la mascota: se actualiza la notificación fija.
             else -> when {
                 key?.startsWith(Prefs.KEY_PET_NAME) == true -> updateNotification()
@@ -352,7 +346,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val pet = state.pet
         // El panel de próximos avisos se ubica y recibe toques igual que el globo.
         val bubble = state.phase is FxPhase.Bubble || state.phase is FxPhase.Upcoming
-        fxParams.x = (petParams.x + size / 2 - fxParams.width / 2).coerceIn(0, (sw - fxParams.width).coerceAtLeast(0))
         // Arriba: el globo apunta a la coronilla (el dibujo de cuerpo entero deja ~15 % arriba de la
         // cabeza) y el sonido sale de la boca. Abajo: todo sale de los pies. Medido desde abajo.
         val anchorAbove = if (bubble) petParams.y + (height * 0.85f).roundToInt()
@@ -365,11 +358,38 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
         val spaceAbove = sh - statusBarHeight() - anchorAbove
         val spaceBelow = anchorBelow - dp(NAV_MARGIN_DP)
-        val below = needed > spaceAbove && spaceBelow > spaceAbove
-        state.fxBelow = below
-        fxParams.y = if (below) anchorBelow - fxParams.height else anchorAbove
-        val anchor = if (bubble) petParams.x + size / 2f else petParams.x + pet.mouthX * size
-        state.anchorX = anchor - fxParams.x
+        val fullWidth = minOf(dp(FX_WIDTH_DP), sw - dp(16))
+        // Si arriba no entra, va al costado de la mascota (del lado con más lugar); abajo solo si
+        // tampoco hay lugar a los costados.
+        val roomLeft = petParams.x
+        val roomRight = sw - (petParams.x + size)
+        val side = when {
+            needed <= spaceAbove -> 0
+            maxOf(roomLeft, roomRight) >= dp(SIDE_MIN_DP) -> if (roomRight >= roomLeft) 1 else -1
+            else -> 0
+        }
+        state.fxSide = side
+        if (side != 0) {
+            val room = if (side > 0) roomRight else roomLeft
+            fxParams.width = minOf(fullWidth, room - dp(2))
+            fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
+            val petTop = petParams.y + height // medido desde abajo
+            val text = bubble || state.phase is FxPhase.Sound
+            state.fxBelow = text // el texto se apoya arriba de la ventana, a la altura de la cabeza
+            fxParams.y = if (text) petTop - fxParams.height else anchorAbove
+            // Cabeza de la mascota medida desde arriba de la ventana (para la colita del globo).
+            state.anchorY = (height * 0.32f).coerceAtMost(fxParams.height.toFloat())
+            // Corazones y sonido salen del borde que da a la mascota.
+            state.anchorX = if (side > 0) dp(22).toFloat() else fxParams.width - dp(22).toFloat()
+        } else {
+            fxParams.width = fullWidth
+            fxParams.x = (petParams.x + size / 2 - fxParams.width / 2).coerceIn(0, (sw - fxParams.width).coerceAtLeast(0))
+            val below = needed > spaceAbove && spaceBelow > spaceAbove
+            state.fxBelow = below
+            fxParams.y = if (below) anchorBelow - fxParams.height else anchorAbove
+            val anchor = if (bubble) petParams.x + size / 2f else petParams.x + pet.mouthX * size
+            state.anchorX = anchor - fxParams.x
+        }
         // Solo el globo recibe toques; el resto deja pasar los toques a la app de abajo.
         fxParams.flags = (if (bubble) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
         // Sin nada que mostrar, la ventana queda oculta: Android 12+ bloquea los toques que pasan
@@ -695,7 +715,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 MotionEvent.ACTION_DOWN -> {
                     settle?.cancel()
                     touching = true
-                    wanderJob?.cancel()
                     lastActivity = System.currentTimeMillis()
                     downX = e.rawX
                     downY = e.rawY
@@ -756,7 +775,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                         if (flick) onFlick(dx, dy)
                     } else if (dragging) {
                         wake()
-                        homeX = null // la dejó en otro lugar: ese es su lugar ahora
                         val (sw, sh) = screenSize()
                         prefs.petX = petParams.x
                         prefs.petY = petParams.y
@@ -769,14 +787,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                         else if (state.sleeping) wake() else registerTap()
                     }
                     touching = false
-                    returnHomeLater()
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     main.removeCallbacks(longPress)
                     velocity?.clear()
                     if (!dragging) settleBack()
                     touching = false
-                    returnHomeLater()
                 }
                 // Toque en cualquier otro lado de la pantalla: el usuario está usando el celular, así
                 // que no se acuesta (no la levanta si ya duerme; para eso hay que tocarla).
@@ -828,8 +844,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     /**
      * Para que no parezca un dibujo quieto, cada tanto hace algo sola: mira a los costados, se da
-     * vuelta, se estira, bosteza, se sienta, salta, se sacude, mueve la cola o da unos pasitos y
-     * vuelve a su lugar. Cada cuánto lo elige el usuario ("Qué tan inquieta es"). Solo con la pantalla
+     * vuelta, se estira, bosteza, gira la cabeza, tira un corazón, mueve la cola o da una vuelta,
+     * siempre en su lugar. Cada cuánto lo elige el usuario ("Qué tan inquieta es"). Solo con la pantalla
      * prendida y desbloqueada, despierta y sin nada abierto; no cuenta como uso (igual se duerme).
      */
     private fun startLife() {
@@ -852,110 +868,39 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     private fun canLive(): Boolean =
         petView?.visibility == View.VISIBLE && !hiddenNow && !state.sleeping && !touching &&
             current == null && queue.isEmpty() && state.phase is FxPhase.None && state.card == null &&
-            quickView == null && wanderJob?.isActive != true && homeX == null && canShowAlert(this)
+            quickView == null && canShowAlert(this)
 
+    /**
+     * Algo corto en su lugar (sin moverse de donde la dejó el usuario): mirar a los costados girando el
+     * cuerpo, girar solo la cabeza, darse vuelta, la vuelta de 360°, tirar un corazón, mover la cola,
+     * bostezar, estirarse, sacudirse...
+     */
     private fun live() {
+        val pet = state.pet
         val options = buildList {
-            addAll(listOf(Trick.LOOK, Trick.LOOK, Trick.PEEK, Trick.STRETCH, Trick.YAWN, Trick.SIT, Trick.HOP, Trick.SHAKE, Trick.WAG))
+            addAll(listOf(Trick.LOOK, Trick.LOOK, Trick.PEEK, Trick.STRETCH, Trick.YAWN, Trick.SIT, Trick.HOP, Trick.SHAKE, Trick.WAG, Trick.WAG))
+            // Girar solo la cabeza: las mascotas con modelo de giro (por ahora, el perro).
+            if (PetModel.has(pet)) addAll(listOf(Trick.HEAD, Trick.HEAD, Trick.HEAD))
             if (Bond.knows(this@PetOverlayService, Bond.Reward.PAW)) add(Trick.PAW)
         }.filter { it != lastLife }
-        // Pasitos: más seguido cuanto más inquieta.
-        val walkOdds = when (prefs.liveliness) {
-            Prefs.LIVELY_CALM -> 6
-            Prefs.LIVELY_ACTIVE -> 3
-            else -> 4
-        }
-        if (Random.nextInt(walkOdds) == 0) {
-            lastLife = null
-            wander()
-            return
-        }
-        // De vez en cuando se persigue la cola (la vuelta de los 3 toques).
-        if (Random.nextInt(12) == 0) {
-            state.spinTick++
-            return
-        }
-        val t = options.random()
-        lastLife = t
-        state.play(t)
-    }
-
-    private var wanderJob: Job? = null
-    private var walkAnim: ValueAnimator? = null
-    /** Dónde estaba antes de salir a caminar (null: está en su lugar). */
-    private var homeX: Int? = null
-
-    /** Da unos pasitos hacia el lado con más lugar, mira un poco y vuelve a su lugar. */
-    private fun wander() {
-        val (sw, _) = screenSize()
-        val home = petParams.x
-        val left = home
-        val right = maxPetX(sw) - home
-        val want = dp(Random.nextInt(WALK_MIN_DP, WALK_MAX_DP))
-        val dir = when {
-            left >= want && right >= want -> if (Random.nextBoolean()) 1 else -1
-            right > left -> 1
-            else -> -1
-        }
-        val dist = minOf(want, if (dir > 0) right else left)
-        if (dist < dp(WALK_MIN_DP / 2)) {
-            state.play(Trick.LOOK)
-            return
-        }
-        homeX = home
-        wanderJob = scope.launch {
-            walkTo(home + dir * dist)
-            delay(Random.nextLong(600, 1_400))
-            if (Random.nextBoolean()) {
-                state.play(Trick.LOOK) // dura hasta ~2,6 s; se espera a que termine antes de volver
-                delay(3_200)
+        when (Random.nextInt(8)) {
+            // La vuelta de 360° (la de los 3 toques).
+            0 -> {
+                lastLife = null
+                state.spinTick++
             }
-            walkTo(home)
-            homeX = null
-        }
-    }
-
-    /** Si quedó lejos de su lugar (un toque cortó el paseo), vuelve caminando al ratito. */
-    private fun returnHomeLater() {
-        val home = homeX ?: return
-        wanderJob?.cancel()
-        wanderJob = scope.launch {
-            delay(RETURN_HOME_MS)
-            if (touching) return@launch
-            walkTo(home)
-            homeX = null
-        }
-    }
-
-    /** Camina hasta [targetX] moviendo la ventana, de perfil y a saltitos (~60 dp/s). */
-    private suspend fun walkTo(targetX: Int) {
-        val view = petView ?: return
-        val from = petParams.x
-        if (from == targetX) return
-        state.walkDir = if (targetX > from) 1 else -1
-        try {
-            suspendCancellableCoroutine { cont ->
-                val anim = ValueAnimator.ofInt(from, targetX).apply {
-                    duration = (abs(targetX - from) / resources.displayMetrics.density / WALK_DP_PER_S * 1000).toLong()
-                    interpolator = android.view.animation.LinearInterpolator()
-                    addUpdateListener {
-                        petParams.x = it.animatedValue as Int
-                        runCatching { wm.updateViewLayout(view, petParams) }
-                        layoutFx()
-                    }
-                    addListener(object : android.animation.AnimatorListenerAdapter() {
-                        override fun onAnimationEnd(animation: android.animation.Animator) {
-                            if (cont.isActive) cont.resume(Unit)
-                        }
-                    })
-                }
-                walkAnim = anim
-                cont.invokeOnCancellation { main.post { anim.cancel() } }
-                anim.start()
+            // Tira un corazón (como cuando la mimás) y mueve la cola.
+            1 -> {
+                lastLife = null
+                state.hearts.add(SystemClock.uptimeMillis())
+                layoutFx()
+                state.play(Trick.WAG)
             }
-        } finally {
-            walkAnim = null
-            state.walkDir = 0
+            else -> {
+                val t = options.random()
+                lastLife = t
+                state.play(t)
+            }
         }
     }
 
@@ -1541,6 +1486,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val MULTI_TAP_WINDOW_MS = 320L
         private const val LONG_PRESS_MS = 650L
         private const val FX_WIDTH_DP = 260
+        /** Lugar mínimo al costado de la mascota para poner ahí el globo, el sonido o los corazones. */
+        private const val SIDE_MIN_DP = 150
         private const val FX_HEIGHT_DP = 300
         /** Alto aproximado de lo que se muestra, para decidir si entra arriba de la mascota. */
         private const val BUBBLE_GUESS_DP = 170
@@ -1591,11 +1538,6 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val CARD_MS = 10_000L
         private const val MORNING_CARD_MS = 6_000L
         private const val UNLOCK_GREET_DELAY_MS = 900L
-        /** Paseos cortos: cuánto camina, a qué velocidad y cuánto espera para volver tras un toque. */
-        private const val WALK_MIN_DP = 40
-        private const val WALK_MAX_DP = 90
-        private const val WALK_DP_PER_S = 60f
-        private const val RETURN_HOME_MS = 1_500L
         private const val UNLOCK_CELEBRATE_DELAY_MS = 3_000L
         private const val WAG_EVERY_MS = 3_600_000L
         private const val MORNING_START_MIN = 6 * 60

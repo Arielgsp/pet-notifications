@@ -52,6 +52,11 @@ object ProBilling {
     private val _changes = MutableStateFlow(0)
     val changes: StateFlow<Int> = _changes
 
+    /** Volver a armar las pantallas con el plan actual (por ejemplo, tras cambiar el plan de dueño). */
+    fun notifyChanged() {
+        _changes.value++
+    }
+
     /** Consulta a Play si el usuario compró Pro y el precio. Seguro llamarla seguido. */
     fun refresh(ctx: Context) {
         val app = ctx.applicationContext

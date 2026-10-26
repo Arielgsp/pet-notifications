@@ -535,8 +535,22 @@
 
     <!-- Vida propia de la mascota -->
     <string name="lively_title">How restless it is</string>
-    <string name="lively_help">How often it does something on its own: look around, stretch, yawn, take a few steps…</string>
+    <string name="lively_help">How often it does something on its own, in place: look around, spin, stretch, yawn, send a heart…</string>
     <string name="lively_calm">Calm</string>
     <string name="lively_normal">Normal</string>
     <string name="lively_active">Restless</string>
+
+    <!-- Herramientas de dueño (solo versiones de prueba) -->
+    <string name="owner_title">Owner tools</string>
+    <string name="owner_note">Only in test builds: not in the Google Play version.</string>
+    <string name="owner_plan">Plan</string>
+    <string name="owner_plan_normal">Normal (purchase and free trial)</string>
+    <string name="owner_plan_pro">Owner Pro</string>
+    <string name="owner_plan_free">Simulate free plan</string>
+    <string name="owner_badge">owner</string>
+    <string name="owner_bond">Bond</string>
+    <string name="owner_hearts">Hearts: %1$d (level %2$d)</string>
+    <string name="owner_bond_add">+10 hearts</string>
+    <string name="owner_bond_reset">Reset bond</string>
+    <string name="owner_close">Close</string>
 </resources>

@@ -174,7 +174,19 @@ class Prefs(context: Context) {
         firstOpenAt > 0 && now >= firstOpenAt - DAY_MS && now < trialEndsAt
 
     val isPro: Boolean
-        get() = proPurchased || trialActive()
+        get() = when {
+            BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_PRO -> true
+            BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_FREE -> false
+            else -> proPurchased || trialActive()
+        }
+
+    /**
+     * Herramientas de dueño (solo versiones de prueba, BuildConfig.OWNER_TOOLS): forzar el plan para
+     * probar. OWNER_NORMAL: lo que diga la compra y la prueba gratis.
+     */
+    var ownerPlan: Int
+        get() = sp.getInt(KEY_OWNER_PLAN, OWNER_NORMAL)
+        set(v) = sp.edit { putInt(KEY_OWNER_PLAN, v) }
 
     /** Lista de lo que se perdió con el celular apagado, para mostrarla al tocar el aviso resumen. */
     var missedList: List<String>
@@ -292,6 +304,10 @@ class Prefs(context: Context) {
         const val KEY_PAUSED_UNTIL = "paused_until"
         const val UNLOCK_REPEAT_ALL = -1
         const val KEY_PRO = "pro_purchased"
+        const val KEY_OWNER_PLAN = "owner_plan"
+        const val OWNER_NORMAL = 0
+        const val OWNER_PRO = 1
+        const val OWNER_FREE = 2
         const val KEY_FIRST_OPEN = "first_open"
         const val KEY_FREE_PETS = "free_pets"
         /** Duración de la prueba de Pro: 7 días en la prueba cerrada y 14 en la publicada (app/build.gradle.kts). */

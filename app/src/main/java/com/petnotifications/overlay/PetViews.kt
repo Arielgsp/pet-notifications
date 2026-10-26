@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -94,6 +95,12 @@ internal val Blush = Color(0xFFEFA9A0) // blush
 internal val SurfaceRaised = Color(0xFFFFFDF9) // surface-raised
 private val BurstYellow = Color(0xFFF7E6CC) // cream
 
+/** Cuánto se queda parada después de hacer algo antes de volver a sentarse. */
+private const val SIT_AFTER_MS = 3_000L
+
+/** Trucos que se hacen parada; el resto (cola, bostezo, sacudirse, festejar) los hace sentada. */
+private val STANDING_TRICKS = setOf(Trick.PAW, Trick.DANCE, Trick.LOOK, Trick.PEEK, Trick.STRETCH, Trick.HOP)
+
 /** Proporción de los dibujos (viewport 256×240): la ventana de la mascota tiene esta forma. */
 const val PET_ASPECT = 256f / 240f
 
@@ -117,6 +124,16 @@ fun PetContent(state: OverlayState) {
     var mirrored by remember { mutableStateOf(false) }
     var lying by remember { mutableStateOf(false) }
     var dozing by remember { mutableStateOf(false) }
+    /**
+     * En reposo está sentada (más tranquila para tenerla siempre a la vista). Se para para girar, saltar,
+     * caminar, algunos trucos o avisar, y al rato de terminar se vuelve a sentar.
+     */
+    var seated by remember { mutableStateOf(true) }
+    var activeAt by remember { mutableStateOf(0L) }
+    fun standUp() {
+        seated = false
+        activeAt = System.currentTimeMillis()
+    }
 
     val squash = remember { Animatable(1f) }
     val tilt = remember { Animatable(0f) }
@@ -127,6 +144,9 @@ fun PetContent(state: OverlayState) {
     /** Giro continuo con el modelo 2,5D (solo las mascotas que lo tienen): ángulo actual y si está girando. */
     val turnAngle = remember { Animatable(0f) }
     var modelTurning by remember { mutableStateOf(false) }
+    /** Girando solo la cabeza, sentada (modelo 2,5D sobre el cuerpo sentado sin cabeza). */
+    val headAngle = remember { Animatable(0f) }
+    var headTurning by remember { mutableStateOf(false) }
 
     /** Gira el modelo hasta [to] grados (sin cambiar de dibujo de golpe). */
     suspend fun turnModel(to: Float, ms: Int) {
@@ -160,6 +180,7 @@ fun PetContent(state: OverlayState) {
         if (state.spinTick == 0 || state.sleeping) return@LaunchedEffect
         // Una animación de pose por vez: si dos tocan el afinado del giro a la vez, puede quedar finita.
         poseLock.withLock {
+            standUp()
             // Con modelo: giro continuo y parejo (se dibuja en cada ángulo), con un saltito suave.
             if (PetModel.has(state.pet)) {
                 try {
@@ -208,6 +229,7 @@ fun PetContent(state: OverlayState) {
     // Mimos: salta, se estira y pone ojitos felices.
     LaunchedEffect(state.bounceTick) {
         if (state.bounceTick > 0) {
+            standUp()
             launch {
                 hop.animateTo(0f, keyframes {
                     durationMillis = 450
@@ -230,6 +252,7 @@ fun PetContent(state: OverlayState) {
         if (state.trickTick == 0 || state.sleeping) return@LaunchedEffect
         poseLock.withLock {
             if (turnView != null) return@LaunchedEffect
+            if (state.trick in STANDING_TRICKS) standUp()
             // Si el truco anterior se cortó a la mitad, se vuelve a la postura normal antes de empezar.
             stretchY.snapTo(1f)
             squash.snapTo(1f)
@@ -369,6 +392,21 @@ fun PetContent(state: OverlayState) {
                         bounce.animateTo(1f, spring(dampingRatio = 0.4f, stiffness = 450f))
                     }
                 }
+                // Gira solo la cabeza hacia un costado (a veces también hacia el otro), sentada.
+                Trick.HEAD -> if (PetModel.has(state.pet) && seated) try {
+                    headTurning = true
+                    val side = if ((0..1).random() == 0) 1f else -1f
+                    headAngle.animateTo(55f * side, tween(520, easing = FastOutSlowInEasing))
+                    delay((900L..1_600L).random())
+                    if ((0..1).random() == 0) {
+                        headAngle.animateTo(-50f * side, tween(850, easing = FastOutSlowInEasing))
+                        delay((700L..1_200L).random())
+                    }
+                    headAngle.animateTo(0f, tween(480, easing = FastOutSlowInEasing))
+                } finally {
+                    withContext(NonCancellable) { headAngle.snapTo(0f) }
+                    headTurning = false
+                }
                 // Dos saltitos de alegría.
                 Trick.HOP -> {
                     face = PetView.HAPPY
@@ -390,30 +428,6 @@ fun PetContent(state: OverlayState) {
                     delay(200)
                     if (face == PetView.BLINK) face = PetView.FRONT
                 }
-            }
-        }
-    }
-
-    // Camina unos pasitos (el servicio mueve la ventana): de perfil hacia donde va, con saltitos.
-    LaunchedEffect(state.walkDir) {
-        if (state.walkDir == 0) return@LaunchedEffect
-        // Una animación de pose por vez: si dos tocan el afinado del giro a la vez, puede quedar finita.
-        poseLock.withLock {
-            val model = PetModel.has(state.pet)
-            try {
-                if (model) turnModel(if (state.walkDir < 0) -90f else 90f, 260) else turnTo(PetView.SIDE, state.walkDir < 0)
-                while (true) {
-                    hop.animateTo(-5f, tween(130, easing = FastOutSlowInEasing))
-                    hop.animateTo(0f, tween(130, easing = FastOutLinearInEasing))
-                }
-            } finally {
-                turnView = null
-                mirrored = false
-                withContext(NonCancellable) {
-                    hop.snapTo(0f)
-                    squash.snapTo(1f)
-                }
-                if (model) endModel()
             }
         }
     }
@@ -463,6 +477,7 @@ fun PetContent(state: OverlayState) {
     }
     LaunchedEffect(state.talking) {
         if (state.talking) {
+            standUp()
             wiggle.animateTo(0f, infiniteRepeatable(keyframes {
                 durationMillis = 220
                 -9f at 55
@@ -473,9 +488,33 @@ fun PetContent(state: OverlayState) {
         }
     }
 
+    // Parada sin hacer nada por un rato (y sin aviso abierto): se vuelve a sentar con un rebotito.
+    LaunchedEffect(seated) {
+        if (seated) return@LaunchedEffect
+        while (true) {
+            delay(500)
+            val now = System.currentTimeMillis()
+            val busy = turnView != null || modelTurning || state.talking || face == PetView.PAW || lying || state.phase !is FxPhase.None
+            if (busy) activeAt = now
+            if (now - activeAt >= SIT_AFTER_MS) {
+                seated = true
+                bounce.animateTo(0.94f, tween(90))
+                bounce.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 500f))
+                break
+            }
+        }
+    }
+
+    // Sentada: las mismas caras (normal, parpadeo, feliz) con el cuerpo sentado.
+    val restFace = if (!seated) face else when (face) {
+        PetView.FRONT -> PetView.SIT
+        PetView.BLINK -> PetView.SIT_BLINK
+        PetView.HAPPY -> PetView.SIT_HAPPY
+        else -> face
+    }
     val view = turnView ?: when {
         lying -> if (dozing) PetView.SLEEP else PetView.LIE
-        else -> face
+        else -> restFace
     }
     val stretched = lying && state.pet.liesDown
 
@@ -508,6 +547,14 @@ fun PetContent(state: OverlayState) {
         if (modelTurning) {
             // Se redibuja en cada cuadro del giro (solo mientras gira).
             Canvas(petLayer) { PetModel.draw(this, state.pet, turnAngle.value, happy = false) }
+        } else if (headTurning) {
+            // Cuerpo sentado fijo y la cabeza dibujada en el ángulo de cada cuadro.
+            Box(petLayer) {
+                Image(painterResource(state.pet.art(PetView.SIT_BODY)), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                Canvas(Modifier.fillMaxSize()) {
+                    PetModel.drawHead(this, state.pet, headAngle.value, happy = false, headDy = PetModel.SIT_HEAD_DY)
+                }
+            }
         } else {
             Image(
                 painterResource(state.pet.art(view)),
@@ -595,7 +642,8 @@ private fun FxLayers(
     modifier: Modifier,
 ) {
     val below = state.fxBelow
-    Box(modifier.fillMaxWidth()) {
+    // Al costado de la mascota: el globo lleva la colita de costado, a la altura de la cabeza.
+    CompositionLocalProvider(LocalFxSide provides (state.fxSide to state.anchorY)) { Box(modifier.fillMaxWidth()) {
         when (val phase = state.phase) {
             is FxPhase.Sound -> SoundBurst(phase, state.anchorX, below)
             is FxPhase.Bubble -> ComicBubble(phase, state.anchorX, below, bubble, onBubbleHeight)
@@ -612,8 +660,11 @@ private fun FxLayers(
                 state.plusOnes.forEach { id -> key(id) { PlusOne(id, state.anchorX, below, onPlusOneDone) } }
             }
         }
-    }
+    } }
 }
+
+/** Lado del globo respecto de la mascota (1 a la derecha, -1 a la izquierda, 0 arriba/abajo) y altura de la cabeza. */
+private val LocalFxSide = androidx.compose.runtime.compositionLocalOf { 0 to 0f }
 
 @Composable
 private fun SoundBurst(phase: FxPhase.Sound, anchorX: Float, below: Boolean) {
@@ -760,6 +811,8 @@ private fun BubbleFrame(
     onLongPress: () -> Unit,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
+    val (side, anchorY) = LocalFxSide.current
+    if (side != 0) return SideBubbleFrame(key, appear, side, anchorY, onHeight, onTap, onLongPress, content)
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.toPx() }
@@ -808,6 +861,71 @@ private fun BubbleFrame(
                 drawLine(Ink, left, tip, stroke)
                 drawLine(Ink, tip, right, stroke)
             }
+        }
+    }
+}
+
+/**
+ * Globo al costado de la mascota (cuando arriba no entra): la colita sale del borde que da a la
+ * mascota ([side] 1: la mascota está a la izquierda del globo) a la altura de su cabeza ([anchorY]).
+ */
+@Composable
+private fun SideBubbleFrame(
+    key: Any,
+    appear: Float,
+    side: Int,
+    anchorY: Float,
+    onHeight: (Int) -> Unit,
+    onTap: () -> Unit,
+    onLongPress: () -> Unit,
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
+) {
+    val shape = RoundedCornerShape(20.dp)
+    var heightPx by remember { mutableIntStateOf(0) }
+    val petOnLeft = side > 0
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .onSizeChanged {
+                heightPx = it.height
+                onHeight(it.height)
+            }
+            .graphicsLayer {
+                scaleX = appear
+                scaleY = appear
+                alpha = appear.coerceIn(0f, 1f)
+                val oy = if (heightPx > 0) (anchorY / heightPx).coerceIn(0f, 1f) else 0f
+                transformOrigin = TransformOrigin(if (petOnLeft) 0f else 1f, oy)
+            }
+            .pointerInput(key) {
+                detectTapGestures(onTap = { onTap() }, onLongPress = { onLongPress() })
+            },
+    ) {
+        Column(
+            Modifier
+                .padding(start = if (petOnLeft) 15.dp else 0.dp, end = if (petOnLeft) 0.dp else 15.dp)
+                .fillMaxWidth()
+                .background(Paper, shape)
+                .border(3.dp, Ink, shape)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            content = content,
+        )
+        // Colita de costado apuntando a la cabeza de la mascota.
+        Canvas(Modifier.matchParentSize()) {
+            val edge = 22.dp.toPx()
+            val y = anchorY.coerceIn(edge, (size.height - edge).coerceAtLeast(edge))
+            val half = 11.dp.toPx()
+            val baseX = if (petOnLeft) 15.dp.toPx() else size.width - 15.dp.toPx()
+            val tip = Offset(if (petOnLeft) 0f else size.width, y + 4.dp.toPx())
+            val top = Offset(baseX, y - half)
+            val bottom = Offset(baseX, y + half)
+            val fill = Path().apply {
+                moveTo(top.x, top.y); lineTo(tip.x, tip.y); lineTo(bottom.x, bottom.y); close()
+            }
+            drawPath(fill, Paper)
+            val stroke = 3.dp.toPx()
+            drawLine(Ink, top, tip, stroke)
+            drawLine(Ink, tip, bottom, stroke)
         }
     }
 }

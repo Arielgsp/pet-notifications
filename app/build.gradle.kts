@@ -26,6 +26,15 @@ android {
     //  - production: la que se publica (14 días).
     // En la Play Console, a producción se sube la compilación "production": NO promover la de la prueba
     // cerrada, porque se quedaría con 7 días.
+    // Herramientas de dueño (forzar Pro o plan gratis, corazones del vínculo): solo en las versiones de
+    // prueba que se arman con -PownerTools=true. Nunca en lo que se sube a Google Play (ver la
+    // verificación de abajo, que frena el paquete para Play si viene con esto activado).
+    val ownerTools = (project.findProperty("ownerTools") as String?) == "true"
+    defaultConfig.buildConfigField("boolean", "OWNER_TOOLS", ownerTools.toString())
+    if (ownerTools && gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }) {
+        throw GradleException("El paquete para Google Play no puede llevar las herramientas de dueño (-PownerTools=true).")
+    }
+
     flavorDimensions += "channel"
     productFlavors {
         create("closedTest") {

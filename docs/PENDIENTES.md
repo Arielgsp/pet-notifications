@@ -5,7 +5,7 @@ Lista viva de todo lo que quedó abierto desde que empezamos con el plan de Cowo
 Lo que hay que probar en el celular está en [PRUEBAS.md](PRUEBAS.md); acá van decisiones,
 tareas que faltan y limitaciones conocidas.
 
-Última actualización: 14/10/2026, vida propia de la mascota (versión 1.0.19).
+Última actualización: 22/10/2026, mascota sentada en reposo (versión 1.0.21).
 
 ## 0. Cambios pedidos por Cowork (respuesta al informe 1.0.3, 28/09/2026)
 
@@ -44,6 +44,9 @@ Versión 1.0.5 compilada: vigilante cada 15 minutos que vuelve a mostrar la masc
 | D13 | **Tutorial de la mascota** (06/10) | Hecho en 1.0.16: 7 tarjetas animadas + práctica “Probalo vos” sobre la mascota real (los tirones no hacen su acción mientras se practica). Se muestra una vez y queda en Mascota, Ayuda y el consejo del día. Falta probar en el celular (PRUEBAS 31). Si Design quiere dibujarlo, se reemplazan las animaciones. |
 | D14 | **Aviso en la pantalla de bloqueo** (08/10) | Corregido en 1.0.17: con la pantalla prendida pero bloqueada el aviso iba sin sonido y no se veía. No se pudo reproducir en el emulador (no mantiene el bloqueo): probar en el Xiaomi (PRUEBAS 32) y revisar si MIUI trae apagado “Pantalla de bloqueo” para la app. |
 | D15 | **Vínculo y Sube de nivel** (09/10) | **Etapas 1 y 2 hechas en 1.0.18 (09/10)**: corazones, niveles, “Somos amigos”, “Nuestro camino”, “+1”, festejos (sobre la pantalla y en la app), bienvenida para quien ya tenía la app, y los trucos cola, patita (pose nueva en las 10 mascotas), buenos días y baile. **Etapa 3 (accesorios: pañuelo, camita, gorrito, corona y elegirlos en Mascota) espera los SVG de Design.** Temporada (gorro navideño, cumpleaños) para más adelante. Probar en el celular: PRUEBAS 33. |
+| D16 | **Giro continuo (modelo 2,5D)** (14/10) | Perro en la app desde 1.0.20. **26/10: modelos de las 10 mascotas** en `tools/pet_art/model3d*.py` (giro, girar la cabeza, patas: saludar, amasar/aletear, ¡hurra!), vista previa en `docs/prototipos/mascotas-3d.html`. Falta la aprobación del usuario y pasarlo a la app (generar el código Kotlin desde los modelos). |
+| D17 | **Pose sentada en reposo** (22/10) | 1.0.21 (primera versión, “araña”) → 1.0.23: pose “peluche” (patas estiradas hacia adelante). Gato con cara nueva (opción 3). Vida propia sin desplazamientos (en su lugar; el perro gira solo la cabeza). Globos y corazones al costado si no entran arriba. Probar: PRUEBAS 38. |
+| D18 | **Pelajes (Pro)** (26/10) | Paletas por mascota en `tools/pet_art/model3d_pets.py` (PALETTES): 4–6 por mascota, incluidas manchas (dálmata, tricolor, manchado, lunares). Vista previa: `docs/prototipos/pelajes.html`. Aprobado por el usuario: solo Pro, el original gratis. Falta pasarlo a la app junto con los modelos 3D (fila de pelajes en la pestaña Mascota, cada mascota recuerda el suyo, “Pelajes” en la lista de Pro). |
 
 | # | Tema | Contexto |
 |---|---|---|

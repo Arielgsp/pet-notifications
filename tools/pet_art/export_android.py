@@ -142,6 +142,26 @@ def paw_up(markup, angle=62):
     return markup[:m.start()] + markup[m.end():] + arm
 
 
+def sit_body(front, bird):
+    """Sentada sin cabeza: para girar solo la cabeza con el modelo 2,5D (ui: PetModel.drawHead)."""
+    m = sitting(front, bird, "open")
+    cut = f'<g transform="translate(0 {G.SIT_HEAD_DY})">'
+    return m.split(cut)[0] if cut in m else m
+
+
+def sitting(front, bird, e):
+    """Sentada (pose de reposo): las aves se esponjan; las demás pliegan las patas (gen.SITTING)."""
+    if bird:
+        return bird(e, feet=False)
+    G.SITTING = True
+    try:
+        m = front(e)
+    finally:
+        G.SITTING = False
+    # base_body dejó abierto el grupo que baja la cabeza (la rana no usa base_body: queda igual)
+    return m + ("</g>" if f'translate(0 {G.SIT_HEAD_DY})' in m else "")
+
+
 PETS = {
     # enum:    (nombre en el lienzo, frente(e), perfil, espalda, ave?)
     "DOG": ("Perro", lambda e: G.dog(e), G.dog_side, G.dog_back, None),
@@ -155,7 +175,7 @@ PETS = {
     "MONKEY": ("Mono", G.monkey, G.monkey_side, G.monkey_back, None),
     "OWL": ("Búho", lambda e: G.owl_v(e), G.owl_side, G.owl_back, G.owl_v),
 }
-VIEWS = ["FRONT", "BLINK", "HAPPY", "SIDE", "BACK", "LIE", "SLEEP", "PAW"]
+VIEWS = ["FRONT", "BLINK", "HAPPY", "SIDE", "BACK", "LIE", "SLEEP", "PAW", "SIT", "SIT_BLINK", "SIT_HAPPY", "SIT_BODY"]
 
 written = []
 for enum, (name, front, side, back, bird) in PETS.items():
@@ -167,6 +187,10 @@ for enum, (name, front, side, back, bird) in PETS.items():
         "SIDE": (side(), STAND),
         "BACK": (back(), STAND),
         "PAW": (paw_up(front("happy")), STAND),
+        "SIT": (sitting(front, bird, "open"), STAND),
+        "SIT_BLINK": (sitting(front, bird, "blink"), STAND),
+        "SIT_HAPPY": (sitting(front, bird, "happy"), STAND),
+        "SIT_BODY": (sit_body(front, bird), STAND),
     }
     if bird:
         art["LIE"] = (bird("open", feet=False), STAND)
@@ -182,7 +206,7 @@ for enum, (name, front, side, back, bird) in PETS.items():
 
 kt = ['package com.petnotifications', '',
       '// Generado desde el lienzo "Mascotas tiernas"; no editar a mano.', '',
-      '/** Dibujos de cada mascota: de frente (con sus caras), de perfil, de espaldas, echada y dando la patita. */',
+      '/** Dibujos de cada mascota: de frente (con sus caras), de perfil, de espaldas, echada, dando la patita y sentada. */',
       'enum class PetView { ' + ", ".join(VIEWS) + ' }', '',
       '/** Las aves no se echan: se esponjan en el lugar, así que su pose dormida no cambia el encuadre. */',
       'val PetType.liesDown: Boolean',

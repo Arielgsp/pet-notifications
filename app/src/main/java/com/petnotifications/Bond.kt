@@ -155,6 +155,28 @@ object Bond {
     private fun readyUpTo(level: Level): Set<String> =
         LEVELS.filter { it.number <= level.number && it.reward.ready }.map { it.reward.name }.toSet()
 
+    // ---------------------------------------------------------------- herramientas de dueño
+
+    /** Suma corazones para probar los niveles (los festejos salen como siempre). */
+    @Synchronized
+    fun ownerAdd(ctx: Context, n: Int) {
+        val sp = sp(ctx)
+        sp.edit(commit = true) { putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + n) }
+    }
+
+    /** Vuelve a cero: nivel 1, sin festejos pendientes ni premios entregados. */
+    @Synchronized
+    fun ownerReset(ctx: Context) {
+        sp(ctx).edit(commit = true) {
+            putInt(KEY_HEARTS, 0)
+            putInt(KEY_CELEBRATED, 1)
+            putBoolean(KEY_WELCOME, false)
+            putStringSet(KEY_GOT, readyUpTo(LEVELS.first()))
+            remove(KEY_DAY); remove(KEY_DAY_LISTO); remove(KEY_PET_DAY); remove(KEY_GREET_DAY)
+            putBoolean(KEY_SEEDED, true)
+        }
+    }
+
     // ---------------------------------------------------------------- festejos
 
     sealed interface Celebration {
