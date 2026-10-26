@@ -386,11 +386,11 @@ PETS = {"DOG": dog}
 
 
 def all_pets():
-    """Las 10 mascotas, en el orden de PetType."""
+    """Las mascotas, en el orden de PetType."""
     from model3d_pets import MORE
     m = dict(PETS)
     m.update(MORE)
-    return {k: m[k] for k in ("DOG", "CAT", "DUCK", "FROG", "COW", "PIG", "CHICK", "LION", "MONKEY", "OWL")}
+    return {k: m[k] for k in ("DOG", "CAT", "DUCK", "FROG", "COW", "PIG", "CHICK", "LION", "MONKEY", "OWL", "RABBIT")}
 
 
 if __name__ == "__main__":
