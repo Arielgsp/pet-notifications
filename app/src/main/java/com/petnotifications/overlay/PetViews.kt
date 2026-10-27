@@ -56,7 +56,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -69,7 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petnotifications.PetView
 import com.petnotifications.R
-import com.petnotifications.art
+import com.petnotifications.petPainter
 import com.petnotifications.liesDown
 import kotlin.math.PI
 import kotlin.math.cos
@@ -393,7 +392,7 @@ fun PetContent(state: OverlayState) {
                     }
                 }
                 // Gira solo la cabeza hacia un costado (a veces también hacia el otro), sentada.
-                Trick.HEAD -> if (PetModel.has(state.pet) && seated) try {
+                Trick.HEAD -> if (PetModel.hasHead(state.pet) && seated) try {
                     headTurning = true
                     val side = if ((0..1).random() == 0) 1f else -1f
                     headAngle.animateTo(55f * side, tween(520, easing = FastOutSlowInEasing))
@@ -546,18 +545,18 @@ fun PetContent(state: OverlayState) {
             }
         if (modelTurning) {
             // Se redibuja en cada cuadro del giro (solo mientras gira).
-            Canvas(petLayer) { PetModel.draw(this, state.pet, turnAngle.value, happy = false) }
+            Canvas(petLayer) { PetModel.draw(this, state.pet, turnAngle.value, coat = state.coat) }
         } else if (headTurning) {
             // Cuerpo sentado fijo y la cabeza dibujada en el ángulo de cada cuadro.
             Box(petLayer) {
-                Image(painterResource(state.pet.art(PetView.SIT_BODY)), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
+                Image(petPainter(state.pet, PetView.SIT_BODY, state.coat), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
                 Canvas(Modifier.fillMaxSize()) {
-                    PetModel.drawHead(this, state.pet, headAngle.value, happy = false, headDy = PetModel.SIT_HEAD_DY)
+                    PetModel.drawHead(this, state.pet, headAngle.value, coat = state.coat)
                 }
             }
         } else {
             Image(
-                painterResource(state.pet.art(view)),
+                petPainter(state.pet, view, state.coat),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = petLayer,

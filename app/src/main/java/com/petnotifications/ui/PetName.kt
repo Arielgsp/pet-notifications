@@ -18,15 +18,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.petnotifications.PetType
+import com.petnotifications.Prefs
 import com.petnotifications.PetView
 import com.petnotifications.R
-import com.petnotifications.art
+import com.petnotifications.petPainter
 
 /** Largo máximo del nombre: entra en el globo y en la notificación. */
 const val PET_NAME_MAX = 16
@@ -42,7 +43,7 @@ fun PetNameDialog(pet: PetType, initial: String, onDone: (String?) -> Unit) {
     fun save() = onDone(name.trim().takeIf { it.isNotEmpty() })
     AlertDialog(
         onDismissRequest = { onDone(initial.ifBlank { null }) },
-        icon = { Image(painterResource(pet.art(PetView.FRONT)), contentDescription = null, modifier = Modifier.size(64.dp)) },
+        icon = { Image(petPainter(pet, PetView.FRONT, Prefs(LocalContext.current).coat(pet)), contentDescription = null, modifier = Modifier.size(64.dp)) },
         title = { Text(stringResource(R.string.name_title, species)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {

@@ -35,6 +35,8 @@
     <string name="pet_monkey_sound">Uh uh ah ah!</string>
     <string name="pet_owl">Búho</string>
     <string name="pet_owl_sound">Uhuu!</string>
+    <string name="pet_rabbit">Conejo</string>
+    <string name="pet_rabbit_sound">¡Hop hop!</string>
 
     <!-- Al tocar el globo / repetición -->
     <string name="tap_open">Abrir</string>
@@ -211,7 +213,7 @@
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Mascotas</string>
     <string name="pro_row_pets_free">2 a elección</string>
-    <string name="pro_row_pets_pro">Las 10</string>
+    <string name="pro_row_pets_pro">Las 11</string>
     <string name="pro_row_reminders">Recordatorios (una vez, diarios, semanales)</string>
     <string name="pro_row_pet_life">Globo, mimos y sueño por inactividad</string>
     <string name="pro_row_insist">Insistir si no respondés</string>
@@ -222,6 +224,11 @@
     <string name="pro_row_bedtime">Horario de No molestar</string>
     <string name="pro_row_ghost">Modo fantasma</string>
     <string name="pro_row_look">Tamaño y transparencia</string>
+    <string name="pro_row_coats">Pelajes</string>
+    <string name="coat_title">Pelaje</string>
+    <string name="coat_n">Pelaje %1$d</string>
+    <string name="pro_row_coats_free">El original</string>
+    <string name="pro_row_coats_pro">Todos</string>
     <string name="pro_yes">Sí</string>
     <string name="pro_no">No</string>
     <string name="pro_buy">Comprar Pro · %1$s</string>
@@ -235,7 +242,7 @@
     <string name="pro_locked">Función Pro: tocá para ver los planes</string>
     <string name="pro_trial_intro">Tenés %1$d días de prueba con todo Pro, gratis.</string>
     <string name="free_pets_title">Elegí tus 2 mascotas gratis</string>
-    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis podés usar 2 mascotas: elegilas (después no se pueden cambiar). Con Pro tenés las 10.</string>
+    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis podés usar 2 mascotas: elegilas (después no se pueden cambiar). Con Pro tenés las 11.</string>
     <string name="free_pets_confirm">Listo</string>
     <string name="free_pets_count">%1$d de 2 elegidas</string>
     <string name="feedback">Enviar comentarios</string>
@@ -282,7 +289,7 @@
     <string name="trial_notice_body">Yo me quedo con vos igual: seguís teniendo tus recordatorios, 2 mascotas a elección y que insista cada 10 minutos. Si querés seguir con todo Pro, está en Ver planes.</string>
     <string name="free_pets_change">Cambiar mis 2 mascotas gratis (te queda 1 cambio)</string>
     <string name="free_pets_change_title">Cambiá tus 2 mascotas gratis</string>
-    <string name="free_pets_change_body">Podés cambiarlas una sola vez. Después, para usar otras, está Pro, que trae las 10.</string>
+    <string name="free_pets_change_body">Podés cambiarlas una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">Mientras el celular estuvo apagado pasó 1 evento</string>

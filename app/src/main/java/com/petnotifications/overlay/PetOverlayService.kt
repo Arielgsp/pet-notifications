@@ -117,6 +117,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         AlertScheduler.schedulePetWatchdog(this)
         lastPro = prefs.isPro
         state.pet = prefs.pet
+        state.coat = prefs.coat(state.pet)
         owner.start()
         addWindows()
         prefs.sp.registerOnSharedPreferenceChangeListener(this)
@@ -228,6 +229,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         when (key) {
             Prefs.KEY_PET -> {
                 state.pet = prefs.pet
+                state.coat = prefs.coat(state.pet)
                 state.bounceTick++
                 layoutFx()
                 updateNotification()
@@ -253,6 +255,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // Cambió el nombre de la mascota: se actualiza la notificación fija.
             else -> when {
                 key?.startsWith(Prefs.KEY_PET_NAME) == true -> updateNotification()
+                key?.startsWith(Prefs.KEY_COAT) == true -> state.coat = prefs.coat(state.pet)
                 // Sumó corazones (por un "Listo" desde la notificación o la app): quizás hay que festejar.
                 key?.startsWith(Bond.KEY_PREFIX) == true -> scheduleCelebrate()
             }
@@ -879,8 +882,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val pet = state.pet
         val options = buildList {
             addAll(listOf(Trick.LOOK, Trick.LOOK, Trick.PEEK, Trick.STRETCH, Trick.YAWN, Trick.SIT, Trick.HOP, Trick.SHAKE, Trick.WAG, Trick.WAG))
-            // Girar solo la cabeza: las mascotas con modelo de giro (por ahora, el perro).
-            if (PetModel.has(pet)) addAll(listOf(Trick.HEAD, Trick.HEAD, Trick.HEAD))
+            // Girar solo la cabeza (sentada): las de cuatro patas (ver PetModel.hasHead).
+            if (PetModel.hasHead(pet)) addAll(listOf(Trick.HEAD, Trick.HEAD, Trick.HEAD))
             if (Bond.knows(this@PetOverlayService, Bond.Reward.PAW)) add(Trick.PAW)
         }.filter { it != lastLife }
         when (Random.nextInt(8)) {

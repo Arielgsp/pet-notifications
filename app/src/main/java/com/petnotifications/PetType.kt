@@ -26,7 +26,9 @@ enum class PetType(
     CHICK("🐤", R.string.pet_chick, R.string.pet_chick_sound, 0.5f, 0.55f, 1.8f),
     LION("🦁", R.string.pet_lion, R.string.pet_lion_sound, 0.5f, 0.53f, 0.5f),
     MONKEY("🐵", R.string.pet_monkey, R.string.pet_monkey_sound, 0.5f, 0.55f, 1.2f),
-    OWL("🦉", R.string.pet_owl, R.string.pet_owl_sound, 0.5f, 0.52f, 0.8f);
+    OWL("🦉", R.string.pet_owl, R.string.pet_owl_sound, 0.5f, 0.52f, 0.8f),
+    /** Sin dibujos fijos: todas sus vistas salen del modelo 2,5D (petPainter). */
+    RABBIT("🐰", R.string.pet_rabbit, R.string.pet_rabbit_sound, 0.5f, 0.54f, 1.5f);
 
     fun label(ctx: Context): String = ctx.getString(nameRes)
 

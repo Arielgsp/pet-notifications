@@ -558,6 +558,39 @@ Existen solo en las versiones de prueba que te paso; la que se sube a Google Pla
 | 38.6 | Arriba de todo, tocala una vez. | Los corazones salen al costado. | |
 | 38.7 | Con la mascota en el medio o abajo. | Todo sigue apareciendo arriba, como antes. | |
 
+## 39. Giro con el modelo 2,5D en todas las mascotas (versión 1.0.24)
+
+Antes solo el perro giraba “de verdad”; las demás cambiaban entre 4 dibujos. Ahora todas usan el modelo que aprobaste en la vista previa.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 39.1 | Con cada mascota, tocala **3 veces**. | Da la vuelta de 360° de forma pareja (sin cambiar de dibujo de golpe), con saltitos suaves, y termina de frente contenta. | |
+| 39.2 | Mirá el **principio y el final** del giro. | No tiene que verse un salto feo al pasar del dibujo quieto al modelo (puede cambiar un poquito la cola). Anotá en cuál se nota más. | |
+| 39.3 | Dejala sola un rato (mejor en “Inquieta”). | Al mirar a los costados gira el cuerpo a medias, y a veces se da vuelta y se queda de espaldas; en todas las mascotas. | |
+| 39.4 | Con **gato, vaca, chancho, león y mono**, esperá a que gire solo la cabeza. | Sentado, gira la cabeza hacia un costado (a veces al otro) y vuelve, con el cuerpo quieto, como ya hacía el perro. | |
+| 39.5 | Con el **león**, mirá el giro. | La melena se ve bien redondeada (festones) en todos los ángulos. | |
+| 39.6 | Usala un rato normal. | Que no se trabe ni se ponga lenta al girar. | |
+
+---
+
+## 40. Pelajes (Pro) y conejo (versión 1.0.25)
+
+Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada, dormida, de perfil, de espaldas, dando la patita y las pantallas de la app) se dibuja con el modelo 2,5D. Para probar sin Pro y con Pro, usá las herramientas de dueño (forzar plan).
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 40.1 | Con Pro, pestaña **Mascota**: mirá la fila **Pelaje** debajo de las mascotas. | Una ficha por pelaje con el dibujo de la mascota en ese color (dálmata, tricolor, con manchas, etc.); se desliza de costado. El original está marcado. | |
+| 40.2 | Elegí otro pelaje. | La mascota flotante cambia de color enseguida, y también el dibujo de arriba de la pestaña, el de Avisos y la ficha en la grilla de mascotas. | |
+| 40.3 | Con ese pelaje, mirala **quieta, sentada, girando, mirando a los costados y girando solo la cabeza**. | Siempre del mismo color, sin saltitos al empezar o terminar el giro. | |
+| 40.4 | Con ese pelaje, dejala dormirse (o pausala desde la notificación) y despertala. | Acostada y dormida (con zetas) en ese pelaje, de costado como siempre: cabeza de frente a la izquierda y el cuerpo estirado a la derecha. | |
+| 40.5 | Tocala hasta que **dé la patita** (o sumá corazones). | Levanta la patita con la cara contenta, en su pelaje. | |
+| 40.6 | Cambiá de mascota y volvé. | Cada mascota recuerda su pelaje. | |
+| 40.7 | Sin Pro (forzar plan gratis): mirá la fila **Pelaje** y tocá uno con candado. | Todos menos el original tienen candado y te llevan a los planes. La mascota vuelve al pelaje original. En la comparación de planes aparece **Pelajes: El original / Todos**. | |
+| 40.8 | Con Pro, elegí el **conejo**. | Aparece en la grilla (es la mascota 11). Dice “¡Hop hop!”. Se ve bien quieto, sentado, girando, girando la cabeza, de espaldas, acostado y dormido. | |
+| 40.9 | Conejo con el pelaje **Orejas caídas**. | Las orejas caen a los costados de la cabeza en todas las poses. | |
+| 40.10 | Con la **rana**, el **pato** y el **búho** en otro pelaje, dejalos dormir. | La rana se acuesta de costado como las de cuatro patas; el pato y el búho duermen esponjados en el lugar, como siempre. | |
+| 40.11 | Abrí el tutorial y el diálogo para ponerle nombre, con un pelaje distinto. | La mascota aparece en su pelaje. | |
+
 ---
 
 ## Si algo falla

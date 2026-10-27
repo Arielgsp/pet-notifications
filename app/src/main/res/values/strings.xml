@@ -36,6 +36,8 @@
     <string name="pet_monkey_sound">Ooh ooh ah ah!</string>
     <string name="pet_owl">Owl</string>
     <string name="pet_owl_sound">Hoot hoot!</string>
+    <string name="pet_rabbit">Bunny</string>
+    <string name="pet_rabbit_sound">Hop hop!</string>
 
     <!-- Al tocar el globo / repetición -->
     <string name="tap_open">Open</string>
@@ -212,7 +214,7 @@
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Pets</string>
     <string name="pro_row_pets_free">2 of your choice</string>
-    <string name="pro_row_pets_pro">All 10</string>
+    <string name="pro_row_pets_pro">All 11</string>
     <string name="pro_row_reminders">Reminders (once, daily, weekly)</string>
     <string name="pro_row_pet_life">Bubble, cuddles and sleeping when idle</string>
     <string name="pro_row_insist">Insist if you do not answer</string>
@@ -223,6 +225,11 @@
     <string name="pro_row_bedtime">Do not disturb hours</string>
     <string name="pro_row_ghost">Ghost mode</string>
     <string name="pro_row_look">Size and transparency</string>
+    <string name="pro_row_coats">Coats</string>
+    <string name="coat_title">Coat</string>
+    <string name="coat_n">Coat %1$d</string>
+    <string name="pro_row_coats_free">The original</string>
+    <string name="pro_row_coats_pro">All</string>
     <string name="pro_yes">Yes</string>
     <string name="pro_no">No</string>
     <string name="pro_buy">Buy Pro · %1$s</string>
@@ -236,7 +243,7 @@
     <string name="pro_locked">Pro feature: tap to see the plans</string>
     <string name="pro_trial_intro">You have a %1$d-day free trial with all of Pro.</string>
     <string name="free_pets_title">Choose your 2 free pets</string>
-    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 2 pets: pick them (they cannot be changed later). Pro gives you all 10.</string>
+    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 2 pets: pick them (they cannot be changed later). Pro gives you all 11.</string>
     <string name="free_pets_confirm">Done</string>
     <string name="free_pets_count">%1$d of 2 chosen</string>
     <string name="feedback">Send feedback</string>
@@ -283,7 +290,7 @@
     <string name="trial_notice_body">I am staying with you either way: you keep your reminders, 2 pets of your choice and alerts that insist every 10 minutes. If you want to keep all of Pro, it is under See plans.</string>
     <string name="free_pets_change">Change my 2 free pets (1 change left)</string>
     <string name="free_pets_change_title">Change your 2 free pets</string>
-    <string name="free_pets_change_body">You can change them only once. After that, Pro gives you all 10.</string>
+    <string name="free_pets_change_body">You can change them only once. After that, Pro gives you all 11.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">While your phone was off, 1 event went by</string>

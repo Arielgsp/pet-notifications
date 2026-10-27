@@ -85,6 +85,7 @@ fun ProDialog(onDismiss: () -> Unit) {
                 CompareRow(stringResource(R.string.pro_row_bedtime), no, yes)
                 CompareRow(stringResource(R.string.pro_row_ghost), yes, yes)
                 CompareRow(stringResource(R.string.pro_row_look), no, yes)
+                CompareRow(stringResource(R.string.pro_row_coats), stringResource(R.string.pro_row_coats_free), stringResource(R.string.pro_row_coats_pro))
                 if (!prefs.proPurchased) {
                     Text(
                         stringResource(R.string.pro_one_time),

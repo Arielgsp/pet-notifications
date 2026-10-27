@@ -22,6 +22,11 @@ class Prefs(context: Context) {
         }
         set(v) = sp.edit { putString(KEY_PET, v.name) }
 
+    /** Pelaje de cada mascota (Pro; 0 = el original, el único sin Pro). Ver PetModel.coats. */
+    fun coat(p: PetType): Int = if (isPro) sp.getInt(KEY_COAT + p.name, 0) else 0
+
+    fun setCoat(p: PetType, coat: Int) = sp.edit { putInt(KEY_COAT + p.name, coat) }
+
     var tapAction: TapAction
         get() = TapAction.from(sp.getString(KEY_TAP_ACTION, null))
         set(v) = sp.edit { putString(KEY_TAP_ACTION, v.name) }
@@ -318,6 +323,7 @@ class Prefs(context: Context) {
         const val KEY_MUTED = "muted"
         const val KEY_TIP_DAY = "tip_dismissed_day"
         const val KEY_PET_NAME = "pet_name_"
+        const val KEY_COAT = "coat_"
         const val KEY_PET_NAME_ASKED = "pet_name_asked_"
         const val KEY_PET_CLEAN_STOP = "pet_clean_stop"
         const val KEY_PET_KILLS = "pet_kills"

@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +53,8 @@ import androidx.compose.ui.unit.sp
 import com.petnotifications.PetType
 import com.petnotifications.PetView
 import com.petnotifications.R
-import com.petnotifications.art
+import com.petnotifications.overlay.PetModel
+import com.petnotifications.petPainter
 
 /*
  * Piezas visuales de las pantallas de la app, según Design (PantallaAvisos / Mascota / Ajustes):
@@ -175,7 +177,7 @@ fun RowDivider() = HorizontalDivider(color = Pet.colors.line, modifier = Modifie
 
 /** Ficha de mascota (72 dp): seleccionada con borde `cocoa` de 2 dp y tilde; bloqueada, punteada con candado. */
 @Composable
-fun PetTile(pet: PetType, selected: Boolean, locked: Boolean, onClick: () -> Unit) {
+fun PetTile(pet: PetType, selected: Boolean, locked: Boolean, coat: Int = 0, onClick: () -> Unit) {
     val c = Pet.colors
     val shape = RoundedCornerShape(18.dp)
     Box(Modifier.width(72.dp)) {
@@ -195,7 +197,7 @@ fun PetTile(pet: PetType, selected: Boolean, locked: Boolean, onClick: () -> Uni
         ) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(44.dp)) {
                 Image(
-                    painterResource(pet.art(PetView.FRONT)), contentDescription = null,
+                    petPainter(pet, PetView.FRONT, coat), contentDescription = null,
                     modifier = Modifier.size(44.dp).alpha(if (locked) 0.35f else 1f),
                 )
                 if (locked) {
@@ -223,11 +225,62 @@ fun PetTile(pet: PetType, selected: Boolean, locked: Boolean, onClick: () -> Uni
 
 /** Grilla simple de 4 columnas de fichas de mascota. */
 @Composable
-fun PetGrid(pets: List<PetType>, selected: PetType?, locked: Boolean, onClick: (PetType) -> Unit) {
+fun PetGrid(
+    pets: List<PetType>, selected: PetType?, locked: Boolean, coatOf: (PetType) -> Int = { 0 }, onClick: (PetType) -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         pets.chunked(4).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { p -> PetTile(p, selected = p == selected, locked = locked) { onClick(p) } }
+                row.forEach { p -> PetTile(p, selected = p == selected, locked = locked, coat = coatOf(p)) { onClick(p) } }
+            }
+        }
+    }
+}
+
+/**
+ * Pelajes de la mascota (Pro; el original es gratis): una ficha con su dibujo por pelaje, en una fila
+ * que se desliza. Sin Pro, los otros pelajes se ven con candado y llevan a los planes.
+ */
+@Composable
+fun CoatRow(pet: PetType, selected: Int, locked: Boolean, onClick: (Int) -> Unit) {
+    val c = Pet.colors
+    val shape = RoundedCornerShape(18.dp)
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        PetModel.coats(pet).indices.forEach { i ->
+            val lock = locked && i > 0
+            val sel = i == selected && !lock
+            Box(Modifier.width(64.dp)) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            when {
+                                lock -> Modifier.dashedBorder(c.line, 18.dp)
+                                sel -> Modifier.background(c.surfaceRaised, shape).border(2.dp, c.cocoa, shape)
+                                else -> Modifier.background(c.surfaceRaised, shape).border(1.dp, c.line, shape)
+                            },
+                        )
+                        .clickable(role = Role.RadioButton, onClickLabel = stringResource(R.string.coat_n, i + 1)) { onClick(i) }
+                        .padding(vertical = 8.dp),
+                ) {
+                    Image(
+                        petPainter(pet, PetView.FRONT, i), contentDescription = stringResource(R.string.coat_n, i + 1),
+                        modifier = Modifier.size(44.dp).alpha(if (lock) 0.35f else 1f),
+                    )
+                    if (lock) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.size(24.dp).background(c.line, CircleShape),
+                        ) { Icon(Icons.Outlined.Lock, contentDescription = null, tint = c.inkMuted, modifier = Modifier.size(13.dp)) }
+                    }
+                }
+                if (sel) {
+                    Surface(
+                        shape = CircleShape, color = c.cocoa,
+                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-4).dp).size(20.dp),
+                    ) { Icon(Icons.Outlined.Check, contentDescription = null, tint = c.surface, modifier = Modifier.padding(3.dp)) }
+                }
             }
         }
     }

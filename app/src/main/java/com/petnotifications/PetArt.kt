@@ -9,7 +9,8 @@ enum class PetView { FRONT, BLINK, HAPPY, SIDE, BACK, LIE, SLEEP, PAW, SIT, SIT_
 val PetType.liesDown: Boolean
     get() = this != PetType.DUCK && this != PetType.CHICK && this != PetType.OWL
 
-fun PetType.art(view: PetView): Int = when (this) {
+/** Dibujo fijo (los de siempre, en el pelaje original); null si la mascota no tiene (ver petPainter). */
+fun PetType.art(view: PetView): Int? = when (this) {
     PetType.DOG -> when (view) {
         PetView.FRONT -> R.drawable.pet_dog_front
         PetView.BLINK -> R.drawable.pet_dog_blink
@@ -150,4 +151,5 @@ fun PetType.art(view: PetView): Int = when (this) {
         PetView.SIT_HAPPY -> R.drawable.pet_owl_sit_happy
         PetView.SIT_BODY -> R.drawable.pet_owl_sit_body
     }
+    else -> null
 }

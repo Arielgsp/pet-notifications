@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,7 +48,7 @@ import com.petnotifications.Prefs
 import com.petnotifications.R
 import com.petnotifications.alerts.AlertScheduler
 import com.petnotifications.alerts.CalendarAlarms
-import com.petnotifications.art
+import com.petnotifications.petPainter
 import com.petnotifications.calendar.CalendarSource
 import com.petnotifications.overlay.PetOverlayService
 
@@ -206,7 +205,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Image(
-                painterResource(pet.art(if (step == Step.DONE) PetView.HAPPY else PetView.FRONT)),
+                petPainter(pet, if (step == Step.DONE) PetView.HAPPY else PetView.FRONT, prefs.coat(pet)),
                 contentDescription = null,
                 modifier = Modifier.size(170.dp),
             )

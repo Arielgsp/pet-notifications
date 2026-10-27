@@ -53,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,7 +65,7 @@ import com.petnotifications.PetView
 import com.petnotifications.Prefs
 import com.petnotifications.R
 import com.petnotifications.alerts.AlertScheduler
-import com.petnotifications.art
+import com.petnotifications.petPainter
 import com.petnotifications.overlay.PetOverlayService
 import com.petnotifications.overlay.PetOverlayService.Gesture
 import kotlinx.coroutines.delay
@@ -217,6 +216,7 @@ private fun BoxScope.Finger(x: Float, y: Float, pressed: Boolean, visible: Boole
 private fun Demo(card: Card, active: Boolean) {
     val ctx = LocalContext.current
     val pet = remember { Prefs(ctx).pet }
+    val coat = remember { Prefs(ctx).coat(pet) }
     val c = Pet.colors
     // Estado de la escena, animado por un bucle propio de cada tarjeta.
     val petX = remember { Animatable(0f) }
@@ -317,7 +317,7 @@ private fun Demo(card: Card, active: Boolean) {
 
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Image(
-            painterResource(pet.art(view)), contentDescription = null,
+            petPainter(pet, view, coat), contentDescription = null,
             modifier = Modifier
                 .offset(petX.value.dp, petY.value.dp)
                 .size(120.dp)

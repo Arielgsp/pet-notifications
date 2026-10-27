@@ -124,7 +124,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontStyle
@@ -139,7 +138,7 @@ import com.petnotifications.PetType
 import com.petnotifications.Bond
 import com.petnotifications.R
 import com.petnotifications.PetView
-import com.petnotifications.art
+import com.petnotifications.petPainter
 import com.petnotifications.Prefs
 import com.petnotifications.TapAction
 import com.petnotifications.alerts.AlertScheduler
@@ -181,6 +180,9 @@ fun SettingsScreen(
 
     var enabled by remember { mutableStateOf(prefs.petEnabled) }
     var pet by remember { mutableStateOf(prefs.pet) }
+    /** Pelaje de cada mascota (Prefs.coat), para mostrarlas como se ven. */
+    var coats by remember { mutableStateOf(PetType.entries.associateWith { prefs.coat(it) }) }
+    fun coatOf(p: PetType) = coats[p] ?: 0
     var size by remember { mutableIntStateOf(prefs.petSizeDp) }
     var tapAction by remember { mutableStateOf(prefs.tapAction) }
     var snooze by remember { mutableIntStateOf(prefs.snoozeMinutes) }
@@ -409,7 +411,7 @@ fun SettingsScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painterResource(pet.art(if (paused || off) PetView.SLEEP else PetView.FRONT)),
+                    petPainter(pet, if (paused || off) PetView.SLEEP else PetView.FRONT, coatOf(pet)),
                     contentDescription = null, modifier = Modifier.size(52.dp),
                 )
                 Column(Modifier.weight(1f).padding(start = 12.dp)) {
@@ -603,7 +605,7 @@ fun SettingsScreen(
             if (upcoming.isEmpty() && firedToday.isEmpty()) {
                 item {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                        Image(painterResource(pet.art(PetView.FRONT)), contentDescription = null, modifier = Modifier.size(120.dp))
+                        Image(petPainter(pet, PetView.FRONT, coatOf(pet)), contentDescription = null, modifier = Modifier.size(120.dp))
                         Text(
                             stringResource(R.string.home_empty_title), fontSize = 17.sp, fontWeight = FontWeight(800), color = c.ink,
                             textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp),
@@ -690,7 +692,7 @@ fun SettingsScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(92.dp).background(c.blushSoft, CircleShape)) {
-                    Image(painterResource(pet.art(PetView.FRONT)), contentDescription = null, modifier = Modifier.size(76.dp))
+                    Image(petPainter(pet, PetView.FRONT, coatOf(pet)), contentDescription = null, modifier = Modifier.size(76.dp))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
                     Text(petName ?: stringResource(pet.nameRes), fontSize = 18.sp, fontWeight = FontWeight(800), color = c.ink)
@@ -706,7 +708,7 @@ fun SettingsScreen(
             if (freeMode) {
                 val free = PetType.entries.filter { it in prefs.freePets }
                 SectionLabel(stringResource(R.string.pets_your_two))
-                PetGrid(free, selected = pet, locked = false, onClick = ::selectPet)
+                PetGrid(free, selected = pet, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SectionLabel(stringResource(R.string.pets_more_pro), Modifier.weight(1f))
                     OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
@@ -722,7 +724,19 @@ fun SettingsScreen(
                     SectionLabel(stringResource(R.string.pets_yours), Modifier.weight(1f))
                     if (isPro) ProTag()
                 }
-                PetGrid(PetType.entries, selected = pet, locked = false, onClick = ::selectPet)
+                PetGrid(PetType.entries, selected = pet, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                SectionLabel(stringResource(R.string.coat_title), Modifier.weight(1f))
+                if (isPro) ProTag()
+            }
+            CoatRow(pet, selected = coatOf(pet), locked = !isPro) { i ->
+                if (!isPro) {
+                    if (i > 0) showPro = true
+                } else {
+                    prefs.setCoat(pet, i)
+                    coats = coats + (pet to i)
+                }
             }
             SectionLabel(stringResource(R.string.look_title), Modifier.padding(top = 4.dp))
             PetCard {
@@ -1479,7 +1493,7 @@ internal fun PetPicker(selected: Set<PetType>, locked: Set<PetType>, onSelect: (
                     .padding(vertical = 8.dp),
             ) {
                 Image(
-                    painterResource(p.art(PetView.FRONT)), contentDescription = null,
+                    petPainter(p, PetView.FRONT), contentDescription = null,
                     modifier = Modifier.size(52.dp).alpha(if (p in locked) 0.45f else 1f),
                 )
                 Text(stringResource(p.nameRes), style = MaterialTheme.typography.labelMedium)

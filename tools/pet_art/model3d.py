@@ -113,15 +113,87 @@ def ellipse_svg(cx, cy, rx, ry, fill, rot=0.0, stroke=True, opacity=1.0):
     return f'<ellipse cx="{f1(cx)}" cy="{f1(cy)}" rx="{f1(max(rx, 0.01))}" ry="{f1(ry)}" fill="{fill}"{t}{st}{op}></ellipse>'
 
 
-def render(model, th, face="open", pose=None, head=None):
+# Operaciones de dibujo: draw_ops() arma la lista (ya ordenada) y render() la pasa a SVG. La app dibuja
+# con el mismo motor (overlay/PetModel.kt) y su test compara sus operaciones con estas (gen_kotlin.py
+# escribe los casos de prueba), así la vista previa y la app no se separan.
+#   ell:  óvalo (cx, cy, rx, ry, fill, rot, stroke, opacity)
+#   circ: círculo sin borde (cx, cy, r, fill)
+#   path: trazo; segs = [(comando, [x, y, ...])] con comandos M Q L C Z; fill "none" = sin relleno;
+#         color = color del borde; w = ancho (0 = sin borde)
+#   mane: melena (anillo de n festones de radio rr alrededor de (cx, cy), a distancia R)
+# Cualquiera puede llevar clip=(cx, cy, rx, ry) (recortada con ese óvalo) y turn=(grados, px, py)
+# (girada alrededor de ese punto, con recorte y todo).
+
+def op_ell(cx, cy, rx, ry, fill, rot=0.0, stroke=True, opacity=1.0):
+    return dict(t="ell", cx=cx, cy=cy, rx=rx, ry=ry, fill=fill, rot=rot, stroke=stroke, opacity=opacity)
+
+
+def op_circ(cx, cy, r, fill):
+    return dict(t="circ", cx=cx, cy=cy, r=r, fill=fill)
+
+
+def op_path(segs, fill="none", color=INK, w=4, w_attr=None):
+    return dict(t="path", segs=segs, fill=fill, color=color, w=w, w_attr=w_attr)
+
+
+def template_segs(d, pts):
+    """Plantilla de path ("M{0} Q{1} {2} Z") y sus puntos (x, y) → segmentos [(comando, [x, y, ...])]."""
+    segs = []
+    for tok in d.split():
+        if tok[0].isalpha():
+            segs.append((tok[0], []))
+            tok = tok[1:]
+        if tok:
+            segs[-1][1].extend(pts[int(tok.strip("{}"))])
+    return segs
+
+
+def d_svg(segs):
+    out = []
+    for cmd, xs in segs:
+        out.append(cmd + " ".join(f"{f1(xs[i])} {f1(xs[i + 1])}" for i in range(0, len(xs), 2)))
+    return " ".join(out)
+
+
+def op_svg(o):
+    t = o["t"]
+    if t == "ell":
+        s = ellipse_svg(o["cx"], o["cy"], o["rx"], o["ry"], o["fill"], o["rot"], o["stroke"], o["opacity"])
+    elif t == "circ":
+        s = f'<circle cx="{f1(o["cx"])}" cy="{f1(o["cy"])}" r="{f1(o["r"])}" fill="{o["fill"]}" stroke="none"></circle>'
+    elif t == "path":
+        stroke = "" if o["color"] == INK else f' stroke="{o["color"]}"'
+        if o["w"] == 0:
+            stroke = ' stroke="none"'
+        show_w = o["w_attr"] if o["w_attr"] is not None else o["w"] not in (0, 4)
+        w = f' stroke-width="{o["w"]}"' if show_w else ""
+        s = f'<path d="{d_svg(o["segs"])}" fill="{o["fill"]}"{stroke}{w}></path>'
+    else:  # mane
+        cx, cy, R, n, rr = o["cx"], o["cy"], o["R"], o["n"], o["rr"]
+        pts = [(cx + R * math.cos(2 * math.pi * i / n - math.pi / 2), cy + R * math.sin(2 * math.pi * i / n - math.pi / 2)) for i in range(n)]
+        d = f"M{f1(pts[0][0])} {f1(pts[0][1])} " + " ".join(
+            f"A{f1(rr)} {f1(rr)} 0 0 1 {f1(pts[(i + 1) % n][0])} {f1(pts[(i + 1) % n][1])}" for i in range(n)) + " Z"
+        s = f'<path d="{d}" fill="{o["fill"]}"></path>'
+    if o.get("clip"):
+        cid = f"c{id(o)}"
+        s = (f'<clipPath id="{cid}">{ellipse_svg(*o["clip"], "#000", stroke=False)}</clipPath>'
+             f'<g clip-path="url(#{cid})">{s}</g>')
+    if o.get("turn"):
+        a, px, py = o["turn"]
+        s = f'<g transform="rotate({f1(a)} {f1(px)} {f1(py)})">{s}</g>'
+    return s
+
+
+def draw_ops(model, th, face="open", pose=None, head=None, layer=None):
     """
-    SVG (solo el contenido, en el lienzo 200×240) de la mascota girada [th] grados. [head]: ángulo de la
-    cabeza si gira distinto que el cuerpo. [pose]: {tag: {"rot": grados desde el hombro, "dy": px}}.
+    Operaciones de dibujo (en orden, en el lienzo 200×240) de la mascota girada [th] grados. [head]:
+    ángulo de la cabeza si gira distinto que el cuerpo. [pose]: {tag: {"rot": grados desde el hombro, "dy": px}}.
+    [layer]: solo las piezas de esa capa (HEAD: la cabeza sola, para dibujarla sobre el cuerpo sentado fijo).
     """
     FB = Frame(th)
     FH = Frame(th if head is None else head)
     pose = pose or {}
-    items = []  # (clave de orden, profundidad, svg)
+    items = []  # (clave de orden, profundidad, [operaciones])
     clips = {}
     for el in model["parts"]:
         if el["kind"] == "vol":
@@ -131,6 +203,8 @@ def render(model, th, face="open", pose=None, head=None):
                 F.proj(vary(el["x"], sa), vary(el["z"], sa))[0], vary(el["y"], sa), vary(el["rx"], sa) - 2, vary(el["ry"], sa) - 2)
     for el in model["parts"]:
         k = el["kind"]
+        if layer is not None and el.get("layer") != layer:
+            continue
         F = FH if el.get("layer") == HEAD else FB
         sa = F.sa
         dy_pose = pose.get(el.get("tag"), {}).get("dy", 0) if el.get("tag") else 0
@@ -138,8 +212,8 @@ def render(model, th, face="open", pose=None, head=None):
         if k == "vol":
             x, z = vary(el["x"], sa), vary(el["z"], sa)
             px, pz = F.proj(x, z)
-            items.append((el["layer"], 0, ellipse_svg(px, vary(el["y"], sa), vary(el["rx"], sa), vary(el["ry"], sa), el["fill"],
-                                                    stroke=el.get("stroke", True))))
+            items.append((el["layer"], 0, [op_ell(px, vary(el["y"], sa), vary(el["rx"], sa), vary(el["ry"], sa), el["fill"],
+                                                  stroke=el.get("stroke", True))]))
         elif k in ("part", "eye"):
             x, z = vary(el["x"], sa), vary(el["z"], sa)
             px, pz = F.proj(x, z)
@@ -151,18 +225,18 @@ def render(model, th, face="open", pose=None, head=None):
                 kk = max(fz, 0) ** 0.6
                 r = el["r"]
                 if face == "open" and el.get("kawaii"):
-                    svg = (ellipse_svg(px, y, r[0] * kk, r[1], INK, stroke=False) +
-                           f'<circle cx="{f1(px - r[0] * 0.3 * kk)}" cy="{f1(y - r[1] * 0.38)}" r="{f1(r[0] * 0.48 * kk)}" fill="{WHITE}" stroke="none"></circle>'
-                           f'<circle cx="{f1(px + r[0] * 0.42 * kk)}" cy="{f1(y + r[1] * 0.4)}" r="{f1(r[0] * 0.24 * kk)}" fill="{WHITE}" stroke="none"></circle>')
+                    ops = [op_ell(px, y, r[0] * kk, r[1], INK, stroke=False),
+                           op_circ(px - r[0] * 0.3 * kk, y - r[1] * 0.38, r[0] * 0.48 * kk, WHITE),
+                           op_circ(px + r[0] * 0.42 * kk, y + r[1] * 0.4, r[0] * 0.24 * kk, WHITE)]
                 elif face == "open":
-                    svg = (ellipse_svg(px, y, r[0] * kk, r[1], INK, stroke=False) +
-                           f'<circle cx="{f1(px - 3 * kk)}" cy="{f1(y - 5)}" r="{f1(r[0] * 0.4 * kk)}" fill="{WHITE}" stroke="none"></circle>'
-                           f'<circle cx="{f1(px + 4 * kk)}" cy="{f1(y + 4)}" r="{f1(1.8 * kk)}" fill="{WHITE}" stroke="none"></circle>')
+                    ops = [op_ell(px, y, r[0] * kk, r[1], INK, stroke=False),
+                           op_circ(px - 3 * kk, y - 5, r[0] * 0.4 * kk, WHITE),
+                           op_circ(px + 4 * kk, y + 4, 1.8 * kk, WHITE)]
                 elif face == "happy":
-                    svg = f'<path d="M{f1(px - r[0] * kk)} {f1(y + 3)} Q{f1(px)} {f1(y - 10)} {f1(px + r[0] * kk)} {f1(y + 3)}" fill="none" stroke-width="4.5"></path>'
+                    ops = [op_path([("M", [px - r[0] * kk, y + 3]), ("Q", [px, y - 10, px + r[0] * kk, y + 3])], w=4.5)]
                 else:
-                    svg = f'<path d="M{f1(px - r[0] * kk)} {f1(y - 2)} Q{f1(px)} {f1(y + 7)} {f1(px + r[0] * kk)} {f1(y - 2)}" fill="none" stroke-width="4.5"></path>'
-                items.append((HEAD + 0.5, pz, svg))
+                    ops = [op_path([("M", [px - r[0] * kk, y - 2]), ("Q", [px, y + 7, px + r[0] * kk, y - 2])], w=4.5)]
+                items.append((HEAD + 0.5, pz, ops))
                 continue
             rx = vary(el["rx"], sa)
             if el.get("flat"):
@@ -170,11 +244,9 @@ def render(model, th, face="open", pose=None, head=None):
             rot0 = vary(el["rot"], sa)
             rot = rot0 * (px - 100) / x if abs(x) > 1 else rot0 * (1 - sa)
             key = el["layer"] + (-0.5 if fz < el["behind"] else 0.5)
-            e_svg = ellipse_svg(px, y, rx, vary(el["ry"], sa), el["fill"], rot, stroke=el.get("stroke", True), opacity=el.get("opacity", 1.0))
+            o = op_ell(px, y, rx, vary(el["ry"], sa), el["fill"], rot, stroke=el.get("stroke", True), opacity=el.get("opacity", 1.0))
             if el.get("clip") in clips:
-                cid = f"c{id(el)}{int(th * 10)}"
-                e_svg = (f'<clipPath id="{cid}">{ellipse_svg(*clips[el["clip"]], "#000", stroke=False)}</clipPath>'
-                         f'<g clip-path="url(#{cid})">{e_svg}</g>')
+                o["clip"] = clips[el["clip"]]
                 key = el["layer"] + 0.1  # justo encima de su volumen
             base_rot = vary(el.get("base_rot", 0), sa)
             if base_rot and abs(x) > 1 and (px - 100) * x < 0:
@@ -183,11 +255,11 @@ def render(model, th, face="open", pose=None, head=None):
             if drot_pose:
                 ry_ = vary(el["ry"], sa)
                 pvy = el["pivot_y"] + dy_pose if el.get("pivot_y") is not None else y - ry_ * 0.8
-                e_svg = f'<g transform="rotate({f1(drot_pose)} {f1(px)} {f1(pvy)})">{e_svg}</g>'
+                o["turn"] = (drot_pose, px, pvy)
                 # brazo levantado: pasa por delante de la cabeza (si no, la cabeza lo tapa)
                 if abs(drot_pose) > 60 and fz >= el["behind"]:
                     key = HEAD + 0.6
-            items.append((key, pz, e_svg))
+            items.append((key, pz, [o]))
         elif k == "path":
             if el.get("bb"):
                 ax, az = el["bb"]
@@ -199,21 +271,12 @@ def render(model, th, face="open", pose=None, head=None):
                 fz = sum(F.facing(p[0], p[2]) for p in el["pts"]) / len(el["pts"])
             if el["hide"] is not None and fz < el["hide"]:
                 continue
-            d = el["d"].format(*[f"{f1(px)} {f1(y + dy_pose)}" for px, _, y in pts])
+            o = op_path(template_segs(el["d"], [(px, y + dy_pose) for px, _, y in pts]), el["fill"], el["color"], el["width"])
             if drot_pose and el.get("pivot"):
                 pvx, _ = F.proj(el["pivot"][0], el["pivot"][2])
-                d_rot = (pvx, el["pivot"][1] + dy_pose)
-            else:
-                d_rot = None
-            stroke = "" if el["color"] == INK else f' stroke="{el["color"]}"'
-            if el["width"] == 0:
-                stroke = ' stroke="none"'
-            w = f' stroke-width="{el["width"]}"' if el["width"] not in (0, 4) else ""
+                o["turn"] = (drot_pose, pvx, el["pivot"][1] + dy_pose)
             key = el["layer"] + (-0.5 if fz < el["behind"] else 0.5)
-            p_svg = f'<path d="{d}" fill="{el["fill"]}"{stroke}{w}></path>'
-            if d_rot:
-                p_svg = f'<g transform="rotate({f1(drot_pose)} {f1(d_rot[0])} {f1(d_rot[1])})">{p_svg}</g>'
-            items.append((key, sum(p[1] for p in pts) / len(pts), p_svg))
+            items.append((key, sum(p[1] for p in pts) / len(pts), [o]))
         elif k == "tail":
             (bx3, bz3), (tx3, tz3) = el["base"], el["tip"]
             bx, bz = F.proj(bx3, bz3)
@@ -226,29 +289,29 @@ def render(model, th, face="open", pose=None, head=None):
             side = 1 if dx >= 0 else -1
             c1 = (bx + dx * .5 + nx * (w + 14 * side * .2) + el["bend"] * side, by + dy * .5 + ny * w + 6)
             c2 = (bx + dx * .5 - nx * w + el["bend"] * side, by + dy * .5 - ny * w + 6)
-            d = (f"M{f1(bx + nx * w)} {f1(by + ny * w)} Q{f1(c1[0])} {f1(c1[1])} {f1(tx)} {f1(ty)} "
-                 f"Q{f1(c2[0])} {f1(c2[1])} {f1(bx - nx * w)} {f1(by - ny * w)} Z")
+            segs = [("M", [bx + nx * w, by + ny * w]), ("Q", [c1[0], c1[1], tx, ty]), ("Q", [c2[0], c2[1], bx - nx * w, by - ny * w]), ("Z", [])]
             zz = (bz + tz) / 2
-            items.append((el["layer"] + (0.5 if zz >= 0 else -0.5), zz, f'<path d="{d}" fill="{el["fill"]}"></path>'))
+            items.append((el["layer"] + (0.5 if zz >= 0 else -0.5), zz, [op_path(segs, el["fill"])]))
         elif k == "rope":
             pts = [F.proj(p[0], p[2]) + (p[1],) for p in el["pts"]]
-            d = "M{0} Q{1} {2}".format(*[f"{f1(px)} {f1(y)}" for px, _, y in pts[:3]])
-            if len(pts) > 3:
-                d = "M{0} C{1} {2} {3}".format(*[f"{f1(px)} {f1(y)}" for px, _, y in pts[:4]])
+            xy = [(px, y) for px, _, y in pts]
+            segs = template_segs("M{0} C{1} {2} {3}" if len(pts) > 3 else "M{0} Q{1} {2}", xy)
             zz = sum(p[1] for p in pts) / len(pts)
             w = el["width"]
             items.append((el["layer"] + (0.5 if zz >= 0 else -0.5), zz,
-                          f'<path d="{d}" fill="none" stroke-width="{w}"></path><path d="{d}" fill="none" stroke="{el["color"]}" stroke-width="{w - 6}"></path>'))
+                          [op_path(segs, w=w, w_attr=True), op_path(segs, color=el["color"], w=w - 6, w_attr=True)]))
         elif k == "mane":
             # Melena: anillo de festones alrededor de la cabeza, detrás de ella (de espaldas, delante).
-            cx, cy, R, n = F.proj(0, el["z"])[0], el["y"], el["r"], 14
-            pts = [(cx + R * math.cos(2 * math.pi * i / n - math.pi / 2), cy + R * math.sin(2 * math.pi * i / n - math.pi / 2)) for i in range(n)]
-            rr = R * math.sin(math.pi / n) * 1.15
-            d = f"M{f1(pts[0][0])} {f1(pts[0][1])} " + " ".join(
-                f"A{f1(rr)} {f1(rr)} 0 0 1 {f1(pts[(i + 1) % n][0])} {f1(pts[(i + 1) % n][1])}" for i in range(n)) + " Z"
-            items.append((HEAD - 0.5, -999, f'<path d="{d}" fill="{el["fill"]}"></path>'))
+            R, n = el["r"], 14
+            items.append((HEAD - 0.5, -999, [dict(t="mane", cx=F.proj(el.get("x", 0), el["z"])[0], cy=el["y"], R=R, n=n,
+                                                  rr=R * math.sin(math.pi / n) * 1.15, fill=el["fill"])]))
     items.sort(key=lambda t: (t[0], t[1]))
-    return "".join(svg for _, _, svg in items)
+    return [o for _, _, ops in items for o in ops]
+
+
+def render(model, th, face="open", pose=None, head=None):
+    """SVG (solo el contenido, en el lienzo 200×240) de draw_ops()."""
+    return "".join(op_svg(o) for o in draw_ops(model, th, face, pose, head))
 
 
 def svg(model, th, size=150, face="open", pose=None):
@@ -261,6 +324,7 @@ def svg(model, th, size=150, face="open", pose=None):
 # ---------------------------------------------------------------- piezas comunes
 
 SIT = False  # build(sit=True): las piezas comunes salen en la pose sentada "peluche"
+LIE = False  # build(lie=True): acostada de costado (cuerpo de perfil, cabeza de frente; ver lie_view)
 PAD = "#FFC9D2"
 SIT_HEAD_DY = 8
 _LEGS_USED = [False]
@@ -271,6 +335,8 @@ def legs(main, feet, arms=None, feet_far=None, belly=None, arm_rot=22):
     arms = arms or main
     feet_far = feet_far or feet
     _LEGS_USED[0] = True
+    if LIE:
+        return lie_legs(feet)
     if SIT:
         return sit_legs(main, feet, arms, belly)
     out = []
@@ -290,6 +356,8 @@ def legs(main, feet, arms=None, feet_far=None, belly=None, arm_rot=22):
 
 
 def body(main, z=(0, -4), rx=(42, 48), ry=(38, 34), y=(176, 178)):
+    if LIE:
+        return dict(vol(BODY, 0, LIE_Y, LIE_Z, (44, 62), (30, 28), main), lie=True)
     if SIT:
         return vol(BODY, 0, (186, 188), z, (42, 46), (34, 32), main)
     return vol(BODY, 0, y, z, rx, ry, main)
@@ -312,6 +380,29 @@ def sit_legs(main, feet, arms, belly):
     return out
 
 
+# Acostada: se dibuja con el cuerpo de perfil (mirando a la izquierda, θ = 270) y la cabeza de frente
+# (head = 0) al lado, como los dibujos fijos echados. El cuerpo se estira y se apoya en el piso; las patas
+# de adelante quedan estiradas bajo la cabeza y la de atrás plegada. Lo demás del cuerpo (cola, manchas)
+# se lleva del cuerpo parado al acostado (lie_point).
+LIE_Y, LIE_Z = 200, -26        # centro del cuerpo acostado (de perfil: x = 100 - z en el lienzo)
+LIE_HX, LIE_HY = -26, 54       # cuánto se corre la cabeza (de frente) respecto de la mascota parada
+LIE_TH, LIE_HEAD = 270, 0      # ángulos para dibujarla (draw_ops(th=LIE_TH, head=LIE_HEAD))
+
+
+def lie_legs(feet):
+    out = []
+    for tag, x, z in (("footL", -14, 24), ("footR", 14, 36)):  # de adelante, estiradas bajo la cabeza
+        out.append(dict(part(BODY, x, 218, z, (12, 20), 9, feet, behind=-2, tag=tag), lie=True))
+    out.append(dict(part(BODY, 22, 202, LIE_Z - 34, (14, 20), 19, "@haunch", behind=-0.35, tag="backR"), lie=True))
+    out.append(dict(part(BODY, 24, 220, LIE_Z - 12, (10, 17), 8, feet, behind=-0.35, tag="backR"), lie=True))
+    return out
+
+
+def lie_point(y, z):
+    """Punto del cuerpo parado (y, z) en el cuerpo acostado: más bajo, más largo y más corto de alto."""
+    return LIE_Y + (y - 176) * 0.8, LIE_Z + z * 1.3
+
+
 def spot_parts(c, head=(98, 64, 60, 6), body_geo=(176, 42, 38)):
     """
     Manchas del pelaje (c["spots"]): ("head" | "body", X, Y, rx, ry, color, atrás?) en coordenadas del
@@ -324,7 +415,7 @@ def spot_parts(c, head=(98, 64, 60, 6), body_geo=(176, 42, 38)):
     for group, X, Y, rx, ry, color, back in c.get("spots", ()):
         x = X - 100
         if group == "body":
-            if SIT:
+            if SIT and not LIE:  # acostada: _to_lie las lleva desde el cuerpo parado
                 Y = 186 + (Y - bcy) * 34 / bry
                 cy_, ry_ = 186, 34
             else:
@@ -340,16 +431,23 @@ def spot_parts(c, head=(98, 64, 60, 6), body_geo=(176, 42, 38)):
     return out
 
 
-def build(fn, sit=False, colors=None):
-    """Modelo de una mascota parada o sentada (la cabeza baja SIT_HEAD_DY al sentarse), con su pelaje."""
-    global SIT
-    SIT = sit
+def build(fn, sit=False, colors=None, lie=False):
+    """
+    Modelo de una mascota parada, sentada (la cabeza baja SIT_HEAD_DY) o acostada (lie: ver LIE_Y; las
+    que no tienen patas de cuatro, como las aves, se acuestan como sentadas), con su pelaje.
+    """
+    global SIT, LIE
+    SIT = sit or lie
+    LIE = lie
     _LEGS_USED[0] = False
     try:
         m = fn(colors) if colors else fn()
     finally:
-        SIT = False
-    if sit and _LEGS_USED[0]:
+        SIT = LIE = False
+    if lie and _LEGS_USED[0]:
+        _to_lie(m["parts"], colors)
+        m["lie"] = True
+    elif (sit or lie) and _LEGS_USED[0]:
         for el in m["parts"]:
             if el.get("layer") != HEAD:
                 continue
@@ -363,8 +461,69 @@ def build(fn, sit=False, colors=None):
                 el["pivot"] = (px_, py_ + SIT_HEAD_DY, pz_)
             if "pts" in el:
                 el["pts"] = [(a, b + SIT_HEAD_DY, c) for a, b, c in el["pts"]]
-    m["sit"] = sit
+    m["sit"] = sit or lie
+    m.setdefault("lie", False)
     return m
+
+
+def _vy(v, f):
+    return (f(v[0]), f(v[1])) if isinstance(v, tuple) else f(v)
+
+
+def _to_lie(parts, colors):
+    """Cabeza al costado del cuerpo acostado; cola, manchas y demás piezas del cuerpo, al cuerpo acostado."""
+    main = next(el["fill"] for el in parts if el.get("lie") and el["kind"] == "vol")
+    tip = None
+    for el in parts:
+        if el.get("lie"):
+            el.pop("lie")
+            if el.get("fill") == "@haunch":
+                el["fill"] = main
+            continue
+        if el.get("layer") == HEAD:
+            dx, dy = LIE_HX, LIE_HY
+            if "x" in el:
+                el["x"] = _vy(el["x"], lambda a: a + dx)
+            elif el["kind"] == "mane":
+                el["x"] = dx
+            if "y" in el:
+                el["y"] = _vy(el["y"], lambda a: a + dy)
+            if el.get("pivot_y") is not None:
+                el["pivot_y"] += dy
+            if el.get("pivot") is not None:
+                px_, py_, pz_ = el["pivot"]
+                el["pivot"] = (px_ + dx, py_ + dy, pz_)
+            if el.get("bb"):
+                el["bb"] = (el["bb"][0] + dx, el["bb"][1])
+            if "pts" in el:
+                el["pts"] = [(a + dx, b + dy, c) for a, b, c in el["pts"]]
+            continue
+        k = el["kind"]
+        if el.get("tag") == "tailTip":  # pompón de la cola de cuerda (va después de ella)
+            el["y"], el["z"] = tip[1] - 6, tip[2] - 2
+        elif k in ("vol", "part"):
+            if isinstance(el["y"], tuple) or isinstance(el["z"], tuple):
+                ys = el["y"] if isinstance(el["y"], tuple) else (el["y"],) * 2
+                zs = el["z"] if isinstance(el["z"], tuple) else (el["z"],) * 2
+                a, b = lie_point(ys[0], zs[0]), lie_point(ys[1], zs[1])
+                el["y"], el["z"] = (a[0], b[0]), (a[1], b[1])
+            else:
+                el["y"], el["z"] = lie_point(el["y"], el["z"])
+        elif k == "rope":  # cola de cuerda: apoyada en el piso detrás del cuerpo, con la punta para arriba
+            x0 = el["pts"][0][0]
+            pts = [(x0, 208, LIE_Z - 56), (x0 + 4, 224, LIE_Z - 76), (x0 + 6, 204, LIE_Z - 94)]
+            if len(el["pts"]) > 3:  # la del mono termina enrulada
+                pts = [(x0, 208, LIE_Z - 56), (x0 + 4, 226, LIE_Z - 80), (x0 + 6, 186, LIE_Z - 100), (x0 + 4, 186, LIE_Z - 82)]
+            el["pts"] = pts
+            tip = pts[2] if len(pts) == 3 else pts[3]
+        elif k == "path":
+            el["pts"] = [(x,) + lie_point(y, z) for x, y, z in el["pts"]]
+            if el.get("bb"):
+                el["bb"] = (el["bb"][0], lie_point(176, el["bb"][1])[1])
+        elif k == "tail":
+            (bx, bz), (tx, tz) = el["base"], el["tip"]
+            (by, bz2), (ty, tz2) = lie_point(el["ty"][0], bz), lie_point(el["ty"][1], tz)
+            el["base"], el["tip"], el["ty"] = (bx, bz2), (tx, tz2), (by, ty)
 
 
 def blush2(x, y, z_head=0, r=(11, 6.5)):

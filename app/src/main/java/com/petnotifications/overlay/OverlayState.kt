@@ -53,6 +53,8 @@ data class UpcomingItem(val at: Long, val title: String, val calendar: Boolean)
 /** Estado observable por las vistas Compose de la mascota; solo se modifica desde el hilo principal. */
 class OverlayState {
     var pet by mutableStateOf(PetType.DOG)
+    /** Pelaje de la mascota (Prefs.coat; 0 = el original). */
+    var coat by mutableIntStateOf(0)
     /** Cada incremento: se da una vuelta despacito (frente → perfil → espalda → perfil → frente). */
     var spinTick by mutableIntStateOf(0)
     var bounceTick by mutableIntStateOf(0)

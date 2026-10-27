@@ -147,7 +147,7 @@ def cow(c=None):
     main, spot, muzzle, horn = c["main"], c["spot"], "#FFC4CE", "#F3DFB5"
     hz = (0, 6)
     p = [rope_tail([(40, 190, -30), (64, 196, -40), (66, 170, -44)], main, width=10),
-         part(BODY, 63, 166, -46, 6, 6, spot, behind=0)]
+         part(BODY, 63, 166, -46, 6, 6, spot, behind=0, tag="tailTip")]
     p += legs(main, spot, arms=main)
     p.append(body(main))
     p.append(path(BODY, flat_pts([(64, 168), (72, 158), (90, 162), (88, 176), (86, 188), (70, 190), (64, 180)], cy=176, rx=42, ry=38, r=40),
@@ -176,7 +176,7 @@ def lion(c=None):
     main, mane, light = c["main"], c["mane"], c["light"]
     hz = (0, 4)
     p = [rope_tail([(36, 192, -30), (72, 198, -40), (70, 166, -44)], main, width=10),
-         part(BODY, 66, 160, -46, 9, 9, mane, behind=0)]
+         part(BODY, 66, 160, -46, 9, 9, mane, behind=0, tag="tailTip")]
     p += legs(main, light, belly=light)
     p.append(body(main))
     p.append(dict(kind="mane", layer=HEAD, y=94, z=0, r=72, fill=mane))
@@ -223,14 +223,18 @@ def frog(c=None):
     c = colors("FROG", c)
     main, light = c["main"], c["light"]
     p = []
-    for i, phi in enumerate((-40, 40, -140, 140)):
-        x, z = 26 * math.sin(math.radians(phi)), 26 * math.cos(math.radians(phi))
-        p.append(part(BODY, x, 214, z, 19, 9, main, behind=2, hide=-0.7, tag=("footL", "footR", "backL", "backR")[i]))
-    p.append(vol(BODY, 0, (178, 180), (0, -4), (42, 48), (36, 32), main))
-    p.append(part(BODY, 0, (188, 196), 38, (26, 30), (20, 11), light, flat=True, p=0.5, hide=-0.3, stroke=False, clip="body", behind=-2))
-    for side, tag in ((-1, "armL"), (1, "armR")):
-        x, z = side * 38 * math.sin(math.radians(58)), 38 * math.cos(math.radians(58))
-        p.append(part(BODY, x, 182, z, 10, 15, main, rot=-side * 22, behind=-0.1, tag=tag))
+    if M.LIE:  # acostada como las de cuatro patas (model3d.lie_legs)
+        p += legs(main, main)
+        p.append(body(main))
+    else:
+        for i, phi in enumerate((-40, 40, -140, 140)):
+            x, z = 26 * math.sin(math.radians(phi)), 26 * math.cos(math.radians(phi))
+            p.append(part(BODY, x, 214, z, 19, 9, main, behind=2, hide=-0.7, tag=("footL", "footR", "backL", "backR")[i]))
+        p.append(vol(BODY, 0, (178, 180), (0, -4), (42, 48), (36, 32), main))
+        p.append(part(BODY, 0, (188, 196), 38, (26, 30), (20, 11), light, flat=True, p=0.5, hide=-0.3, stroke=False, clip="body", behind=-2))
+        for side, tag in ((-1, "armL"), (1, "armR")):
+            x, z = side * 38 * math.sin(math.radians(58)), 38 * math.cos(math.radians(58))
+            p.append(part(BODY, x, 182, z, 10, 15, main, rot=-side * 22, behind=-0.1, tag=tag))
     for sx in (-1, 1):  # ojos saltones arriba de la cabeza
         p.append(part(HEAD, sx * 34, 62, 14, 27, 27, main, behind=2))
     p.append(vol(HEAD, 0, 108, (0, 4), (74, 64), (50, 48), main))

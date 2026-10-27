@@ -211,13 +211,14 @@ kt = ['package com.petnotifications', '',
       '/** Las aves no se echan: se esponjan en el lugar, así que su pose dormida no cambia el encuadre. */',
       'val PetType.liesDown: Boolean',
       '    get() = this != PetType.DUCK && this != PetType.CHICK && this != PetType.OWL', '',
-      'fun PetType.art(view: PetView): Int = when (this) {']
+      '/** Dibujo fijo (los de siempre, en el pelaje original); null si la mascota no tiene (ver petPainter). */',
+      'fun PetType.art(view: PetView): Int? = when (this) {']
 for enum in PETS:
     kt.append(f'    PetType.{enum} -> when (view) {{')
     for v in VIEWS:
         kt.append(f'        PetView.{v} -> R.drawable.pet_{enum.lower()}_{v.lower()}')
     kt.append('    }')
-kt += ['}', '']
+kt += ['    else -> null', '}', '']
 with open(os.path.join(APP, "java", "com", "petnotifications", "PetArt.kt"), "w", encoding="utf-8", newline="\n") as f:
     f.write("\n".join(kt))
 print(len(written), "drawables")
