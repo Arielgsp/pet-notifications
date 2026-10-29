@@ -5,7 +5,7 @@ Lista viva de todo lo que quedó abierto desde que empezamos con el plan de Cowo
 Lo que hay que probar en el celular está en [PRUEBAS.md](PRUEBAS.md); acá van decisiones,
 tareas que faltan y limitaciones conocidas.
 
-Última actualización: 29/10/2026, primera prueba en el emulador (ya anda en la PC de casa): conejo achicado para que las orejas no se corten y colas acostadas más cortas (versión 1.0.27).
+Última actualización: 29/10/2026, versión 1.0.28: igual a la 1.0.27, pero firmada con la clave de prueba de la PC del trabajo (la 1.0.27 de la PC de casa no se instalaba encima: "conflicto con un paquete"). Antes, la 1.0.27 achicó el conejo para que las orejas no se corten y acortó las colas acostadas.
 
 ## 0. Cambios pedidos por Cowork (respuesta al informe 1.0.3, 28/09/2026)
 

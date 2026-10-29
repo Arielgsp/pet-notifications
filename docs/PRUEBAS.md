@@ -573,7 +573,7 @@ Antes solo el perro giraba “de verdad”; las demás cambiaban entre 4 dibujos
 
 ---
 
-## 40. Pelajes (Pro) y conejo (versión 1.0.25; probar con la 1.0.27)
+## 40. Pelajes (Pro) y conejo (versión 1.0.25; probar con la 1.0.28)
 
 Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada, dormida, de perfil, de espaldas, dando la patita y las pantallas de la app) se dibuja con el modelo 2,5D. Para probar sin Pro y con Pro, usá las herramientas de dueño (forzar plan).
 
