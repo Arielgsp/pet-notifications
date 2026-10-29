@@ -690,8 +690,8 @@ internal object PetModelData {
     )
 
     private fun cowLie() = listOf(
-        MP(MP.ROPE, pts = doubleArrayOf(40.0, 208.0, -82.0, 44.0, 224.0, -102.0, 46.0, 204.0, -120.0), color = k("main"), width = 10.0),
-        MP(MP.PART, x = v(63.0), y = v(198.0), z = v(-122.0), rx = v(6.0), ry = v(6.0), fill = k("spot"), behind = 0.0, tag = "tailTip"),
+        MP(MP.ROPE, pts = doubleArrayOf(40.0, 208.0, -80.0, 44.0, 224.0, -98.0, 46.0, 204.0, -112.0), color = k("main"), width = 10.0),
+        MP(MP.PART, x = v(63.0), y = v(198.0), z = v(-114.0), rx = v(6.0), ry = v(6.0), fill = k("spot"), behind = 0.0, tag = "tailTip"),
         MP(MP.PART, x = v(-14.0), y = v(218.0), z = v(24.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("spot"), behind = -2.0, tag = "footL"),
         MP(MP.PART, x = v(14.0), y = v(218.0), z = v(36.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("spot"), behind = -2.0, tag = "footR"),
         MP(MP.PART, x = v(22.0), y = v(202.0), z = v(-60.0), rx = v(14.0, 20.0), ry = v(19.0), fill = k("main"), tag = "backR"),
@@ -938,8 +938,8 @@ internal object PetModelData {
     )
 
     private fun lionLie() = listOf(
-        MP(MP.ROPE, pts = doubleArrayOf(36.0, 208.0, -82.0, 40.0, 224.0, -102.0, 42.0, 204.0, -120.0), color = k("main"), width = 10.0),
-        MP(MP.PART, x = v(66.0), y = v(198.0), z = v(-122.0), rx = v(9.0), ry = v(9.0), fill = k("mane"), behind = 0.0, tag = "tailTip"),
+        MP(MP.ROPE, pts = doubleArrayOf(36.0, 208.0, -80.0, 40.0, 224.0, -98.0, 42.0, 204.0, -112.0), color = k("main"), width = 10.0),
+        MP(MP.PART, x = v(66.0), y = v(198.0), z = v(-114.0), rx = v(9.0), ry = v(9.0), fill = k("mane"), behind = 0.0, tag = "tailTip"),
         MP(MP.PART, x = v(-14.0), y = v(218.0), z = v(24.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("light"), behind = -2.0, tag = "footL"),
         MP(MP.PART, x = v(14.0), y = v(218.0), z = v(36.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("light"), behind = -2.0, tag = "footR"),
         MP(MP.PART, x = v(22.0), y = v(202.0), z = v(-60.0), rx = v(14.0, 20.0), ry = v(19.0), fill = k("main"), tag = "backR"),
@@ -1023,7 +1023,7 @@ internal object PetModelData {
     )
 
     private fun monkeyLie() = listOf(
-        MP(MP.ROPE, pts = doubleArrayOf(36.0, 208.0, -82.0, 40.0, 226.0, -106.0, 42.0, 186.0, -126.0, 40.0, 186.0, -108.0), color = k("main"), width = 11.0),
+        MP(MP.ROPE, pts = doubleArrayOf(36.0, 208.0, -80.0, 40.0, 226.0, -102.0, 42.0, 186.0, -118.0, 40.0, 186.0, -102.0), color = k("main"), width = 11.0),
         MP(MP.PART, x = v(-14.0), y = v(218.0), z = v(24.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("main"), behind = -2.0, tag = "footL"),
         MP(MP.PART, x = v(14.0), y = v(218.0), z = v(36.0), rx = v(12.0, 20.0), ry = v(9.0), fill = k("main"), behind = -2.0, tag = "footR"),
         MP(MP.PART, x = v(22.0), y = v(202.0), z = v(-60.0), rx = v(14.0, 20.0), ry = v(19.0), fill = k("main"), tag = "backR"),

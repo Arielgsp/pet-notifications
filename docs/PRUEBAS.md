@@ -573,7 +573,7 @@ Antes solo el perro giraba “de verdad”; las demás cambiaban entre 4 dibujos
 
 ---
 
-## 40. Pelajes (Pro) y conejo (versión 1.0.25)
+## 40. Pelajes (Pro) y conejo (versión 1.0.25; probar con la 1.0.27)
 
 Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada, dormida, de perfil, de espaldas, dando la patita y las pantallas de la app) se dibuja con el modelo 2,5D. Para probar sin Pro y con Pro, usá las herramientas de dueño (forzar plan).
 
@@ -590,6 +590,8 @@ Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada
 | 40.9 | Conejo con el pelaje **Orejas caídas**. | Las orejas caen a los costados de la cabeza en todas las poses. | |
 | 40.10 | Con la **rana**, el **pato** y el **búho** en otro pelaje, dejalos dormir. | La rana se acuesta de costado como las de cuatro patas; el pato y el búho duermen esponjados en el lugar, como siempre. | |
 | 40.11 | Abrí el tutorial y el diálogo para ponerle nombre, con un pelaje distinto. | La mascota aparece en su pelaje. | |
+| 40.12 | Con el **conejo**, mirá las puntas de las orejas: quieto, girando (3 toques) y en las pantallas de la app. | Las puntas se ven redondeadas, nunca cortadas en línea recta (1.0.27: el conejo se dibuja un poco más chico para que entren). Decime si lo ves demasiado chico al lado de las demás. | |
+| 40.13 | Con la **vaca, el león y el mono** en otro pelaje, dejalos dormir. | La cola se ve entera (en la 1.0.25 se salía un poco por la derecha). | |
 
 ---
 

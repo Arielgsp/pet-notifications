@@ -511,9 +511,9 @@ def _to_lie(parts, colors):
                 el["y"], el["z"] = lie_point(el["y"], el["z"])
         elif k == "rope":  # cola de cuerda: apoyada en el piso detrás del cuerpo, con la punta para arriba
             x0 = el["pts"][0][0]
-            pts = [(x0, 208, LIE_Z - 56), (x0 + 4, 224, LIE_Z - 76), (x0 + 6, 204, LIE_Z - 94)]
+            pts = [(x0, 208, LIE_Z - 54), (x0 + 4, 224, LIE_Z - 72), (x0 + 6, 204, LIE_Z - 86)]
             if len(el["pts"]) > 3:  # la del mono termina enrulada
-                pts = [(x0, 208, LIE_Z - 56), (x0 + 4, 226, LIE_Z - 80), (x0 + 6, 186, LIE_Z - 100), (x0 + 4, 186, LIE_Z - 82)]
+                pts = [(x0, 208, LIE_Z - 54), (x0 + 4, 226, LIE_Z - 76), (x0 + 6, 186, LIE_Z - 92), (x0 + 4, 186, LIE_Z - 76)]
             el["pts"] = pts
             tip = pts[2] if len(pts) == 3 else pts[3]
         elif k == "path":

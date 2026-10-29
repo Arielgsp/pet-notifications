@@ -81,7 +81,7 @@ object PetModel {
         coat: Int = 0, pose: Map<String, Pose> = emptyMap(), head: Float? = null,
     ) {
         val m = model(pet.name, if (sit) SIT else STAND, coat) ?: return
-        paint(ds, drawOps(m.parts, theta.toDouble(), face, pose, head?.toDouble(), null))
+        paint(ds, drawOps(m.parts, theta.toDouble(), face, pose, head?.toDouble(), null), pet.name)
     }
 
     /**
@@ -90,7 +90,7 @@ object PetModel {
      */
     fun drawHead(ds: DrawScope, pet: PetType, theta: Float, face: Face = Face.OPEN, coat: Int = 0) {
         val m = model(pet.name, SIT, coat) ?: return
-        paint(ds, drawOps(m.parts, 0.0, face, emptyMap(), theta.toDouble(), HEAD))
+        paint(ds, drawOps(m.parts, 0.0, face, emptyMap(), theta.toDouble(), HEAD), pet.name)
     }
 
     /**
@@ -100,7 +100,7 @@ object PetModel {
      */
     fun drawView(ds: DrawScope, pet: PetType, view: PetView, coat: Int = 0) {
         val ops = viewOps(pet.name, view, coat) ?: return
-        paint(ds, ops)
+        paint(ds, ops, pet.name)
     }
 
     internal fun viewOps(pet: String, view: PetView, coat: Int): List<MOp>? {
@@ -359,11 +359,22 @@ object PetModel {
     private val outline = Stroke(width = 4f, cap = StrokeCap.Round, join = StrokeJoin.Round)
     private fun col(c: Long, alpha: Float = 1f) = Color(c.toInt()).copy(alpha = alpha)
 
-    private fun paint(ds: DrawScope, ops: List<MOp>) {
+    /**
+     * Achique de las mascotas que se salen por arriba del lienzo (las orejas del conejo llegan a y = −16):
+     * la app recorta lo que queda afuera, y al saltar o girar la mascota sube un poco. Se achica desde el
+     * piso (los pies quedan en su lugar) hasta dejar arriba un margen como el del gato (~20).
+     */
+    private val fit = mapOf("RABBIT" to 0.85f)
+    private const val FLOOR_Y = 228f
+
+    private fun paint(ds: DrawScope, ops: List<MOp>, pet: String) {
         val k = ds.size.width / 256f
+        val f = fit[pet] ?: 1f
         ds.scale(k, k, pivot = Offset.Zero) {
-            translate(left = 28f) {
-                for (o in ops) paintOp(this, o)
+            scale(f, f, pivot = Offset(128f, FLOOR_Y)) {
+                translate(left = 28f) {
+                    for (o in ops) paintOp(this, o)
+                }
             }
         }
     }
