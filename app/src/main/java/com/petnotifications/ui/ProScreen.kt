@@ -148,7 +148,7 @@ fun ProLock(isPro: Boolean, onLocked: () -> Unit, content: @Composable () -> Uni
 fun ProBadge(modifier: Modifier = Modifier) = ProTag(modifier)
 
 /**
- * Elegir las 2 mascotas gratis. Al terminar la prueba es obligatorio (la que usaba viene marcada) y
+ * Elegir la mascota gratis (Prefs.FREE_PET_COUNT). Al terminar la prueba es obligatorio (la que usaba viene marcada) y
  * el botón secundario abre los planes. Para el único cambio gratis ([changing]), se puede cancelar.
  */
 @Composable
@@ -172,11 +172,14 @@ fun FreePetChooser(
                 MultiPetPicker(chosen) { p ->
                     chosen = when {
                         p in chosen -> chosen - p
+                        Prefs.FREE_PET_COUNT == 1 -> setOf(p)
                         chosen.size < Prefs.FREE_PET_COUNT -> chosen + p
                         else -> chosen
                     }
                 }
-                Text(stringResource(R.string.free_pets_count, chosen.size), style = MaterialTheme.typography.labelLarge)
+                if (Prefs.FREE_PET_COUNT > 1) {
+                    Text(stringResource(R.string.free_pets_count, chosen.size), style = MaterialTheme.typography.labelLarge)
+                }
             }
         },
         confirmButton = {

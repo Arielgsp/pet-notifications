@@ -112,9 +112,9 @@ private val PetTypography = Typography().let { base ->
     )
 }
 
+/** [dark]: oscuro o claro; por defecto, como el celular (Prefs.theme elige en MainActivity). */
 @Composable
-fun PetTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
+fun PetTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val tokens = if (dark) DarkTokens else LightTokens
     CompositionLocalProvider(LocalPetColors provides tokens) {
         MaterialTheme(colorScheme = scheme(tokens, dark), typography = PetTypography, content = content)

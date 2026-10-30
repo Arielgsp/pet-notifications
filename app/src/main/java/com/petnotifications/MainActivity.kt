@@ -1,6 +1,13 @@
 package com.petnotifications
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.Color
+import androidx.activity.SystemBarStyle
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import android.os.Bundle
 import kotlinx.coroutines.launch
 import android.provider.Settings
@@ -52,7 +59,27 @@ class MainActivity : ComponentActivity() {
             PetOverlayService.start(this)
         }
         setContent {
-            PetTheme {
+            // Tema elegido en Ajustes (o el del celular); cambia en el momento, sin reabrir la app.
+            var theme by remember { mutableIntStateOf(prefs.theme) }
+            DisposableEffect(Unit) {
+                val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, k ->
+                    if (k == Prefs.KEY_THEME) theme = prefs.theme
+                }
+                prefs.sp.registerOnSharedPreferenceChangeListener(listener)
+                onDispose { prefs.sp.unregisterOnSharedPreferenceChangeListener(listener) }
+            }
+            val dark = when (theme) {
+                Prefs.THEME_LIGHT -> false
+                Prefs.THEME_DARK -> true
+                else -> isSystemInDarkTheme()
+            }
+            // Íconos de la barra de estado y de navegación del color que corresponde al tema.
+            LaunchedEffect(dark) {
+                val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT)
+                else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+            }
+            PetTheme(dark) {
                 var onboarding by remember { mutableStateOf(!prefs.onboardingDone) }
                 // El tutorial sale una vez, al terminar la configuración (o al actualizar desde una versión sin él).
                 var tutorial by remember { mutableStateOf(!prefs.tutorialSeen) }

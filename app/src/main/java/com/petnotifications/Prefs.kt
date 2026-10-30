@@ -27,6 +27,34 @@ class Prefs(context: Context) {
 
     fun setCoat(p: PetType, coat: Int) = sp.edit { putInt(KEY_COAT + p.name, coat) }
 
+    /**
+     * Prueba de una mascota o pelaje Pro sin Pro: la mascota flotante pasa a ser esa durante
+     * [TRY_MS] y después vuelve sola a la del usuario. null si no hay una prueba en curso.
+     */
+    fun trying(now: Long = System.currentTimeMillis()): Pair<PetType, Int>? {
+        if (isPro || now >= tryUntil) return null
+        val p = sp.getString(KEY_TRY_PET, null) ?: return null
+        return PetType.from(p) to sp.getInt(KEY_TRY_COAT, 0)
+    }
+
+    val tryUntil: Long get() = sp.getLong(KEY_TRY_UNTIL, 0L)
+
+    fun startTry(p: PetType, coat: Int) = sp.edit {
+        putString(KEY_TRY_PET, p.name)
+        putInt(KEY_TRY_COAT, coat)
+        putLong(KEY_TRY_UNTIL, System.currentTimeMillis() + TRY_MS)
+    }
+
+    fun endTry() = sp.edit { putLong(KEY_TRY_UNTIL, 0L) }
+
+    /** Tema de las pantallas de la app: [THEME_SYSTEM] (como el celular), [THEME_LIGHT] o [THEME_DARK]. */
+    var theme: Int
+        get() = sp.getInt(KEY_THEME, THEME_SYSTEM)
+        set(v) = sp.edit { putInt(KEY_THEME, v) }
+
+    /** La mascota y el pelaje que se ven flotando: los de la prueba, si hay una, o los del usuario. */
+    fun shownPet(): Pair<PetType, Int> = trying() ?: pet.let { it to coat(it) }
+
     var tapAction: TapAction
         get() = TapAction.from(sp.getString(KEY_TAP_ACTION, null))
         set(v) = sp.edit { putString(KEY_TAP_ACTION, v.name) }
@@ -242,12 +270,21 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_TRIAL_NOTICE, false)
         set(v) = sp.edit { putBoolean(KEY_TRIAL_NOTICE, v) }
 
-    /** Las 2 mascotas del plan gratis. Se eligen una sola vez (vacío = todavía no eligió). */
+    /**
+     * La mascota del plan gratis ([FREE_PET_COUNT]): la que elige al instalar (Onboarding) o, si no la
+     * eligió ahí, al terminar la prueba (vacío = todavía no eligió). Quien tenía 2 de antes se queda con
+     * la que estaba usando.
+     */
     var freePets: Set<PetType>
-        get() = sp.getStringSet(KEY_FREE_PETS, emptySet())!!.mapNotNull { n -> PetType.entries.firstOrNull { it.name == n } }.toSet()
+        get() {
+            val all = sp.getStringSet(KEY_FREE_PETS, emptySet())!!.mapNotNull { n -> PetType.entries.firstOrNull { it.name == n } }
+            if (all.size <= FREE_PET_COUNT) return all.toSet()
+            val current = PetType.entries.firstOrNull { it.name == sp.getString(KEY_PET, null) }
+            return setOf(current?.takeIf { it in all } ?: all.first())
+        }
         set(v) = sp.edit { putStringSet(KEY_FREE_PETS, v.map { it.name }.toSet()) }
 
-    /** Cuántas veces cambió las 2 mascotas gratis después de elegirlas (se permite 1 gratis). */
+    /** Cuántas veces cambió la mascota gratis después de elegirla (se permite 1 gratis). */
     var freePetChanges: Int
         get() = sp.getInt(KEY_FREE_PET_CHANGES, 0)
         set(v) = sp.edit { putInt(KEY_FREE_PET_CHANGES, v) }
@@ -255,7 +292,7 @@ class Prefs(context: Context) {
     /** Sin Pro, con las mascotas gratis ya elegidas y sin haber usado el cambio gratis. */
     fun canChangeFreePets() = !isPro && freePets.size >= FREE_PET_COUNT && freePetChanges < FREE_PET_CHANGES
 
-    /** Sin Pro y sin haber elegido las 2 mascotas gratis: hay que pedírselo. */
+    /** Sin Pro y sin haber elegido la mascota gratis: hay que pedírselo. */
     fun needsFreePetChoice() = !isPro && freePets.size < FREE_PET_COUNT
 
     /** Posición de la mascota: x desde la izquierda, y desde abajo (px). -1 = sin definir. */
@@ -324,11 +361,19 @@ class Prefs(context: Context) {
         const val KEY_TIP_DAY = "tip_dismissed_day"
         const val KEY_PET_NAME = "pet_name_"
         const val KEY_COAT = "coat_"
+        const val KEY_THEME = "theme"
+        const val THEME_SYSTEM = 0
+        const val THEME_LIGHT = 1
+        const val THEME_DARK = 2
+        const val KEY_TRY_PET = "try_pet"
+        const val KEY_TRY_COAT = "try_coat"
+        const val KEY_TRY_UNTIL = "try_until"
+        const val TRY_MS = 5 * 60_000L
         const val KEY_PET_NAME_ASKED = "pet_name_asked_"
         const val KEY_PET_CLEAN_STOP = "pet_clean_stop"
         const val KEY_PET_KILLS = "pet_kills"
         const val DAY_MS = 24 * 3_600_000L
-        const val FREE_PET_COUNT = 2
+        const val FREE_PET_COUNT = 1
         /** Cambios gratis de las 2 mascotas después de elegirlas (decisión de Cowork, 28/09). */
         const val FREE_PET_CHANGES = 1
         const val KEY_FREE_PET_CHANGES = "free_pet_changes"

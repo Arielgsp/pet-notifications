@@ -213,7 +213,7 @@
     <string name="pro_col_free">Free</string>
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Pets</string>
-    <string name="pro_row_pets_free">2 of your choice</string>
+    <string name="pro_row_pets_free">1 of your choice</string>
     <string name="pro_row_pets_pro">All 11</string>
     <string name="pro_row_reminders">Reminders (once, daily, weekly)</string>
     <string name="pro_row_pet_life">Bubble, cuddles and sleeping when idle</string>
@@ -242,10 +242,10 @@
     <string name="pro_error">The purchase could not be completed. You were not charged.</string>
     <string name="pro_locked">Pro feature: tap to see the plans</string>
     <string name="pro_trial_intro">You have a %1$d-day free trial with all of Pro.</string>
-    <string name="free_pets_title">Choose your 2 free pets</string>
-    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 2 pets: pick them (they cannot be changed later). Pro gives you all 11.</string>
+    <string name="free_pets_title">Choose your free pet</string>
+    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 1 pet: pick it (you can change it only once). Pro gives you all 11.</string>
     <string name="free_pets_confirm">Done</string>
-    <string name="free_pets_count">%1$d of 2 chosen</string>
+    <string name="free_pets_count">%1$d of 1 chosen</string>
     <string name="feedback">Send feedback</string>
     <string name="feedback_title">Send feedback</string>
     <string name="feedback_body">Your email app opens with this technical summary, to help us find problems. It does not include your reminders or events. You can delete anything before sending it.</string>
@@ -287,10 +287,12 @@
 
     <!-- Aviso del día anterior al fin de la prueba de Pro (lo dice la mascota) -->
     <string name="trial_notice_title">Your Pro trial ends tomorrow</string>
-    <string name="trial_notice_body">I am staying with you either way: you keep your reminders, 2 pets of your choice and alerts that insist every 10 minutes. If you want to keep all of Pro, it is under See plans.</string>
-    <string name="free_pets_change">Change my 2 free pets (1 change left)</string>
-    <string name="free_pets_change_title">Change your 2 free pets</string>
-    <string name="free_pets_change_body">You can change them only once. After that, Pro gives you all 11.</string>
+    <string name="trial_notice_body">I am staying with you either way: you keep your reminders, your pet and alerts that insist every 10 minutes. If you want to keep all of Pro, it is under See plans.</string>
+    <string name="free_pets_change">Change my free pet</string>
+    <string name="free_pets_change_sub">1 change left. After that, the others come with Pro.</string>
+    <string name="ob_free_pet_hint">This will be your free pet. During the Pro trial (%1$d days) you can use all 11; afterwards you can change it only once.</string>
+    <string name="free_pets_change_title">Change your free pet</string>
+    <string name="free_pets_change_body">You can change it only once. After that, Pro gives you all 11.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">While your phone was off, 1 event went by</string>
@@ -353,6 +355,10 @@
     <string name="tab_alerts">Alerts</string>
     <string name="tab_pet">Pet</string>
     <string name="tab_settings">Settings</string>
+    <string name="row_theme">Theme</string>
+    <string name="theme_system">Like the phone</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <string name="back">Back</string>
     <string name="home_trial_line">Pro trial · %1$d days left</string>
     <string name="home_back_at">Back at %1$s</string>
@@ -365,7 +371,7 @@
     <string name="home_fix">Fix</string>
     <string name="home_alert_trial">Your Pro trial ends in %1$d days</string>
     <string name="home_alert_trial_last">Your Pro trial ends tomorrow</string>
-    <string name="home_alert_trial_body">Then you keep the free plan: your reminders and 2 pets.</string>
+    <string name="home_alert_trial_body">Then you keep the free plan: your reminders and your pet.</string>
     <string name="home_alert_off">Your pet is turned off</string>
     <string name="home_alert_off_body">Alerts still reach you as notifications.</string>
     <string name="home_turn_on">Turn on</string>
@@ -392,8 +398,13 @@
     <string name="pet_says">%1$s · says “%2$s”</string>
     <string name="pet_name_chip">Change name</string>
     <string name="pet_name_give_chip">Name it</string>
-    <string name="pets_your_two">Your 2 pets</string>
+    <string name="pets_your_two">Your pet</string>
     <string name="pets_more_pro">More friends with Pro</string>
+    <string name="try_title">Trying: %1$s</string>
+    <string name="try_coat">%1$s, coat %2$d</string>
+    <string name="try_body">Tap it, drag it or tap it 3 times to spin. Yours comes back in %1$s.</string>
+    <string name="try_back">Back to mine</string>
+    <string name="try_hint">Tap one to try it for 5 minutes.</string>
     <string name="pets_yours">Your pets</string>
     <string name="look_title">How it looks</string>
     <string name="size_title">Size</string>
@@ -401,7 +412,7 @@
     <string name="plan_trial_title">Pro trial</string>
     <string name="plan_trial_sub">%1$d days left</string>
     <string name="plan_free_title">Free plan</string>
-    <string name="plan_free_sub">Your reminders and 2 pets</string>
+    <string name="plan_free_sub">Your reminders and 1 pet</string>
     <string name="plan_pro_title">You have Pro</string>
     <string name="plan_pro_sub">Thanks for supporting the app</string>
     <string name="row_pet_onscreen">Pet on screen</string>

@@ -212,7 +212,7 @@
     <string name="pro_col_free">Gratis</string>
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Mascotas</string>
-    <string name="pro_row_pets_free">2 a elección</string>
+    <string name="pro_row_pets_free">1 a elección</string>
     <string name="pro_row_pets_pro">Las 11</string>
     <string name="pro_row_reminders">Recordatorios (una vez, diarios, semanales)</string>
     <string name="pro_row_pet_life">Globo, mimos y sueño por inactividad</string>
@@ -241,10 +241,10 @@
     <string name="pro_error">La compra no se pudo completar. No se te cobró nada.</string>
     <string name="pro_locked">Función Pro: tocá para ver los planes</string>
     <string name="pro_trial_intro">Tenés %1$d días de prueba con todo Pro, gratis.</string>
-    <string name="free_pets_title">Elegí tus 2 mascotas gratis</string>
-    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis podés usar 2 mascotas: elegilas (después no se pueden cambiar). Con Pro tenés las 11.</string>
+    <string name="free_pets_title">Elegí tu mascota gratis</string>
+    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tenés 1 mascota: elegila (la podés cambiar una sola vez). Con Pro tenés las 11.</string>
     <string name="free_pets_confirm">Listo</string>
-    <string name="free_pets_count">%1$d de 2 elegidas</string>
+    <string name="free_pets_count">%1$d de 1 elegida</string>
     <string name="feedback">Enviar comentarios</string>
     <string name="feedback_title">Enviar comentarios</string>
     <string name="feedback_body">Se abre tu app de correo con este resumen técnico, para ayudarnos a encontrar problemas. No incluye tus recordatorios ni tus eventos. Podés borrar lo que quieras antes de mandarlo.</string>
@@ -286,10 +286,12 @@
 
     <!-- Aviso del día anterior al fin de la prueba de Pro (lo dice la mascota) -->
     <string name="trial_notice_title">Mañana termina tu prueba de Pro</string>
-    <string name="trial_notice_body">Yo me quedo con vos igual: seguís teniendo tus recordatorios, 2 mascotas a elección y que insista cada 10 minutos. Si querés seguir con todo Pro, está en Ver planes.</string>
-    <string name="free_pets_change">Cambiar mis 2 mascotas gratis (te queda 1 cambio)</string>
-    <string name="free_pets_change_title">Cambiá tus 2 mascotas gratis</string>
-    <string name="free_pets_change_body">Podés cambiarlas una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
+    <string name="trial_notice_body">Yo me quedo con vos igual: seguís teniendo tus recordatorios, tu mascota y que insista cada 10 minutos. Si querés seguir con todo Pro, está en Ver planes.</string>
+    <string name="free_pets_change">Cambiar mi mascota gratis</string>
+    <string name="free_pets_change_sub">Te queda 1 cambio. Después, las demás vienen con Pro.</string>
+    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) podés usar las 11; después, la podés cambiar una sola vez.</string>
+    <string name="free_pets_change_title">Cambiá tu mascota gratis</string>
+    <string name="free_pets_change_body">La podés cambiar una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">Mientras el celular estuvo apagado pasó 1 evento</string>
@@ -352,6 +354,10 @@
     <string name="tab_alerts">Avisos</string>
     <string name="tab_pet">Mascota</string>
     <string name="tab_settings">Ajustes</string>
+    <string name="row_theme">Tema</string>
+    <string name="theme_system">Como el celular</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
     <string name="back">Volver</string>
     <string name="home_trial_line">Prueba de Pro · te quedan %1$d días</string>
     <string name="home_back_at">Vuelve a las %1$s</string>
@@ -364,7 +370,7 @@
     <string name="home_fix">Arreglar</string>
     <string name="home_alert_trial">Tu prueba de Pro termina en %1$d días</string>
     <string name="home_alert_trial_last">Tu prueba de Pro termina mañana</string>
-    <string name="home_alert_trial_body">Después seguís con el plan gratis: tus recordatorios y 2 mascotas.</string>
+    <string name="home_alert_trial_body">Después seguís con el plan gratis: tus recordatorios y tu mascota.</string>
     <string name="home_alert_off">Tu mascota está apagada</string>
     <string name="home_alert_off_body">Los avisos te llegan igual por notificación.</string>
     <string name="home_turn_on">Prenderla</string>
@@ -391,8 +397,13 @@
     <string name="pet_says">%1$s · dice “%2$s”</string>
     <string name="pet_name_chip">Cambiar nombre</string>
     <string name="pet_name_give_chip">Ponerle nombre</string>
-    <string name="pets_your_two">Tus 2 mascotas</string>
+    <string name="pets_your_two">Tu mascota</string>
     <string name="pets_more_pro">Más amigos con Pro</string>
+    <string name="try_title">Probando: %1$s</string>
+    <string name="try_coat">%1$s, pelaje %2$d</string>
+    <string name="try_body">Tocala, arrastrala o tocala 3 veces para que gire. Vuelve la tuya en %1$s.</string>
+    <string name="try_back">Volver a la mía</string>
+    <string name="try_hint">Tocá una para probarla 5 minutos.</string>
     <string name="pets_yours">Tus mascotas</string>
     <string name="look_title">Cómo se ve</string>
     <string name="size_title">Tamaño</string>
@@ -400,7 +411,7 @@
     <string name="plan_trial_title">Prueba de Pro</string>
     <string name="plan_trial_sub">Te quedan %1$d días</string>
     <string name="plan_free_title">Plan gratis</string>
-    <string name="plan_free_sub">Tus recordatorios y 2 mascotas</string>
+    <string name="plan_free_sub">Tus recordatorios y 1 mascota</string>
     <string name="plan_pro_title">Tenés Pro</string>
     <string name="plan_pro_sub">Gracias por apoyar la app</string>
     <string name="row_pet_onscreen">Mascota en pantalla</string>

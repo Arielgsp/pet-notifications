@@ -21,6 +21,8 @@ import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Repeat
@@ -67,6 +69,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -111,6 +116,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -148,6 +154,7 @@ import com.petnotifications.calendar.DeviceCalendar
 import com.petnotifications.data.AppDatabase
 import com.petnotifications.data.Reminder
 import com.petnotifications.overlay.PetOverlayService
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -214,6 +221,9 @@ fun SettingsScreen(
     val petSubject = remember(pet, namesVersion) { pet.subject(ctx) }
     val isPro = prefs.isPro
     var showPro by remember { mutableStateOf(false) }
+    var theme by remember { mutableIntStateOf(prefs.theme) }
+    /** Mascota y pelaje Pro que se están probando en la mascota flotante (sin Pro), o null. */
+    var trying by remember { mutableStateOf(prefs.trying()) }
     var showFeedback by remember { mutableStateOf(false) }
     var showDiagnostics by remember { mutableStateOf(false) }
     val snackbar = remember { SnackbarHostState() }
@@ -331,6 +341,10 @@ fun SettingsScreen(
     var tipDismissedDay by remember { mutableLongStateOf(prefs.tipDismissedDay) }
     BackHandler(enabled = sub != null) { sub = null }
     BackHandler(enabled = sub == null && tab != TAB_ALERTS) { tab = TAB_ALERTS }
+    val pager = rememberPagerState(initialPage = tab) { TAB_COUNT }
+    // Tocar la barra de abajo (o ir a una pestaña desde el código) mueve las páginas; deslizar cambia la pestaña.
+    LaunchedEffect(tab) { if (pager.currentPage != tab) pager.animateScrollToPage(tab) }
+    LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { tab = it } }
 
     // ================================================================ vínculo
     // Se vuelve a leer cuando cambian sus preferencias (un "Listo" desde la notificación o la mascota).
@@ -338,6 +352,7 @@ fun SettingsScreen(
     DisposableEffect(Unit) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key?.startsWith(Bond.KEY_PREFIX) == true) bondVersion++
+            if (key == Prefs.KEY_TRY_UNTIL) trying = prefs.trying()
         }
         prefs.sp.registerOnSharedPreferenceChangeListener(listener)
         onDispose { prefs.sp.unregisterOnSharedPreferenceChangeListener(listener) }
@@ -381,7 +396,32 @@ fun SettingsScreen(
         pausedUntil = until
     }
 
+    /**
+     * Sin Pro: la mascota flotante pasa a ser [p] con el pelaje [coat] por unos minutos (Prefs.TRY_MS).
+     * Se queda en la pantalla en la que está (para probar varias seguidas); la tarjeta de la prueba
+     * (TryCard) aparece en Mascota y en Avisos.
+     */
+    fun startTry(p: PetType, coat: Int) {
+        if (!canOverlay) {
+            askOverlay()
+            return
+        }
+        prefs.startTry(p, coat)
+        trying = prefs.trying()
+        if (!enabled) setEnabled(true)
+        else if (paused) {
+            resumePet()
+            PetOverlayService.start(ctx)
+        }
+    }
+
+    fun endTry() {
+        prefs.endTry()
+        trying = null
+    }
+
     fun selectPet(p: PetType) {
+        if (trying != null) endTry()
         pet = p
         prefs.pet = p
         // Primera vez que elige esta mascota: se le pregunta cómo se llama.
@@ -585,6 +625,50 @@ fun SettingsScreen(
         }
     }
 
+    /** Prueba de una mascota o pelaje Pro: cuánto falta, un aviso de prueba, volver a la propia o ver Pro. */
+    @Composable
+    fun TryCard(p: PetType, coat: Int) {
+        var left by remember { mutableLongStateOf(prefs.tryUntil - System.currentTimeMillis()) }
+        LaunchedEffect(p, coat) {
+            while (true) {
+                left = prefs.tryUntil - System.currentTimeMillis()
+                if (left <= 0) {
+                    trying = null
+                    break
+                }
+                delay(1000)
+            }
+        }
+        val secs = (left.coerceAtLeast(0) + 999) / 1000
+        PetCard {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(petPainter(p, PetView.HAPPY, coat), contentDescription = null, modifier = Modifier.size(56.dp))
+                Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(
+                                R.string.try_title,
+                                if (coat == 0) stringResource(p.nameRes) else stringResource(R.string.try_coat, stringResource(p.nameRes), coat + 1),
+                            ),
+                            fontSize = 15.sp, fontWeight = FontWeight(800), color = c.ink, modifier = Modifier.weight(1f, fill = false),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        ProTag()
+                    }
+                    Text(
+                        stringResource(R.string.try_body, "%d:%02d".format(secs / 60, secs % 60)),
+                        fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+                    )
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp).horizontalScroll(rememberScrollState())) {
+                SoftChip(stringResource(R.string.test_alert), Icons.Outlined.NotificationsNone) { testAlert() }
+                OutlineChip(stringResource(R.string.try_back)) { endTry() }
+                OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
+            }
+        }
+    }
+
     @Composable
     fun AlertsTab(padding: PaddingValues) {
         val zone = java.time.ZoneId.systemDefault()
@@ -600,6 +684,7 @@ fun SettingsScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            trying?.let { (p, coat) -> item { TryCard(p, coat) } }
             item { StatusCard() }
             item { AlertCard() }
             if (upcoming.isEmpty() && firedToday.isEmpty()) {
@@ -708,17 +793,26 @@ fun SettingsScreen(
             if (freeMode) {
                 val free = PetType.entries.filter { it in prefs.freePets }
                 SectionLabel(stringResource(R.string.pets_your_two))
-                PetGrid(free, selected = pet, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
+                PetGrid(free, selected = pet.takeIf { trying == null }, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
+                if (canChangeFreePets) {
+                    // Botón con borde e ícono (antes era un texto suelto y no se notaba que se podía tocar).
+                    OutlinedButton(
+                        onClick = { changingFreePets = true },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                    ) {
+                        Icon(Icons.Outlined.SwapHoriz, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(20.dp))
+                        Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                            Text(stringResource(R.string.free_pets_change), color = c.cocoa, fontSize = 14.sp, fontWeight = FontWeight(800))
+                            Text(stringResource(R.string.free_pets_change_sub), color = c.inkMuted, fontSize = 12.sp, fontWeight = FontWeight(600))
+                        }
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SectionLabel(stringResource(R.string.pets_more_pro), Modifier.weight(1f))
                     OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
                 }
-                PetGrid(PetType.entries - free.toSet(), selected = null, locked = true) { showPro = true }
-                if (canChangeFreePets) {
-                    TextButton(onClick = { changingFreePets = true }) {
-                        Text(stringResource(R.string.free_pets_change), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(700))
-                    }
-                }
+                PetGrid(PetType.entries - free.toSet(), selected = trying?.first, locked = true) { startTry(it, 0) }
+                Text(stringResource(R.string.try_hint), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SectionLabel(stringResource(R.string.pets_yours), Modifier.weight(1f))
@@ -730,14 +824,19 @@ fun SettingsScreen(
                 SectionLabel(stringResource(R.string.coat_title), Modifier.weight(1f))
                 if (isPro) ProTag()
             }
-            CoatRow(pet, selected = coatOf(pet), locked = !isPro) { i ->
-                if (!isPro) {
-                    if (i > 0) showPro = true
-                } else {
-                    prefs.setCoat(pet, i)
-                    coats = coats + (pet to i)
+            // Probando un pelaje de otra mascota Pro: la fila muestra los de esa mascota.
+            val coatPet = trying?.first ?: pet
+            CoatRow(coatPet, selected = coatOf(coatPet), locked = !isPro, trying = trying?.second) { i ->
+                when {
+                    isPro -> {
+                        prefs.setCoat(pet, i)
+                        coats = coats + (pet to i)
+                    }
+                    i > 0 || coatPet != pet -> startTry(coatPet, i)
+                    else -> endTry()
                 }
             }
+            trying?.let { (p, coat) -> TryCard(p, coat) }
             SectionLabel(stringResource(R.string.look_title), Modifier.padding(top = 4.dp))
             PetCard {
                 ProLock(isPro, onLocked = { showPro = true }) {
@@ -841,6 +940,23 @@ fun SettingsScreen(
                     onClick = null,
                     trailing = { Switch(checked = enabled, onCheckedChange = ::setEnabled) },
                 )
+                RowDivider()
+                SettingRow(Icons.Outlined.Palette, stringResource(R.string.row_theme), null, onClick = null)
+                Box(Modifier.padding(start = 14.dp, end = 14.dp, bottom = 12.dp)) {
+                    ChipRow(
+                        listOf(Prefs.THEME_SYSTEM, Prefs.THEME_LIGHT, Prefs.THEME_DARK), theme,
+                        label = {
+                            when (it) {
+                                Prefs.THEME_LIGHT -> ctx.getString(R.string.theme_light)
+                                Prefs.THEME_DARK -> ctx.getString(R.string.theme_dark)
+                                else -> ctx.getString(R.string.theme_system)
+                            }
+                        },
+                    ) {
+                        theme = it
+                        prefs.theme = it
+                    }
+                }
                 RowDivider()
                 SettingRow(
                     Icons.Outlined.NotificationsNone, stringResource(R.string.row_notify),
@@ -1238,10 +1354,13 @@ fun SettingsScreen(
             SUB_PERMS -> PermsPage(padding)
             SUB_HELP -> HelpPage(padding)
             SUB_PATH -> PathPage(padding)
-            else -> when (tab) {
-                TAB_PET -> PetTab(padding)
-                TAB_SETTINGS -> SettingsTab(padding)
-                else -> AlertsTab(padding)
+            // Las 3 pestañas se pasan también deslizando el dedo.
+            else -> HorizontalPager(pager, modifier = Modifier.fillMaxSize()) { page ->
+                when (page) {
+                    TAB_PET -> PetTab(padding)
+                    TAB_SETTINGS -> SettingsTab(padding)
+                    else -> AlertsTab(padding)
+                }
             }
         }
     }
@@ -1563,6 +1682,7 @@ internal fun batteryUnrestricted(ctx: Context) =
 private const val TAB_ALERTS = 0
 private const val TAB_PET = 1
 private const val TAB_SETTINGS = 2
+private const val TAB_COUNT = 3
 private const val SUB_NOTIFY = "notify"
 private const val SUB_DND = "dnd"
 private const val SUB_CALENDAR = "calendar"

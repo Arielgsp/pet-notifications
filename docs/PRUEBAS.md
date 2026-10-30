@@ -595,6 +595,47 @@ Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada
 
 ---
 
+## 41. Probar mascotas y pelajes Pro sin Pro (versión 1.0.29; probar con la 1.0.30)
+
+Para hacerla sin Pro: en Ajustes tocá 7 veces la versión y elegí "Simular plan gratis". Al terminar, volvé a "Normal".
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 41.1 | En la solapa **Mascota**, mirá debajo de "Más amigos con Pro". | Dice "Tocá una para probarla 5 minutos." | |
+| 41.2 | Tocá una mascota Pro (por ejemplo, el león). | **La app se queda en Mascota** (1.0.30). La ficha del león queda marcada, la fila de pelajes muestra los del león y debajo aparece la tarjeta "Probando: León" con la etiqueta PRO, la cuenta regresiva (5:00) y tres botones. La mascota flotante pasa a ser el león. La misma tarjeta está arriba en Avisos. | |
+| 41.2b | Tocá varias mascotas Pro seguidas (león, chancho, búho). | Cada toque cambia la mascota flotante al instante, sin cambiar de pantalla. | |
+| 41.3 | Con el león flotando: tocalo 1, 2 y 3 veces, arrastralo y tiralo. | Hace todo como una mascota propia (corazones, salto, giro, etc.). | |
+| 41.4 | En la tarjeta, tocá **Probar un aviso**. | El león muestra el globo de prueba ("¡Hola! Soy tu león…"). | |
+| 41.5 | Tocá **Volver a la mía**. | La tarjeta desaparece y vuelve tu mascota de siempre. | |
+| 41.6 | En **Pelaje**, tocá uno con la etiqueta PRO (no el primero). | Igual que 41.2, pero la tarjeta dice "Probando: Perro, pelaje 3" (o la que tengas) y la mascota flotante cambia de color. | |
+| 41.7 | Empezá una prueba y esperá 5 minutos (con la app abierta o cerrada). | Al terminar, vuelve sola tu mascota y la tarjeta desaparece. | |
+| 41.8 | Con la mascota pausada ("Pausar 1 h"), probá una mascota Pro. | La pausa se corta y aparece la mascota Pro flotando. | |
+| 41.9 | Tocá **Ver planes** en la tarjeta. | Se abre la pantalla de Pro. | |
+
+## 42. Pestañas, fichas Pro y una sola mascota gratis (versión 1.0.30)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 42.1 | En la app, deslizá el dedo de derecha a izquierda y al revés sobre la pantalla. | Pasa entre Avisos, Mascota y Ajustes, y la barra de abajo marca la pestaña. Los botones de abajo siguen andando. | |
+| 42.2 | En Mascota, mové la fila de pelajes y los deslizadores de tamaño y transparencia (con Pro). | Se mueven ellos; no se cambia de pestaña. | |
+| 42.3 | Sin Pro, mirá las mascotas de "Más amigos con Pro" y los pelajes. | Se ven a todo color, como las tuyas, con una etiqueta roja **PRO** en la esquina de arriba a la derecha. Sin candados ni bordes punteados. | |
+| 42.4 | Desinstalá la app (o borrá sus datos) e instalala de nuevo. En el primer paso, elegí una mascota. | Debajo de las mascotas dice "Esta va a ser tu mascota gratis. Durante la prueba de Pro (7 días) podés usar las 11; después, la podés cambiar una sola vez." | |
+| 42.5 | Con "Simular plan gratis" (7 toques en la versión), andá a Mascota. | Arriba dice "Tu mascota" con **una sola**: la que elegiste al instalar. | |
+| 42.6 | Debajo está el botón con borde "Cambiar mi mascota gratis" ("Te queda 1 cambio…"). Tocalo, elegí otra y tocá Listo. | Se elige una sola (tocar otra reemplaza la anterior). Queda la nueva y el botón desaparece. | |
+
+## 43. Tema claro u oscuro (versión 1.0.31)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 43.1 | En **Ajustes**, debajo de "Mascota en pantalla", está **Tema**: Como el celular / Claro / Oscuro. Tocá **Claro**. | La app se pone clara en el momento (aunque el celular esté en oscuro) y los íconos de la barra de arriba se ven oscuros. | |
+| 43.2 | Tocá **Oscuro**. | La app se pone oscura y los íconos de arriba, blancos. | |
+| 43.3 | Cerrá la app y abrila de nuevo. | Sigue con el tema que elegiste. | |
+| 43.4 | Elegí **Como el celular** y cambiá el modo oscuro del Xiaomi. | La app sigue al celular. | |
+
+La mascota flotante y sus globos no cambian con el tema: tienen sus propios colores.
+
+---
+
 ## Si algo falla
 
 Anotá el número de prueba, qué pasó y a qué hora. Si podés, sacá una captura de pantalla.

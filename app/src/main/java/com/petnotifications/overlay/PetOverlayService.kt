@@ -116,8 +116,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         prefs.petAliveAt = System.currentTimeMillis()
         AlertScheduler.schedulePetWatchdog(this)
         lastPro = prefs.isPro
-        state.pet = prefs.pet
-        state.coat = prefs.coat(state.pet)
+        applyShownPet()
         owner.start()
         addWindows()
         prefs.sp.registerOnSharedPreferenceChangeListener(this)
@@ -227,9 +226,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     override fun onSharedPreferenceChanged(sp: SharedPreferences?, key: String?) {
         when (key) {
-            Prefs.KEY_PET -> {
-                state.pet = prefs.pet
-                state.coat = prefs.coat(state.pet)
+            Prefs.KEY_PET, Prefs.KEY_TRY_UNTIL -> {
+                applyShownPet()
                 state.bounceTick++
                 layoutFx()
                 updateNotification()
@@ -255,7 +253,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // Cambió el nombre de la mascota: se actualiza la notificación fija.
             else -> when {
                 key?.startsWith(Prefs.KEY_PET_NAME) == true -> updateNotification()
-                key?.startsWith(Prefs.KEY_COAT) == true -> state.coat = prefs.coat(state.pet)
+                key?.startsWith(Prefs.KEY_COAT) == true -> applyShownPet()
                 // Sumó corazones (por un "Listo" desde la notificación o la app): quizás hay que festejar.
                 key?.startsWith(Bond.KEY_PREFIX) == true -> scheduleCelebrate()
             }
@@ -263,6 +261,24 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     private var lastPro = false
+
+    private var tryJob: Job? = null
+
+    /**
+     * Pone la mascota y el pelaje que se ven: los de una prueba de una mascota Pro (Prefs.trying), o
+     * los del usuario. Si hay una prueba, cuando termina se vuelve sola a la del usuario.
+     */
+    private fun applyShownPet() {
+        val (pet, coat) = prefs.shownPet()
+        state.pet = pet
+        state.coat = coat
+        tryJob?.cancel()
+        val left = prefs.tryUntil - System.currentTimeMillis()
+        if (prefs.trying() != null) tryJob = scope.launch {
+            delay(left)
+            prefs.endTry()
+        }
+    }
 
     /** Momento aproximado en que el sistema cerró la mascota la vez anterior (0 = no pasó). */
     private var killedAt = 0L

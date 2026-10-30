@@ -231,8 +231,13 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 PetPicker(pet) {
                     pet = it
                     prefs.pet = it
+                    prefs.freePets = setOf(it)
                     if (!prefs.petNameAsked(it)) naming = it
                 }
+                Text(
+                    stringResource(R.string.ob_free_pet_hint, com.petnotifications.BuildConfig.TRIAL_DAYS),
+                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
+                )
             }
             Spacer(Modifier.height(4.dp))
             Button(onClick = ::onYes, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text(yes) }
@@ -272,6 +277,8 @@ private data class Texts(val title: String, val body: String, val ifNo: String?,
 /** Cierra la configuración: si hay permiso flotante, la mascota aparece; los avisos quedan programados. */
 private fun finish(ctx: android.content.Context, prefs: Prefs, onDone: () -> Unit) {
     prefs.onboardingDone = true
+    // La mascota elegida al instalar es la del plan gratis (si no la cambió, la que venía).
+    if (prefs.freePets.isEmpty()) prefs.freePets = setOf(prefs.pet)
     if (Settings.canDrawOverlays(ctx)) {
         prefs.petEnabled = true
         PetOverlayService.start(ctx)
