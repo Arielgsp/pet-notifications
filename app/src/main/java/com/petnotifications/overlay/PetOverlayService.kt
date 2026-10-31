@@ -117,6 +117,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         AlertScheduler.schedulePetWatchdog(this)
         lastPro = prefs.isPro
         applyShownPet()
+        state.bubbleStyle = prefs.bubbleStyle
+        state.letters.addAll(LetterStore.load(prefs))
         owner.start()
         addWindows()
         prefs.sp.registerOnSharedPreferenceChangeListener(this)
@@ -149,6 +151,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) onAudioMode(audio.mode)
                 maybeCelebrate()
                 maybeRandomDance()
+                maybeFriendly()
                 delay(TICK_MS)
             }
         }
@@ -175,7 +178,10 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                     source = PetAlert.Source.TEST,
                 ),
             )
-            ACTION_SHOW -> if (running) intent.extras?.toPetAlert()?.let(::enqueue)
+            ACTION_SHOW -> if (running) intent.extras?.toPetAlert()?.let { alert ->
+                // Sin interrumpir: no aparece; queda una carta amarilla a sus pies.
+                if (intent.getBooleanExtra(EXTRA_QUIET, false)) addLetter(LetterColor.YELLOW, alert) else enqueue(alert)
+            }
             ACTION_PLUS_ONE -> if (running) plusOne()
             ACTION_TRICK -> if (running) intent.getStringExtra(EXTRA_REWARD)
                 ?.let { name -> Bond.Reward.entries.firstOrNull { it.name == name } }
@@ -183,6 +189,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             ACTION_DISMISS -> intent.getStringExtra(EXTRA_KEY)?.let { key ->
                 queue.removeAll { it.key == key }
                 if (current?.key == key) finishCurrent()
+                removeLettersFor(key)
             }
         }
         return START_STICKY
@@ -205,6 +212,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         scope.cancel()
         petView?.let { runCatching { wm.removeView(it) } }
         fxView?.let { runCatching { wm.removeView(it) } }
+        lettersView?.let { runCatching { wm.removeView(it) } }
+        lettersView = null
         closeQuickNote()
         closeCard()
         petView = null
@@ -238,8 +247,10 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             Prefs.KEY_GHOST -> {
                 applyGhost()
                 petView?.let { wm.updateViewLayout(it, petParams) }
+                layoutLetters()
                 updateNotification()
             }
+            Prefs.KEY_BUBBLE_STYLE -> state.bubbleStyle = prefs.bubbleStyle
             Prefs.KEY_SIZE -> {
                 val size = dp(prefs.petSizeDp)
                 petParams.width = size
@@ -344,14 +355,29 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 )
             }
         }
+        lettersParams = LayoutParams(
+            dp(LettersWidth.value.toInt()), dp(LettersHeight.value.toInt()), type, BASE_FLAGS, PixelFormat.TRANSLUCENT,
+        ).apply {
+            gravity = Gravity.BOTTOM or Gravity.START
+            windowAnimations = R.style.PetWindowNoAnimation
+        }
+        lettersView = ComposeView(this).apply {
+            owner.attach(this)
+            setContent { LettersContent(state, onOpen = ::openLetter) }
+        }
         addFullscreenProbe()
         wm.addView(petView, petParams)
+        wm.addView(lettersView, lettersParams)
         wm.addView(fxView, fxParams) // después, para quedar por encima de la mascota
         layoutFx()
     }
 
     /** Alto medido del globo que se está mostrando (0 = todavía no se midió). */
     private var bubbleHeightPx = 0
+
+    /** Ventana chiquita con las cartas a los pies de la mascota. */
+    private var lettersView: ComposeView? = null
+    private lateinit var lettersParams: LayoutParams
 
     /**
      * Ubica la ventana de efectos pegada a la boca (sonido/corazones) o a la cabeza (globo). Si lo
@@ -363,8 +389,11 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val height = petParams.height
         val (sw, sh) = screenSize()
         val pet = state.pet
-        // El panel de próximos avisos se ubica y recibe toques igual que el globo.
+        // El panel de próximos avisos se ubica y recibe toques igual que la tarjeta del aviso.
         val bubble = state.phase is FxPhase.Bubble || state.phase is FxPhase.Upcoming
+        // La onomatopeya de un aviso que llega: sale de la boca (como el sonido) pero se puede tocar.
+        val call = state.phase as? FxPhase.Call
+        val card = state.phase is FxPhase.Bubble
         // Arriba: el globo apunta a la coronilla (el dibujo de cuerpo entero deja ~15 % arriba de la
         // cabeza) y el sonido sale de la boca. Abajo: todo sale de los pies. Medido desde abajo.
         val anchorAbove = if (bubble) petParams.y + (height * 0.85f).roundToInt()
@@ -372,7 +401,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val anchorBelow = petParams.y + (height * 0.05f).roundToInt()
         val needed = when {
             bubble -> bubbleHeightPx.takeIf { it > 0 } ?: dp(BUBBLE_GUESS_DP)
-            state.phase is FxPhase.Sound -> dp(SOUND_HEIGHT_DP)
+            call != null || state.phase is FxPhase.Sound -> dp(StickerHeight.value.toInt())
             else -> dp(HEARTS_HEIGHT_DP)
         }
         val spaceAbove = sh - statusBarHeight() - anchorAbove
@@ -382,7 +411,14 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         // tampoco hay lugar a los costados.
         val roomLeft = petParams.x
         val roomRight = sw - (petParams.x + size)
+        // El aviso (la onomatopeya y después la tarjeta) sale por el costado si hay lugar.
+        val sideMin = when {
+            call != null -> dp(CALL_SIDE_MIN_DP)
+            card -> dp(CARD_SIDE_MIN_DP)
+            else -> null
+        }
         val side = when {
+            sideMin != null && maxOf(roomLeft, roomRight) >= sideMin -> if (roomRight >= roomLeft) 1 else -1
             needed <= spaceAbove -> 0
             maxOf(roomLeft, roomRight) >= dp(SIDE_MIN_DP) -> if (roomRight >= roomLeft) 1 else -1
             else -> 0
@@ -391,11 +427,23 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         if (side != 0) {
             val room = if (side > 0) roomRight else roomLeft
             fxParams.width = minOf(fullWidth, room - dp(2))
+            // La onomatopeya ocupa solo lo que mide el globo: no tapa la app de al lado más de lo necesario.
+            if (call != null) fxParams.width = minOf(fxParams.width, dp(stickerWidth(call.text).value.toInt() + 4))
             fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
             val petTop = petParams.y + height // medido desde abajo
-            val text = bubble || state.phase is FxPhase.Sound
+            val text = bubble || state.phase is FxPhase.Sound || call != null
             state.fxBelow = text // el texto se apoya arriba de la ventana, a la altura de la cabeza
-            fxParams.y = if (text) petTop - fxParams.height else anchorAbove
+            val top = when {
+                // La punta del pico (cerca del borde de abajo del globo) a la altura de la boca.
+                call != null -> minOf(
+                    petTop + dp(STICKER_TIP_DP) - (pet.mouthY * height).roundToInt(),
+                    sh - statusBarHeight(),
+                )
+                // La tarjeta arranca a la altura de la cabeza, pero siempre entera arriba de la barra de abajo.
+                card -> maxOf(petTop, (bubbleHeightPx.takeIf { it > 0 } ?: dp(BUBBLE_GUESS_DP)) + dp(NAV_MARGIN_DP))
+                else -> petTop
+            }
+            fxParams.y = if (text) top - fxParams.height else anchorAbove
             // Cabeza de la mascota medida desde arriba de la ventana (para la colita del globo).
             state.anchorY = (height * 0.32f).coerceAtMost(fxParams.height.toFloat())
             // Corazones y sonido salen del borde que da a la mascota.
@@ -410,12 +458,32 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             state.anchorX = anchor - fxParams.x
         }
         // Solo el globo recibe toques; el resto deja pasar los toques a la app de abajo.
-        fxParams.flags = (if (bubble) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
+        fxParams.flags = (if (bubble || call != null) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
         // Sin nada que mostrar, la ventana queda oculta: Android 12+ bloquea los toques que pasan
         // a través de una ventana flotante visible aunque esté vacía y sea transparente.
         val empty = state.phase is FxPhase.None && state.hearts.isEmpty() && state.plusOnes.isEmpty()
         fx.visibility = if (empty || hiddenNow) View.INVISIBLE else View.VISIBLE
         wm.updateViewLayout(fx, fxParams)
+        layoutLetters()
+    }
+
+    /**
+     * Las cartas van pegadas a los pies de la mascota, del lado que haya lugar (montadas un poquito
+     * sobre el dibujo, así parecen apoyadas en el piso a su lado).
+     */
+    private fun layoutLetters() {
+        val v = lettersView ?: return
+        val (sw, _) = screenSize()
+        val w = lettersParams.width
+        val overlap = dp(LETTERS_OVERLAP_DP)
+        val right = petParams.x + petParams.width - overlap
+        lettersParams.x = if (right + w <= sw) right else (petParams.x - w + overlap).coerceAtLeast(0)
+        lettersParams.y = petParams.y
+        // En modo fantasma los toques atraviesan también las cartas.
+        lettersParams.flags = if (prefs.ghostMode) BASE_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE else BASE_FLAGS
+        lettersParams.alpha = petParams.alpha
+        v.visibility = if (state.letters.isEmpty() || hiddenNow) View.INVISIBLE else View.VISIBLE
+        wm.updateViewLayout(v, lettersParams)
     }
 
     /**
@@ -1208,6 +1276,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun enqueue(alert: PetAlert) {
         if (current?.key == alert.key || queue.any { it.key == alert.key }) return
+        // Vuelve a avisar (pospuesto o repetición): la carta de ese aviso ya no hace falta.
+        removeLettersFor(alert.key)
         lastActivity = System.currentTimeMillis()
         queue.addLast(alert)
         if (current == null) showNext()
@@ -1223,22 +1293,102 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 state.sleeping = false
                 delay(WAKE_MS)
             }
-            // 1) Onomatopeya desde la boca
+            // 1) Onomatopeya en su globo, al costado de la mascota. Queda hasta que se la toca (abre la
+            //    tarjeta) o se toca la mascota (queda una carta roja); con "Se esconde sola", se va sola.
             state.talking = true
-            state.phase = FxPhase.Sound(state.pet.sound(this@PetOverlayService), SystemClock.uptimeMillis())
+            state.who = state.pet.subject(this@PetOverlayService)
+            state.phase = FxPhase.Call(alert, callWord(state.pet.sound(this@PetOverlayService)), SystemClock.uptimeMillis())
             layoutFx()
             speak(state.pet)
             delay(SOUND_MS)
-            // 2) Globo de cómic
             state.talking = false
-            val autoHideMs = if (prefs.autoHide) prefs.autoHideSeconds * 1000L else null
-            state.phase = FxPhase.Bubble(alert, autoHideMs, hint())
-            layoutFx()
-            if (autoHideMs != null) {
-                delay(autoHideMs)
-                finishCurrent()
+            autoHideMs()?.let {
+                delay(it)
+                leaveUnattended(alert)
             }
         }
+    }
+
+    private fun autoHideMs(): Long? = if (prefs.autoHide) prefs.autoHideSeconds * 1000L else null
+
+    /** Tocó la onomatopeya: se abre la tarjeta con el aviso. */
+    private fun openCard(alert: PetAlert) {
+        showJob?.cancel()
+        state.talking = false
+        val autoHideMs = autoHideMs()
+        state.phase = FxPhase.Bubble(alert, autoHideMs, hint())
+        layoutFx()
+        if (autoHideMs != null) showJob = scope.launch {
+            delay(autoHideMs)
+            leaveUnattended(alert)
+        }
+    }
+
+    /**
+     * Se fue sin respuesta (se escondió sola): queda una carta roja a sus pies. La notificación y las
+     * repeticiones siguen como estaban; si vuelve a avisar, la carta se saca.
+     */
+    private fun leaveUnattended(alert: PetAlert) {
+        if (current?.key != alert.key) return
+        if (alert.source != PetAlert.Source.APP) addLetter(LetterColor.RED, alert)
+        finishCurrent()
+    }
+
+    // ---------------------------------------------------------------- cartas
+
+    private fun addLetter(color: LetterColor, alert: PetAlert) {
+        state.letters.removeAll { LetterStore.sameAlert(it.alert, alert) || (color == LetterColor.SKY && it.color == LetterColor.SKY) }
+        val id = maxOf(System.currentTimeMillis(), (state.letters.maxOfOrNull { it.id } ?: 0L) + 1)
+        state.letters.add(Letter(id, color, alert, System.currentTimeMillis()))
+        LetterStore.save(prefs, state.letters)
+        layoutFx()
+    }
+
+    private fun removeLetter(letter: Letter) {
+        if (state.letters.removeAll { it.id == letter.id }) {
+            LetterStore.save(prefs, state.letters)
+            layoutFx()
+        }
+    }
+
+    private fun removeLettersFor(key: String) {
+        val probe = PetAlert(key, "", "", PetAlert.Source.LOCAL)
+        if (state.letters.removeAll { LetterStore.sameAlert(it.alert, probe) }) {
+            LetterStore.save(prefs, state.letters)
+            layoutFx()
+        }
+    }
+
+    /** Tocó las cartas: se abre la de arriba (si ya había una abierta, se cierra). */
+    private fun openLetter() {
+        val phase = state.phase
+        if (phase is FxPhase.Bubble && phase.letter != null) {
+            finishCurrent()
+            return
+        }
+        if (current != null) return
+        if (phase is FxPhase.Upcoming) closeUpcoming()
+        val letter = state.letters.lastOrNull() ?: return
+        lastActivity = System.currentTimeMillis()
+        state.sleeping = false
+        state.who = state.pet.subject(this)
+        current = letter.alert
+        state.phase = FxPhase.Bubble(letter.alert, null, hint(), letter)
+        layoutFx()
+    }
+
+    /**
+     * Frase amigable (carta celeste): la deja a sus pies sin sonido y mueve la cola. Nunca en el horario
+     * de No molestar ni con el celular bloqueado.
+     */
+    private fun maybeFriendly() {
+        val now = System.currentTimeMillis()
+        if (hiddenNow || inDnd(now) || !canShowAlert(this)) return
+        if (!FriendlyPhrases.due(prefs, now)) return
+        FriendlyPhrases.markShown(prefs, now)
+        val text = FriendlyPhrases.pick(this, prefs)
+        addLetter(LetterColor.SKY, PetAlert(key = "friendly:$now", title = "", body = text, source = PetAlert.Source.APP))
+        if (!state.sleeping && current == null) state.play(Trick.WAG)
     }
 
     // ---------------------------------------------------------------- hora de dormir
@@ -1305,12 +1455,14 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     /** "Hecho": festeja (salto, ojitos felices y corazón) y deja de insistir. */
     private fun onBubbleDone() {
         val alert = current ?: return
+        (state.phase as? FxPhase.Bubble)?.letter?.let(::removeLetter)
         AlertNotifier.cancel(this, alert)
         finishCurrent()
         state.hearts.add(SystemClock.uptimeMillis())
         layoutFx()
         state.bounceTick++
-        scope.launch {
+        // Las frases amigables y los avisos de prueba no suman al vínculo.
+        if (alert.source == PetAlert.Source.LOCAL || alert.source == PetAlert.Source.CALENDAR) scope.launch {
             val gained = withContext(Dispatchers.IO) { Insist.done(this@PetOverlayService, alert) }
             if (gained) plusOne()
             // Recompensa variable: 1 de cada 5 "Listo" baila (si ya aprendió).
@@ -1323,6 +1475,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun onBubbleSnooze() {
         val alert = current ?: return
+        (state.phase as? FxPhase.Bubble)?.letter?.let(::removeLetter)
         AlertNotifier.cancel(this, alert)
         finishCurrent()
         stopInsisting(alert)
@@ -1344,15 +1497,28 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             return true
         }
         val alert = current ?: return false
+        // Una carta abierta se vuelve a guardar a sus pies.
+        if ((state.phase as? FxPhase.Bubble)?.letter != null) {
+            finishCurrent()
+            return true
+        }
         AlertNotifier.cancel(this, alert)
         stopInsisting(alert)
+        // Cerrado sin "Listo" ni "Aplazar": queda una carta roja a sus pies, quieta (no vuelve a llamar).
+        if (alert.source != PetAlert.Source.APP) addLetter(LetterColor.RED, alert)
         finishCurrent()
         return true
     }
 
     private fun onBubbleTap() {
-        if (state.phase is FxPhase.Upcoming) return closeUpcoming()
+        val phase = state.phase
+        if (phase is FxPhase.Upcoming) return closeUpcoming()
+        if (phase is FxPhase.Call) return openCard(phase.alert)
         val alert = current ?: return
+        val letter = (phase as? FxPhase.Bubble)?.letter
+        // Carta de una frase amigable o de un aviso de prueba: tocarla es darla por leída.
+        if (letter != null && (alert.source == PetAlert.Source.APP || alert.source == PetAlert.Source.TEST)) return onBubbleDone()
+        letter?.let(::removeLetter)
         AlertNotifier.cancel(this, alert)
         stopInsisting(alert)
         val action = prefs.tapAction
@@ -1510,10 +1676,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val FX_HEIGHT_DP = 300
         /** Alto aproximado de lo que se muestra, para decidir si entra arriba de la mascota. */
         private const val BUBBLE_GUESS_DP = 170
-        private const val SOUND_HEIGHT_DP = 140
         private const val HEARTS_HEIGHT_DP = 150
         /** Margen para la barra de gestos de abajo. */
         private const val NAV_MARGIN_DP = 24
+        /** Lugar mínimo al costado de la mascota para la onomatopeya y para la tarjeta del aviso. */
+        private const val CALL_SIDE_MIN_DP = 130
+        private const val CARD_SIDE_MIN_DP = 200
+        /** Distancia de arriba del globo de la onomatopeya a la punta de su pico. */
+        private const val STICKER_TIP_DP = 98
+        /** Cuánto se meten las cartas sobre el dibujo de la mascota (que tiene aire a los costados). */
+        private const val LETTERS_OVERLAP_DP = 30
         private const val BASE_FLAGS = LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL
         /**
          * Ventana de efectos: puede salirse de la pantalla. Si Android la "empujara" para que entre,
@@ -1571,6 +1743,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val ACTION_SHOW = "com.petnotifications.SHOW"
         private const val ACTION_DISMISS = "com.petnotifications.DISMISS"
         private const val EXTRA_KEY = "key"
+        private const val EXTRA_QUIET = "quiet"
 
         @Volatile
         var running = false
@@ -1618,8 +1791,9 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
          * Le pasa un aviso a la mascota que ya está en pantalla. Con el servicio en primer plano
          * la app cuenta como activa, así que alcanza con startService.
          */
-        fun show(ctx: Context, alert: PetAlert) {
+        fun show(ctx: Context, alert: PetAlert, quiet: Boolean = false) {
             val intent = Intent(ctx, PetOverlayService::class.java).setAction(ACTION_SHOW).putExtras(alert.toBundle())
+                .putExtra(EXTRA_QUIET, quiet)
             runCatching { ctx.startService(intent) }
         }
 

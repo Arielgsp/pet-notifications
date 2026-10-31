@@ -570,4 +570,59 @@
     <string name="owner_bond_add">+10 corazones</string>
     <string name="owner_bond_reset">Reiniciar vínculo</string>
     <string name="owner_close">Cerrar</string>
+    <string name="note_from">%1$s te avisa · %2$s</string>
+    <string name="note_says">%1$s te dice</string>
+    <string name="note_unattended">Quedó sin atender · %1$s</string>
+    <string name="note_quiet">Llegó sin interrumpir · %1$s</string>
+    <string name="note_friendly">%1$s te dejó esto</string>
+    <string name="action_thanks">Gracias</string>
+    <string name="row_bubble">Globo del aviso</string>
+    <string name="bubble_caramel">Caramelo</string>
+    <string name="bubble_cloud">Nubecita</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo. Tocalo para leer el aviso; tocá la mascota para dejarlo para después (queda una carta roja a sus pies).</string>
+    <string name="quiet_title">Avisos sin interrumpir</string>
+    <string name="quiet_sub">No aparecen en pantalla ni suenan: tu mascota deja una carta amarilla a sus pies. También se puede elegir en cada recordatorio.</string>
+    <string name="friendly_title">Frases amigables</string>
+    <string name="friendly_help">De vez en cuando tu mascota te deja una carta celeste con un mensajito (“tomá agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.</string>
+    <string name="friendly_off">Nunca</string>
+    <string name="friendly_few">Pocas</string>
+    <string name="friendly_normal">Normal</string>
+    <string name="friendly_many">Muchas</string>
+    <string name="friendly_sum">Frases: %1$s</string>
+    <string name="reminder_quiet">Sin interrumpir</string>
+    <string name="reminder_quiet_sub">No aparece en pantalla: queda una carta amarilla a los pies de tu mascota.</string>
+    <string name="letters_help_title">Las cartitas</string>
+    <string name="letters_help_body">Roja: un aviso que cerraste tocando la mascota, sin Listo ni Aplazar. Amarilla: un aviso sin interrumpir. Celeste: un mensajito de tu mascota. Tocá las cartas para abrir la de arriba.</string>
+    <string-array name="friendly_phrases">
+        <item>Éxito en tu jornada.</item>
+        <item>No te olvides de tomar agua.</item>
+        <item>¿Tomaste agua hace poco? Un vasito y seguimos.</item>
+        <item>Enderezá la espalda y aflojá los hombros.</item>
+        <item>Respirá hondo tres veces. Yo te acompaño.</item>
+        <item>Mirá un ratito por la ventana: tus ojos te lo agradecen.</item>
+        <item>Levantate y estirá las piernas un minuto.</item>
+        <item>Lo estás haciendo muy bien.</item>
+        <item>Un paso a la vez. Vas bien.</item>
+        <item>Acordate de comer algo rico.</item>
+        <item>Hoy también cuenta, aunque sea poquito.</item>
+        <item>Si te equivocaste, no pasa nada. Seguimos.</item>
+        <item>Te mando un abrazo peludo.</item>
+        <item>Tomate un recreo de cinco minutos.</item>
+        <item>Sonreí un poquito, aunque sea para mí.</item>
+        <item>Qué orgullo me das.</item>
+        <item>Parpadeá despacio: descansan los ojos.</item>
+        <item>Aflojá la mandíbula. ¿Viste? Estaba apretada.</item>
+        <item>Un vaso de agua y una buena canción.</item>
+        <item>¿Hace cuánto no estirás los brazos?</item>
+        <item>Mandale un mensaje lindo a alguien que quieras.</item>
+        <item>Ordená una sola cosita y listo.</item>
+        <item>Lo difícil primero, después un mimo.</item>
+        <item>Me encanta acompañarte.</item>
+        <item>Hoy es un buen día para ser amable con vos.</item>
+        <item>Dejá el celu un ratito y mirá a tu alrededor.</item>
+        <item>Vas mejor de lo que pensás.</item>
+        <item>Si hay cansancio, un descansito también es avanzar.</item>
+        <item>Gracias por cuidarme. Yo también te cuido.</item>
+        <item>Agua, aire y un ratito de sol.</item>
+    </string-array>
 </resources>

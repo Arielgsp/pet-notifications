@@ -153,9 +153,16 @@ class AlertReceiver : BroadcastReceiver() {
          */
         suspend fun deliver(ctx: Context, alert: PetAlert, scheduledAt: Long) {
             val petShows = PetOverlayService.canShowAlert(ctx)
-            AlertNotifier.post(ctx, alert, loudRequested = !petShows)
-            if (petShows) PetOverlayService.show(ctx, alert)
-            Insist.scheduleNext(ctx, alert)
+            if (isQuiet(ctx, alert)) {
+                // Sin interrumpir: notificación callada, no insiste, y la mascota (si está, aunque el
+                // celular esté bloqueado) deja una carta amarilla a sus pies.
+                AlertNotifier.post(ctx, alert, loudRequested = false)
+                if (PetOverlayService.running) PetOverlayService.show(ctx, alert, quiet = true)
+            } else {
+                AlertNotifier.post(ctx, alert, loudRequested = !petShows)
+                if (petShows) PetOverlayService.show(ctx, alert)
+                Insist.scheduleNext(ctx, alert)
+            }
             val now = System.currentTimeMillis()
             runCatching {
                 val log = AppDatabase.get(ctx).deliveries()
@@ -167,6 +174,14 @@ class AlertReceiver : BroadcastReceiver() {
                 )
                 log.deleteOlderThan(now - 90 * 24 * 3_600_000L)
             }
+        }
+
+        /** Va "sin interrumpir": todos los avisos (Ajustes) o ese recordatorio en particular. */
+        private suspend fun isQuiet(ctx: Context, alert: PetAlert): Boolean {
+            if (alert.source != PetAlert.Source.LOCAL && alert.source != PetAlert.Source.CALENDAR) return false
+            if (Prefs(ctx).quietAlerts) return true
+            val id = alert.reminderId ?: return false
+            return AppDatabase.get(ctx).reminders().get(id)?.quiet == true
         }
 
         /**

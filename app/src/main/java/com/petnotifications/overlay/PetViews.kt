@@ -59,7 +59,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,12 +86,10 @@ internal val Ink = Color(0xFF3A2E27) // ink
 internal val Paper = Color(0xFFFFF6E6) // paper
 internal val InkMuted = Color(0xFF6E5E52) // ink-muted
 internal val Cocoa = Color(0xFF8A5536) // cocoa
-private val Fur = Color(0xFFC98A55) // fur
 internal val BlushSoft = Color(0xFFFBE7E3) // blush-soft
 internal val Line = Color(0xFFE8DCCD) // line
 internal val Blush = Color(0xFFEFA9A0) // blush
 internal val SurfaceRaised = Color(0xFFFFFDF9) // surface-raised
-private val BurstYellow = Color(0xFFF7E6CC) // cream
 
 /** Cuánto se queda parada después de hacer algo antes de volver a sentarse. */
 private const val SIT_AFTER_MS = 3_000L
@@ -644,8 +641,9 @@ private fun FxLayers(
     // Al costado de la mascota: el globo lleva la colita de costado, a la altura de la cabeza.
     CompositionLocalProvider(LocalFxSide provides (state.fxSide to state.anchorY)) { Box(modifier.fillMaxWidth()) {
         when (val phase = state.phase) {
-            is FxPhase.Sound -> SoundBurst(phase, state.anchorX, below)
-            is FxPhase.Bubble -> ComicBubble(phase, state.anchorX, below, bubble, onBubbleHeight)
+            is FxPhase.Sound -> PlacedSticker(callWord(phase.text), phase.id, state, null)
+            is FxPhase.Call -> PlacedSticker(phase.text, phase.id, state, bubble.onTap)
+            is FxPhase.Bubble -> NoteCard(phase, state.who, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) })
             is FxPhase.Upcoming -> UpcomingPanel(phase, state.anchorX, below, bubble, onBubbleHeight)
             FxPhase.None -> if (state.hearts.isNotEmpty() || state.plusOnes.isNotEmpty()) Spacer(Modifier.height(150.dp))
         }
@@ -662,137 +660,39 @@ private fun FxLayers(
     } }
 }
 
+/**
+ * La onomatopeya en su globo, con el pico hacia la mascota: al costado, pegada al borde que da a la
+ * mascota; arriba, con la punta del pico sobre [OverlayState.anchorX].
+ */
+@Composable
+private fun PlacedSticker(text: String, id: Long, state: OverlayState, onTap: (() -> Unit)?) {
+    val (side, _) = LocalFxSide.current
+    BoxWithConstraints(Modifier.fillMaxWidth().height(StickerHeight)) {
+        val density = LocalDensity.current
+        val w = stickerWidth(text)
+        val wPx = with(density) { w.toPx() }
+        val maxPx = with(density) { maxWidth.toPx() }
+        val tipPx = with(density) { (w - 6.dp).toPx() } // punta del pico, sin espejar
+        val mirrored = when {
+            side > 0 -> true
+            side < 0 -> false
+            else -> state.anchorX - tipPx < 0f
+        }
+        val x = when {
+            side > 0 -> 0f
+            side < 0 -> maxPx - wPx
+            mirrored -> state.anchorX - with(density) { 6.dp.toPx() }
+            else -> state.anchorX - tipPx
+        }.coerceIn(0f, (maxPx - wPx).coerceAtLeast(0f))
+        StickerBubble(
+            text, state.bubbleStyle, mirrored, id,
+            Modifier.offset { IntOffset(x.roundToInt(), 0) }, onTap,
+        )
+    }
+}
+
 /** Lado del globo respecto de la mascota (1 a la derecha, -1 a la izquierda, 0 arriba/abajo) y altura de la cabeza. */
 private val LocalFxSide = androidx.compose.runtime.compositionLocalOf { 0 to 0f }
-
-@Composable
-private fun SoundBurst(phase: FxPhase.Sound, anchorX: Float, below: Boolean) {
-    val progress = remember(phase.id) { Animatable(0f) }
-    LaunchedEffect(phase.id) { progress.animateTo(1f, spring(dampingRatio = 0.42f, stiffness = 180f)) }
-    val shake = rememberInfiniteTransition(label = "shake")
-    val tilt by shake.animateFloat(-6f, 6f, infiniteRepeatable(tween(90), RepeatMode.Reverse), label = "tilt")
-    var burstW by remember { mutableIntStateOf(0) }
-    var burstH by remember { mutableIntStateOf(0) }
-
-    BoxWithConstraints(Modifier.fillMaxWidth().height(140.dp)) {
-        val density = LocalDensity.current
-        val maxW = with(density) { maxWidth.toPx() }
-        val maxH = with(density) { maxHeight.toPx() }
-        val rise = with(density) { 58.dp.toPx() }
-        Box(
-            Modifier
-                .onSizeChanged { burstW = it.width; burstH = it.height }
-                .offset {
-                    val p = progress.value
-                    val x = (anchorX - burstW / 2f).coerceIn(0f, (maxW - burstW).coerceAtLeast(0f))
-                    val y = if (below) rise * p else maxH - burstH - rise * p
-                    IntOffset(x.roundToInt(), y.roundToInt())
-                }
-                .graphicsLayer {
-                    val s = 0.15f + 0.85f * progress.value
-                    scaleX = s
-                    scaleY = s
-                    rotationZ = tilt
-                    transformOrigin = TransformOrigin(0.5f, if (below) 0f else 1f)
-                    alpha = progress.value.coerceIn(0f, 1f)
-                }
-                .drawBehind { drawStarBurst() }
-                .padding(horizontal = 26.dp, vertical = 20.dp),
-        ) {
-            ComicText(phase.text, 30.sp)
-        }
-    }
-}
-
-/** Texto de la onomatopeya: relleno color pelaje con contorno marrón. */
-@Composable
-private fun ComicText(text: String, size: androidx.compose.ui.unit.TextUnit) {
-    val base = TextStyle(fontSize = size, fontWeight = FontWeight.Black, fontStyle = FontStyle.Italic)
-    Box {
-        Text(text, style = base.copy(color = Ink, drawStyle = Stroke(width = 10f, join = StrokeJoin.Round)))
-        Text(text, style = base.copy(color = Fur))
-    }
-}
-
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawStarBurst() {
-    val spikes = 14
-    val cx = size.width / 2
-    val cy = size.height / 2
-    val path = Path()
-    for (i in 0 until spikes * 2) {
-        val angle = PI * i / spikes - PI / 2
-        val r = if (i % 2 == 0) 1f else 0.72f
-        val x = cx + cos(angle).toFloat() * cx * r
-        val y = cy + sin(angle).toFloat() * cy * r
-        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
-    }
-    path.close()
-    drawPath(path, BurstYellow)
-    drawPath(path, Ink, style = Stroke(width = 3.dp.toPx(), join = StrokeJoin.Round))
-}
-
-@Composable
-private fun ComicBubble(
-    phase: FxPhase.Bubble,
-    anchorX: Float,
-    below: Boolean,
-    actions: BubbleActions,
-    onHeight: (Int) -> Unit,
-) {
-    val appear = remember(phase.alert.key) { Animatable(0f) }
-    LaunchedEffect(phase.alert.key) { appear.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = 320f)) }
-    val countdown = remember(phase.alert.key) { Animatable(1f) }
-    LaunchedEffect(phase.alert.key, phase.autoHideMs) {
-        phase.autoHideMs?.let { countdown.animateTo(0f, tween(it.toInt(), easing = LinearEasing)) }
-    }
-
-    BubbleFrame(phase.alert.key, appear.value, anchorX, below, onHeight, actions.onTap, actions.onLongPress) {
-                Text(
-                    when (phase.alert.source) {
-                        PetAlert.Source.CALENDAR -> stringResource(R.string.bubble_calendar)
-                        PetAlert.Source.LOCAL -> stringResource(R.string.bubble_reminder)
-                        PetAlert.Source.TEST -> stringResource(R.string.bubble_test)
-                        PetAlert.Source.APP -> "🐾 " + stringResource(R.string.app_name)
-                    },
-                    fontSize = 11.sp, color = InkMuted, fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    phase.alert.title,
-                    fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis,
-                )
-                if (phase.alert.body.isNotBlank()) {
-                    Text(
-                        phase.alert.body,
-                        fontSize = 14.sp, color = Ink,
-                        // Los mensajes de la app (fin de la prueba) son un poco más largos.
-                        maxLines = if (phase.alert.source == PetAlert.Source.APP) 6 else 4,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 2.dp),
-                    )
-                }
-                // Los avisos de prueba no tienen nada que marcar como hecho.
-                if (phase.alert.source == PetAlert.Source.LOCAL || phase.alert.source == PetAlert.Source.CALENDAR) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    ) {
-                        BubbleButton(stringResource(R.string.action_snooze), filled = false, Modifier.weight(1f), actions.onSnooze)
-                        BubbleButton(stringResource(R.string.action_done), filled = true, Modifier.weight(1f), actions.onDone)
-                    }
-                }
-                // Sin ayuda de gestos en el globo: tocar la mascota lo cierra y los botones están a la vista.
-                if (phase.autoHideMs != null) {
-                    Box(
-                        Modifier
-                            .padding(top = 4.dp)
-                            .fillMaxWidth(countdown.value)
-                            .height(3.dp)
-                            .background(Fur, RoundedCornerShape(2.dp)),
-                    )
-                }
-    }
-}
 
 /**
  * Marco de historieta (papel, borde de tinta y colita apuntando a la mascota) que comparten el globo

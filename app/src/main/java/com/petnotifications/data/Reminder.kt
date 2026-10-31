@@ -1,6 +1,7 @@
 package com.petnotifications.data
 
 import android.content.Context
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -26,6 +27,8 @@ data class Reminder(
     val repeat: String = Repeat.NONE.name,
     /** Ya se avisó (solo aplica a los que no se repiten). */
     val fired: Boolean = false,
+    /** Sin interrumpir: no aparece en pantalla, la mascota deja una carta amarilla a sus pies. */
+    @ColumnInfo(defaultValue = "0") val quiet: Boolean = false,
 )
 
 /**
@@ -142,7 +145,7 @@ interface ReminderDao {
     suspend fun delete(id: Long)
 }
 
-@Database(entities = [Reminder::class, Snooze::class, Delivery::class, Completion::class], version = 4, exportSchema = false)
+@Database(entities = [Reminder::class, Snooze::class, Delivery::class, Completion::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun reminders(): ReminderDao
     abstract fun snoozes(): SnoozeDao
@@ -154,7 +157,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun get(context: Context): AppDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "pets.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build().also { instance = it }
         }
 
@@ -178,6 +181,13 @@ abstract class AppDatabase : RoomDatabase() {
                         "`alertKey` TEXT NOT NULL, `source` TEXT NOT NULL, `reminderId` INTEGER, `eventId` INTEGER, " +
                         "`doneAt` INTEGER NOT NULL)",
                 )
+            }
+        }
+
+        /** v5: recordatorios "sin interrumpir" (carta amarilla). */
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `reminders` ADD COLUMN `quiet` INTEGER NOT NULL DEFAULT 0")
             }
         }
 

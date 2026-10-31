@@ -1,6 +1,7 @@
 package com.petnotifications.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -21,6 +22,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -87,6 +89,7 @@ fun ReminderRow(r: Reminder, onClick: () -> Unit, onDelete: () -> Unit) {
     val whenText = formatWhen(r.timeMillis)
     val repeatText = stringResource(repeat.labelRes)
     val alertedText = stringResource(R.string.reminder_alerted)
+    val quietText = stringResource(R.string.reminder_quiet)
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -100,6 +103,7 @@ fun ReminderRow(r: Reminder, onClick: () -> Unit, onDelete: () -> Unit) {
                         append(whenText)
                         if (repeat != Repeat.NONE) append(" · 🔁 ${repeatText.lowercase()}")
                         if (r.fired) append(" · $alertedText")
+                        if (r.quiet) append(" · $quietText")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -125,6 +129,7 @@ fun ReminderEditor(initial: Reminder?, onDismiss: () -> Unit, onSave: (Reminder)
     var date by remember { mutableStateOf(start.toLocalDate()) }
     var time by remember { mutableStateOf(start.toLocalTime()) }
     var repeat by remember { mutableStateOf(Repeat.from(initial?.repeat)) }
+    var quiet by remember { mutableStateOf(initial?.quiet ?: false) }
     var pickDate by remember { mutableStateOf(false) }
     var pickTime by remember { mutableStateOf(false) }
     val dateFmt = dayFormatter()
@@ -159,6 +164,20 @@ fun ReminderEditor(initial: Reminder?, onDismiss: () -> Unit, onSave: (Reminder)
                         FilterChip(selected = repeat == r, onClick = { repeat = r }, label = { Text(stringResource(r.labelRes)) })
                     }
                 }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().clickable { quiet = !quiet },
+                ) {
+                    Checkbox(checked = quiet, onCheckedChange = { quiet = it })
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.reminder_quiet), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(R.string.reminder_quiet_sub),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -173,6 +192,7 @@ fun ReminderEditor(initial: Reminder?, onDismiss: () -> Unit, onSave: (Reminder)
                             timeMillis = millis,
                             repeat = repeat.name,
                             fired = false,
+                            quiet = quiet,
                         ),
                     )
                 },

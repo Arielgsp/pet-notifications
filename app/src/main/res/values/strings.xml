@@ -571,4 +571,59 @@
     <string name="owner_bond_add">+10 hearts</string>
     <string name="owner_bond_reset">Reset bond</string>
     <string name="owner_close">Close</string>
+    <string name="note_from">%1$s reminds you · %2$s</string>
+    <string name="note_says">%1$s says</string>
+    <string name="note_unattended">Left unattended · %1$s</string>
+    <string name="note_quiet">Arrived quietly · %1$s</string>
+    <string name="note_friendly">%1$s left you this</string>
+    <string name="action_thanks">Thanks</string>
+    <string name="row_bubble">Alert bubble</string>
+    <string name="bubble_caramel">Caramel</string>
+    <string name="bubble_cloud">Little cloud</string>
+    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble. Tap it to read the alert; tap your pet to leave it for later (a red letter stays at its feet).</string>
+    <string name="quiet_title">Quiet alerts</string>
+    <string name="quiet_sub">They don’t pop up or make a sound: your pet leaves a yellow letter at its feet. You can also choose it for each reminder.</string>
+    <string name="friendly_title">Friendly notes</string>
+    <string name="friendly_help">Now and then your pet leaves you a light-blue letter with a short note (“drink some water”, “have a great day”). No sound, between 9 am and 9 pm, never during your Do not disturb hours.</string>
+    <string name="friendly_off">Never</string>
+    <string name="friendly_few">A few</string>
+    <string name="friendly_normal">Normal</string>
+    <string name="friendly_many">Lots</string>
+    <string name="friendly_sum">Notes: %1$s</string>
+    <string name="reminder_quiet">Quiet</string>
+    <string name="reminder_quiet_sub">It doesn’t pop up: a yellow letter waits at your pet’s feet.</string>
+    <string name="letters_help_title">Little letters</string>
+    <string name="letters_help_body">Red: an alert you closed by tapping your pet, without Done or Later. Yellow: a quiet alert. Light blue: a short note from your pet. Tap the letters to open the top one.</string>
+    <string-array name="friendly_phrases">
+        <item>Have a great day.</item>
+        <item>Don’t forget to drink some water.</item>
+        <item>Had any water lately? One glass and we keep going.</item>
+        <item>Sit up straight and relax your shoulders.</item>
+        <item>Take three deep breaths. I’ll do it with you.</item>
+        <item>Look out the window for a moment: your eyes will thank you.</item>
+        <item>Stand up and stretch your legs for a minute.</item>
+        <item>You’re doing really well.</item>
+        <item>One step at a time. You’re on track.</item>
+        <item>Remember to eat something yummy.</item>
+        <item>Today counts too, even if it’s just a little.</item>
+        <item>If you made a mistake, that’s okay. Let’s keep going.</item>
+        <item>Sending you a furry hug.</item>
+        <item>Take a five-minute break.</item>
+        <item>Smile a little, even if it’s just for me.</item>
+        <item>I’m proud of you.</item>
+        <item>Blink slowly: it rests your eyes.</item>
+        <item>Relax your jaw. See? It was clenched.</item>
+        <item>A glass of water and a good song.</item>
+        <item>When did you last stretch your arms?</item>
+        <item>Send a nice message to someone you love.</item>
+        <item>Tidy just one little thing and that’s it.</item>
+        <item>The hard part first, then a treat.</item>
+        <item>I love keeping you company.</item>
+        <item>Today is a good day to be kind to yourself.</item>
+        <item>Put the phone down for a bit and look around.</item>
+        <item>You’re doing better than you think.</item>
+        <item>If you’re tired, a little rest is progress too.</item>
+        <item>Thanks for taking care of me. I take care of you too.</item>
+        <item>Water, fresh air and a bit of sunshine.</item>
+    </string-array>
 </resources>

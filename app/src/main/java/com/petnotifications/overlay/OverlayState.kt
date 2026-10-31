@@ -41,8 +41,13 @@ sealed interface FxPhase {
     data object None : FxPhase
     /** La onomatopeya saliendo de la boca. */
     data class Sound(val text: String, val id: Long) : FxPhase
-    /** El globo de cómic con el aviso. */
-    data class Bubble(val alert: PetAlert, val autoHideMs: Long?, val hint: String) : FxPhase
+    /**
+     * Llega un aviso: la onomatopeya ("guau") en un globo al costado de la mascota. Queda ahí hasta que
+     * se toca (abre la tarjeta del aviso) o se toca la mascota (queda una carta roja a sus pies).
+     */
+    data class Call(val alert: PetAlert, val text: String, val id: Long) : FxPhase
+    /** La tarjeta con el aviso; [letter]: se abrió desde una carta (cerrarla no la saca de sus pies). */
+    data class Bubble(val alert: PetAlert, val autoHideMs: Long?, val hint: String, val letter: Letter? = null) : FxPhase
     /** Panel con los próximos avisos (tirón hacia la izquierda sobre la mascota). */
     data class Upcoming(val items: List<UpcomingItem>, val id: Long) : FxPhase
 }
@@ -82,6 +87,12 @@ class OverlayState {
     /** Truco a hacer; cada incremento de [trickTick] lo dispara (aunque sea el mismo). */
     var trick by mutableStateOf(Trick.WAG)
     var trickTick by mutableIntStateOf(0)
+    /** Cartas a sus pies (la última es la de arriba de la pila). */
+    val letters = mutableStateListOf<Letter>()
+    /** Globo del aviso (Prefs.bubbleStyle). */
+    var bubbleStyle by mutableIntStateOf(0)
+    /** Cómo se nombra en las tarjetas ("Luna", "Tu perro"). */
+    var who by mutableStateOf("")
     /** Tarjeta flotante arriba de la pantalla (festejo del vínculo o saludo de buenos días). */
     var card by mutableStateOf<BondCard?>(null)
 

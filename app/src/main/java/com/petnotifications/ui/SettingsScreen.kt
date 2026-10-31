@@ -61,6 +61,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -154,6 +155,8 @@ import com.petnotifications.calendar.DeviceCalendar
 import com.petnotifications.data.AppDatabase
 import com.petnotifications.data.Reminder
 import com.petnotifications.overlay.PetOverlayService
+import com.petnotifications.overlay.StickerBubble
+import com.petnotifications.overlay.callWord
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -222,6 +225,9 @@ fun SettingsScreen(
     val isPro = prefs.isPro
     var showPro by remember { mutableStateOf(false) }
     var theme by remember { mutableIntStateOf(prefs.theme) }
+    var bubbleStyle by remember { mutableIntStateOf(prefs.bubbleStyle) }
+    var quietAlerts by remember { mutableStateOf(prefs.quietAlerts) }
+    var friendly by remember { mutableIntStateOf(prefs.friendlyLevel) }
     /** Mascota y pelaje Pro que se están probando en la mascota flotante (sin Pro), o null. */
     var trying by remember { mutableStateOf(prefs.trying()) }
     var showFeedback by remember { mutableStateOf(false) }
@@ -963,6 +969,7 @@ fun SettingsScreen(
                     listOf(
                         if (autoHide) stringResource(R.string.notify_sum_auto, autoSeconds) else stringResource(R.string.notify_sum_fixed),
                         if (insistMinutes > 0) stringResource(R.string.notify_sum_insist, insistMinutes) else stringResource(R.string.notify_sum_no_insist),
+                        stringResource(R.string.friendly_sum, stringResource(friendlyLabel(friendly)).lowercase()),
                     ).joinToString(" · "),
                     onClick = { sub = SUB_NOTIFY },
                 )
@@ -1034,6 +1041,54 @@ fun SettingsScreen(
 
     @Composable
     fun NotifyPage(padding: PaddingValues) = SubPage(padding) {
+        SectionLabel(stringResource(R.string.row_bubble))
+        PetCard {
+            Text(stringResource(R.string.bubble_help), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
+            val word = callWord(pet.sound(ctx))
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 10.dp)) {
+                listOf(Prefs.BUBBLE_CARAMEL to R.string.bubble_caramel, Prefs.BUBBLE_CLOUD to R.string.bubble_cloud).forEach { (style, label) ->
+                    val selected = bubbleStyle == style
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(if (selected) 2.dp else 1.dp, if (selected) c.cocoa else c.line, RoundedCornerShape(16.dp))
+                            .clickable {
+                                bubbleStyle = style
+                                prefs.bubbleStyle = style
+                            }
+                            .padding(vertical = 8.dp),
+                    ) {
+                        StickerBubble(word, style, mirrored = false, id = style.toLong())
+                        Text(
+                            stringResource(label), style = MaterialTheme.typography.labelLarge,
+                            color = if (selected) c.cocoa else c.inkMuted,
+                        )
+                    }
+                }
+            }
+        }
+        PetCard {
+            SwitchRow(stringResource(R.string.quiet_title), stringResource(R.string.quiet_sub), quietAlerts) {
+                quietAlerts = it
+                prefs.quietAlerts = it
+            }
+        }
+        SectionLabel(stringResource(R.string.friendly_title))
+        PetCard {
+            Text(stringResource(R.string.friendly_help), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
+            ChipRow(
+                listOf(Prefs.FRIENDLY_OFF, Prefs.FRIENDLY_FEW, Prefs.FRIENDLY_NORMAL, Prefs.FRIENDLY_MANY), friendly,
+                label = { ctx.getString(friendlyLabel(it)) },
+            ) {
+                friendly = it
+                prefs.friendlyLevel = it
+            }
+            HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 8.dp))
+            Text(stringResource(R.string.letters_help_title), style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.letters_help_body), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
+        }
         SectionLabel(stringResource(R.string.section_tap))
         PetCard {
             TapAction.entries.forEach { action ->
@@ -1697,3 +1752,10 @@ private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
 private fun hhmmOf(millis: Long): String =
     java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(millis))
+
+private fun friendlyLabel(level: Int) = when (level) {
+    Prefs.FRIENDLY_OFF -> R.string.friendly_off
+    Prefs.FRIENDLY_NORMAL -> R.string.friendly_normal
+    Prefs.FRIENDLY_MANY -> R.string.friendly_many
+    else -> R.string.friendly_few
+}

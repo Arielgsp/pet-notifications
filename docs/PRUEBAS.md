@@ -592,6 +592,7 @@ Los pelajes y el conejo no tienen dibujos fijos: todo (quieta, sentada, acostada
 | 40.11 | Abrí el tutorial y el diálogo para ponerle nombre, con un pelaje distinto. | La mascota aparece en su pelaje. | |
 | 40.12 | Con el **conejo**, mirá las puntas de las orejas: quieto, girando (3 toques) y en las pantallas de la app. | Las puntas se ven redondeadas, nunca cortadas en línea recta (1.0.27: el conejo se dibuja un poco más chico para que entren). Decime si lo ves demasiado chico al lado de las demás. | |
 | 40.13 | Con la **vaca, el león y el mono** en otro pelaje, dejalos dormir. | La cola se ve entera (en la 1.0.25 se salía un poco por la derecha). | |
+| 40.14 | (1.0.32) Mirá los pelajes de la **vaca** y de la **rana** en la fila de Pelaje. | Ninguno se parece a otro: la vaca 2 ahora es negra con manchas blancas y la rana 5 es lila con lunares. |  |
 
 ---
 
@@ -633,6 +634,26 @@ Para hacerla sin Pro: en Ajustes tocá 7 veces la versión y elegí "Simular pla
 | 43.4 | Elegí **Como el celular** y cambiá el modo oscuro del Xiaomi. | La app sigue al celular. | |
 
 La mascota flotante y sus globos no cambian con el tema: tienen sus propios colores.
+
+## 44. Globo nuevo, tarjeta y cartas de colores (versión 1.0.33)
+
+Para estas pruebas conviene apagar "Se esconde sola" (Ajustes → Avisos), salvo en la 44.5.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 44.1 | En **Ajustes → Avisos**, arriba está **Globo del aviso** con los dos globos dibujados. Tocá cada uno. | Se ven el **Caramelo** (rosa festoneado, viene elegido) y la **Nubecita** (nube blanca con borde marrón y sombra verde), con el sonido de tu mascota en minúsculas. El elegido queda marcado. | |
+| 44.2 | Tocá **Probar un aviso** y salí al inicio del celular. | Al **costado** de la mascota aparece el globo elegido con "guau" (o el sonido de tu mascota) en minúsculas; las letras saltan una por una, con un corazoncito y dos destellos. Ya no aparece la estrella amarilla que tiembla. | |
+| 44.3 | Tocá el globo. | Se abre la **tarjeta** al costado: arriba "Tu perro te dice" (o su nombre), el título y el texto. | |
+| 44.4 | Creá un recordatorio para dentro de 2 minutos. Cuando avise, tocá el globo. | La tarjeta dice "(nombre) te avisa · hora", con **Listo** (rosa) y **Aplazar** (con borde). Listo festeja como antes. | |
+| 44.5 | Otro recordatorio. Cuando avise, **tocá la mascota** (no el globo). | El globo se cierra y aparece un **sobre rojo** chiquito pegado a sus pies. No vuelve a llamar. | |
+| 44.6 | Tocá el sobre rojo. | Se abre la tarjeta en **rosa**, apenas inclinada, "Quedó sin atender · hora", con Listo y Aplazar. Tocar la mascota la cierra y el sobre sigue ahí; Listo o Aplazar lo sacan. | |
+| 44.7 | En Ajustes → Avisos prendé **Avisos sin interrumpir**. Creá un recordatorio para dentro de 2 minutos. | A la hora no aparece nada ni suena: queda un **sobre amarillo** a sus pies (y una notificación callada). Al abrirlo: "Llegó sin interrumpir · hora". Apagalo después. | |
+| 44.8 | Con esa opción apagada, creá un recordatorio y marcá **Sin interrumpir** en el editor. | Solo ese llega como sobre amarillo. En la lista dice "· Sin interrumpir". | |
+| 44.9 | En Ajustes → Avisos, **Frases amigables**: Nunca / Pocas / Normal / Muchas. Elegí **Muchas** y usá el celular un rato entre las 9 y las 21. | Cada tanto la mascota mueve la cola y deja un **sobre celeste**. Al abrirlo, una frase ("No te olvides de tomar agua", "Éxito en tu jornada") y el botón **Gracias**, que lo saca. Nunca suena ni aparece en el horario de No molestar. | |
+| 44.10 | Con varios sobres, mirá la pila. | Como mucho se ven 3 sobres; si hay más, un número "+N". Se abre el de arriba (el último que llegó). | |
+| 44.11 | Arrastrá la mascota a otro lado y apagá/prendé el celular. | Los sobres la acompañan y siguen ahí después de reiniciar el celular. | |
+| 44.12 | Con "Se esconde sola" prendido, dejá que un aviso se vaya solo. | Queda un sobre rojo; si el aviso vuelve a sonar (repetición o aplazado), el sobre se saca y avisa de nuevo. | |
+
 
 ---
 

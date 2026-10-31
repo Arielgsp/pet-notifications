@@ -52,6 +52,40 @@ class Prefs(context: Context) {
         get() = sp.getInt(KEY_THEME, THEME_SYSTEM)
         set(v) = sp.edit { putInt(KEY_THEME, v) }
 
+    /** Globo del aviso: [BUBBLE_CARAMEL] (borde festoneado rosa, por defecto) o [BUBBLE_CLOUD] (nubecita). */
+    var bubbleStyle: Int
+        get() = sp.getInt(KEY_BUBBLE_STYLE, BUBBLE_CARAMEL)
+        set(v) = sp.edit { putInt(KEY_BUBBLE_STYLE, v) }
+
+    /** Todos los avisos "sin interrumpir": no aparecen en pantalla, la mascota deja una carta amarilla. */
+    var quietAlerts: Boolean
+        get() = sp.getBoolean(KEY_QUIET_ALERTS, false)
+        set(v) = sp.edit { putBoolean(KEY_QUIET_ALERTS, v) }
+
+    /** Frases amigables (carta celeste): [FRIENDLY_OFF], [FRIENDLY_FEW], [FRIENDLY_NORMAL] o [FRIENDLY_MANY]. */
+    var friendlyLevel: Int
+        get() = sp.getInt(KEY_FRIENDLY, FRIENDLY_FEW)
+        set(v) = sp.edit { putInt(KEY_FRIENDLY, v) }
+
+    /** Frases amigables de hoy: día (año * 1000 + día del año), cuántas, cuándo fue la última y cuál. */
+    var friendlyDay: Long
+        get() = sp.getLong(KEY_FRIENDLY_DAY, 0L)
+        set(v) = sp.edit { putLong(KEY_FRIENDLY_DAY, v) }
+    var friendlyCount: Int
+        get() = sp.getInt(KEY_FRIENDLY_COUNT, 0)
+        set(v) = sp.edit { putInt(KEY_FRIENDLY_COUNT, v) }
+    var friendlyAt: Long
+        get() = sp.getLong(KEY_FRIENDLY_AT, 0L)
+        set(v) = sp.edit { putLong(KEY_FRIENDLY_AT, v) }
+    var friendlyLast: Int
+        get() = sp.getInt(KEY_FRIENDLY_LAST, -1)
+        set(v) = sp.edit { putInt(KEY_FRIENDLY_LAST, v) }
+
+    /** Cartas a los pies de la mascota (JSON, ver overlay.LetterStore). */
+    var letters: String
+        get() = sp.getString(KEY_LETTERS, "[]") ?: "[]"
+        set(v) = sp.edit { putString(KEY_LETTERS, v) }
+
     /** La mascota y el pelaje que se ven flotando: los de la prueba, si hay una, o los del usuario. */
     fun shownPet(): Pair<PetType, Int> = trying() ?: pet.let { it to coat(it) }
 
@@ -362,6 +396,20 @@ class Prefs(context: Context) {
         const val KEY_PET_NAME = "pet_name_"
         const val KEY_COAT = "coat_"
         const val KEY_THEME = "theme"
+        const val KEY_BUBBLE_STYLE = "bubble_style"
+        const val BUBBLE_CARAMEL = 0
+        const val BUBBLE_CLOUD = 1
+        const val KEY_QUIET_ALERTS = "quiet_alerts"
+        const val KEY_FRIENDLY = "friendly"
+        const val FRIENDLY_OFF = 0
+        const val FRIENDLY_FEW = 1
+        const val FRIENDLY_NORMAL = 2
+        const val FRIENDLY_MANY = 3
+        private const val KEY_FRIENDLY_DAY = "friendly_day"
+        private const val KEY_FRIENDLY_COUNT = "friendly_count"
+        private const val KEY_FRIENDLY_AT = "friendly_at"
+        private const val KEY_FRIENDLY_LAST = "friendly_last"
+        const val KEY_LETTERS = "letters"
         const val THEME_SYSTEM = 0
         const val THEME_LIGHT = 1
         const val THEME_DARK = 2
