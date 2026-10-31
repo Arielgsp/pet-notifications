@@ -417,6 +417,25 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             card -> dp(CARD_SIDE_MIN_DP)
             else -> null
         }
+        // La tarjeta va debajo de la mascota (ella la sostiene con las patitas) si entra; si no, al costado.
+        // Borde de arriba de la tarjeta, medido desde abajo; la ventana empieza un poco más arriba (lugar para las patitas).
+        val holdTop = petParams.y + (height * HOLD_OVERLAP).roundToInt()
+        val holdFits = card && needed + dp(HOLD_PAW_ROOM_DP) <= holdTop - dp(NAV_MARGIN_DP)
+        state.held = null
+        if (holdFits) {
+            state.fxSide = 0
+            state.fxBelow = true
+            fxParams.width = fullWidth
+            fxParams.x = (petParams.x + size / 2 - fxParams.width / 2).coerceIn(0, (sw - fxParams.width).coerceAtLeast(0))
+            fxParams.y = holdTop + dp(HOLD_PAW_ROOM_DP) - fxParams.height
+            state.anchorX = petParams.x + pet.mouthX * size - fxParams.x
+            state.held = state.anchorX to size.toFloat()
+            fxParams.flags = FX_FLAGS
+            fx.visibility = if (hiddenNow) View.INVISIBLE else View.VISIBLE
+            wm.updateViewLayout(fx, fxParams)
+            layoutLetters()
+            return
+        }
         val side = when {
             sideMin != null && maxOf(roomLeft, roomRight) >= sideMin -> if (roomRight >= roomLeft) 1 else -1
             needed <= spaceAbove -> 0
@@ -430,13 +449,19 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // La onomatopeya ocupa solo lo que mide el globo: no tapa la app de al lado más de lo necesario.
             if (call != null) fxParams.width = minOf(fxParams.width, dp(stickerWidth(call.text).value.toInt() + 4))
             fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
+            // La punta del pico, en la mejilla (el dibujo tiene aire a los costados): se mete sobre la mascota.
+            if (call != null) {
+                val inset = dp(StickerTipInset.value.toInt())
+                fxParams.x = if (side > 0) petParams.x + ((pet.mouthX + FACE_HALF) * size).roundToInt() - inset
+                else petParams.x + ((pet.mouthX - FACE_HALF) * size).roundToInt() - fxParams.width + inset
+            }
             val petTop = petParams.y + height // medido desde abajo
             val text = bubble || state.phase is FxPhase.Sound || call != null
             state.fxBelow = text // el texto se apoya arriba de la ventana, a la altura de la cabeza
             val top = when {
                 // La punta del pico (cerca del borde de abajo del globo) a la altura de la boca.
                 call != null -> minOf(
-                    petTop + dp(STICKER_TIP_DP) - (pet.mouthY * height).roundToInt(),
+                    petTop + dp(StickerTipY.value.toInt()) - (pet.mouthY * height).roundToInt(),
                     sh - statusBarHeight(),
                 )
                 // La tarjeta arranca a la altura de la cabeza, pero siempre entera arriba de la barra de abajo.
@@ -457,7 +482,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             val anchor = if (bubble) petParams.x + size / 2f else petParams.x + pet.mouthX * size
             state.anchorX = anchor - fxParams.x
         }
-        // Solo el globo recibe toques; el resto deja pasar los toques a la app de abajo.
+        // Solo el globo y la onomatopeya reciben toques; el resto deja pasar los toques a la app de abajo.
+        // (La onomatopeya tiene que ser tocable: Android deja al 80 % las ventanas flotantes que no lo son.)
         fxParams.flags = (if (bubble || call != null) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
         // Sin nada que mostrar, la ventana queda oculta: Android 12+ bloquea los toques que pasan
         // a través de una ventana flotante visible aunque esté vacía y sea transparente.
@@ -1295,16 +1321,19 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 state.sleeping = false
                 delay(WAKE_MS)
             }
-            // 1) Onomatopeya en su globo, al costado de la mascota. Queda hasta que se la toca (abre la
-            //    tarjeta) o se toca la mascota (queda una carta pendiente); con "Se esconde sola", se va sola.
+            // 1) Onomatopeya en su globo, al costado de la boca: un aviso corto antes de la tarjeta.
             state.talking = true
             state.who = state.pet.subject(this@PetOverlayService)
             state.phase = FxPhase.Call(alert, callWord(state.pet.sound(this@PetOverlayService)), SystemClock.uptimeMillis())
             layoutFx()
             speak(state.pet)
-            delay(SOUND_MS)
+            delay(CALL_MS)
             state.talking = false
-            autoHideMs()?.let {
+            // 2) Sola, sin tocar nada: la tarjeta con el aviso, que la mascota sostiene con las patitas.
+            val autoHideMs = autoHideMs()
+            state.phase = FxPhase.Bubble(alert, autoHideMs, hint())
+            layoutFx()
+            autoHideMs?.let {
                 delay(it)
                 leaveUnattended(alert)
             }
@@ -1313,7 +1342,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun autoHideMs(): Long? = if (prefs.autoHide) prefs.autoHideSeconds * 1000L else null
 
-    /** Tocó la onomatopeya: se abre la tarjeta con el aviso. */
+    /** Se abre la tarjeta con el aviso (también si se tocó la onomatopeya antes de que pase sola). */
     private fun openCard(alert: PetAlert) {
         showJob?.cancel()
         state.talking = false
@@ -1682,10 +1711,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         /** Margen para la barra de gestos de abajo. */
         private const val NAV_MARGIN_DP = 24
         /** Lugar mínimo al costado de la mascota para la onomatopeya y para la tarjeta del aviso. */
-        private const val CALL_SIDE_MIN_DP = 130
+        private const val CALL_SIDE_MIN_DP = 90
         private const val CARD_SIDE_MIN_DP = 200
-        /** Distancia de arriba del globo de la onomatopeya a la punta de su pico. */
-        private const val STICKER_TIP_DP = 98
+        /** Cuánto dura la onomatopeya antes de que aparezca la tarjeta. */
+        private const val CALL_MS = 1_100L
+        /** Media cara de la mascota, en fracción del ancho de su ventana (la punta del pico va ahí). */
+        private const val FACE_HALF = 0.2f
+        /** La tarjeta sostenida tapa las patas: su borde de arriba sube esta fracción del alto de la mascota. */
+        private const val HOLD_OVERLAP = 0.32f
+        /** Lugar arriba de la tarjeta sostenida para las patitas (el relleno de arriba de NoteCard). */
+        private const val HOLD_PAW_ROOM_DP = 16
         /** Cuánto se meten las cartas sobre el dibujo de la mascota (que tiene aire a los costados). */
         private const val LETTERS_OVERLAP_DP = 30
         private const val BASE_FLAGS = LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL

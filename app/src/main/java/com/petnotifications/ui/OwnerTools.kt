@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +42,8 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
     val c = Pet.colors
     var plan by remember { mutableIntStateOf(prefs.ownerPlan) }
     var hearts by remember { mutableIntStateOf(Bond.hearts(ctx)) }
+    var trialEnd by remember { mutableStateOf(false) }
+    if (trialEnd) TrialEndDialog(prefs, onBuy = { trialEnd = false }, onStayFree = { trialEnd = false })
 
     fun setPlan(p: Int) {
         plan = p
@@ -85,6 +88,8 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                         hearts = Bond.hearts(ctx)
                     }
                 }
+                HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
+                OutlineChip(stringResource(R.string.owner_trial_end)) { trialEnd = true }
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.owner_close), color = c.cocoa, fontWeight = FontWeight(800)) } },

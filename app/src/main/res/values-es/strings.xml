@@ -364,6 +364,10 @@
     <string name="home_pause_1h">Pausar 1 h</string>
     <string name="home_silence">Silenciar</string>
     <string name="home_show_pet">Mostrar mascota</string>
+    <string name="row_pause">Pausar la mascota</string>
+    <string name="row_pause_sub">Se esconde 1 hora y vuelve sola</string>
+    <string name="row_mute">Avisos en silencio</string>
+    <string name="row_mute_sub">Llegan sin sonido ni voz</string>
     <string name="home_alert_perm_one">Me falta un permiso para avisarte</string>
     <string name="home_alert_perm_many">Me faltan %1$d permisos para avisarte</string>
     <string name="home_alert_perm_body">Sin eso puedo llegar tarde o no aparecer.</string>
@@ -390,7 +394,7 @@
     <string name="tip_2">Con un tirón hacia abajo anotás un recordatorio rápido, sin abrir la app.</string>
     <string name="tip_3">Con un tirón a la izquierda te muestro lo que viene.</string>
     <string name="tip_4">Con un tirón a la derecha te aviso sin hacer ruido.</string>
-    <string name="tip_5">Si me tocás dos veces salto, y si me tocás tres doy una vuelta.</string>
+    <string name="tip_5">Si me tocás una vez salto y te tiro corazones, y si me tocás dos doy una vuelta.</string>
     <string name="tip_6">Si estoy dormida y me tocás, me despierto.</string>
     <string name="tip_7">Si me mantenés apretada, abrís la app.</string>
     <string name="tip_close">Cerrar consejo</string>
@@ -401,7 +405,7 @@
     <string name="pets_more_pro">Más amigos con Pro</string>
     <string name="try_title">Probando: %1$s</string>
     <string name="try_coat">%1$s, pelaje %2$d</string>
-    <string name="try_body">Tocala, arrastrala o tocala 3 veces para que gire. Vuelve la tuya en %1$s.</string>
+    <string name="try_body">Tocala, arrastrala o tocala 2 veces para que gire. Vuelve la tuya en %1$s.</string>
     <string name="try_back">Volver a la mía</string>
     <string name="try_hint">Tocá una para probarla 5 minutos.</string>
     <string name="pets_yours">Tus mascotas</string>
@@ -518,7 +522,7 @@
     <string name="bond_learned_dance">¡Aprendí a bailar!</string>
     <string name="bond_learned_crown">¡Gané una corona de flores!</string>
     <string name="bond_how_wag">Cuando desbloqueás el celular, muevo la cola.</string>
-    <string name="bond_how_paw">Tocame 3 veces: una vez doy la vuelta y la otra te doy la patita.</string>
+    <string name="bond_how_paw">Tocame 2 veces: una vez doy la vuelta y la otra te doy la patita.</string>
     <string name="bond_how_morning">La primera vez que desbloqueás el celular a la mañana, te digo buen día.</string>
     <string name="bond_how_dance">A veces bailo cuando marcás “Listo”.</string>
     <string name="bond_how_scarf">Muy pronto me lo vas a ver puesto.</string>
@@ -568,6 +572,7 @@
     <string name="owner_hearts">Corazones: %1$d (nivel %2$d)</string>
     <string name="owner_bond_add">+10 corazones</string>
     <string name="owner_bond_reset">Reiniciar vínculo</string>
+    <string name="owner_trial_end">Ver el cierre de la prueba de Pro</string>
     <string name="owner_close">Cerrar</string>
     <string name="note_from">%1$s te avisa · %2$s</string>
     <string name="note_says">%1$s te dice</string>
@@ -578,7 +583,7 @@
     <string name="row_bubble">Globo del aviso</string>
     <string name="bubble_caramel">Caramelo</string>
     <string name="bubble_cloud">Nubecita</string>
-    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo. Tocalo para leer el aviso; tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y enseguida te muestra el aviso, sosteniéndolo con las patitas. Tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
     <string name="quiet_title">Avisos sin interrumpir</string>
     <string name="quiet_sub">No aparecen en pantalla ni suenan: tu mascota deja una carta con una luna a sus pies. También se puede elegir en cada recordatorio.</string>
     <string name="friendly_title">Frases amigables</string>
@@ -595,11 +600,15 @@
     <string name="trial_notice_body_back">Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, podés quedarte con Pro.</string>
     <string name="trial_end_title">Terminó tu prueba de Pro</string>
     <string name="trial_end_body">Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue con vos.</string>
-    <string name="trial_end_goes">Lo que se va:</string>
-    <string name="trial_end_pet">%1$s como mascota (vuelve %2$s)</string>
+    <string name="trial_end_goes">Lo que se va con Pro:</string>
+    <string name="trial_end_pets">las 11 mascotas</string>
     <string name="trial_end_coats">los pelajes</string>
     <string name="trial_end_calendar">los avisos del calendario</string>
     <string name="trial_end_voice">la voz en voz alta</string>
+    <string name="trial_end_dnd">el horario de No molestar</string>
+    <string name="trial_end_look">el tamaño y la transparencia</string>
+    <string name="trial_end_insist">elegir cuánto insisten los avisos</string>
+    <string name="trial_end_used">%1$s (lo usabas)</string>
     <string name="trial_end_stays">Tus recordatorios y el cariño que juntaron quedan igual.</string>
     <string name="trial_end_buy">Comprar Pro</string>
     <string name="trial_end_free">Seguir gratis</string>

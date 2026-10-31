@@ -72,6 +72,12 @@ object PetModel {
     fun coatColor(pet: PetType, coat: Int): Long =
         PetModelData.palettes[pet.name]?.getOrNull(coat)?.colors?.get("main") ?: INK
 
+    /** Colores de las patitas que sostienen la tarjeta del aviso: relleno claro y borde del pelaje. */
+    fun pawColors(pet: PetType, coat: Int): Pair<Long, Long> {
+        val c = PetModelData.palettes[pet.name]?.getOrNull(coat)?.colors.orEmpty()
+        return (c["light"] ?: c["main"] ?: 0xFFFFFFFF) to (c["dark"] ?: INK)
+    }
+
     /**
      * Dibuja la mascota girada [theta] grados (0 de frente, 90 mirando a la derecha, 180 de espaldas)
      * ocupando todo el [DrawScope] (proporción 256×240, igual que los dibujos fijos).

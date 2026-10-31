@@ -643,7 +643,10 @@ private fun FxLayers(
         when (val phase = state.phase) {
             is FxPhase.Sound -> PlacedSticker(callWord(phase.text), phase.id, state, null)
             is FxPhase.Call -> PlacedSticker(phase.text, phase.id, state, bubble.onTap)
-            is FxPhase.Bubble -> NoteCard(phase, state.who, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) })
+            is FxPhase.Bubble -> NoteCard(
+                phase, state.who, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) },
+                held = state.held, paw = PetModel.pawColors(state.pet, state.coat),
+            )
             is FxPhase.Upcoming -> UpcomingPanel(phase, state.anchorX, below, bubble, onBubbleHeight)
             FxPhase.None -> if (state.hearts.isNotEmpty() || state.plusOnes.isNotEmpty()) Spacer(Modifier.height(150.dp))
         }

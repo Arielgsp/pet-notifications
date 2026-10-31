@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -49,11 +50,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -99,14 +103,23 @@ private fun LetterKind.tone() = when (this) {
 private const val STICKER_H = 96f
 private const val STICKER_PAD_TOP = 10f
 
+/** El globo se dibuja con las medidas de Design y se achica a este tamaño (el de Design tapaba demasiado). */
+private const val STICKER_SCALE = 0.68f
+
 /** Ancho del cuerpo del globo según la palabra ("guau" → 96, "pío pío" más ancho). */
 private fun bodyWidth(text: String) = maxOf(96f, 30f + text.length * 17f)
 
 /** Ancho total (cuerpo + pico) del globo para [text]. */
-fun stickerWidth(text: String): Dp = (bodyWidth(text) + 22f).dp
+fun stickerWidth(text: String): Dp = ((bodyWidth(text) + 22f) * STICKER_SCALE).dp
 
 /** Alto total del globo, con lugar arriba para los destellos. */
-val StickerHeight: Dp = (STICKER_H + STICKER_PAD_TOP + 4f).dp
+val StickerHeight: Dp = ((STICKER_H + STICKER_PAD_TOP + 4f) * STICKER_SCALE).dp
+
+/** Punta del pico: a esta altura desde arriba del globo y a esta distancia de su borde lateral. */
+val StickerTipY: Dp = ((STICKER_PAD_TOP + 88f) * STICKER_SCALE).dp
+val StickerTipInset: Dp = (6f * STICKER_SCALE).dp
+
+private val StickerHeightRaw: Dp = (STICKER_H + STICKER_PAD_TOP + 4f).dp
 
 /**
  * Onomatopeya del aviso en un globo tipo sticker (Design, Anuncio): C · Caramelo (borde festoneado
@@ -137,9 +150,10 @@ fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifie
     val body = bodyWidth(text)
     val total = body + 22f
     val cloud = style == Prefs.BUBBLE_CLOUD
+    val density = LocalDensity.current
     Box(
         modifier
-            .size(total.dp, StickerHeight)
+            .size(stickerWidth(text), StickerHeight)
             .graphicsLayer {
                 scaleX = appear.value
                 scaleY = appear.value
@@ -149,6 +163,9 @@ fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifie
             }
             .then(if (onTap != null) Modifier.pointerInput(id) { detectTapGestures(onTap = { onTap() }) } else Modifier),
     ) {
+    // Todo adentro se dibuja con las medidas de Design, achicado a STICKER_SCALE.
+    CompositionLocalProvider(LocalDensity provides Density(density.density * STICKER_SCALE, density.fontScale)) {
+    Box(Modifier.size(total.dp, StickerHeightRaw)) {
         Canvas(Modifier.fillMaxSize().graphicsLayer { if (mirrored) scaleX = -1f }) {
             translate(top = STICKER_PAD_TOP.dp.toPx()) { drawSticker(body, cloud) }
         }
@@ -187,6 +204,8 @@ fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifie
                 )
             }
         }
+    }
+    }
     }
 }
 
@@ -286,7 +305,14 @@ fun callWord(sound: String): String =
  * una carta, toma su color y va apenas inclinada, como un papelito.
  */
 @Composable
-fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifier: Modifier = Modifier) {
+fun NoteCard(
+    phase: FxPhase.Bubble,
+    who: String,
+    actions: BubbleActions,
+    modifier: Modifier = Modifier,
+    held: Pair<Float, Float>? = null,
+    paw: Pair<Long, Long> = 0xFFFFFFFF to 0xFF3A2E27,
+) {
     val ctx = LocalContext.current
     val alert = phase.alert
     val letter = phase.letter
@@ -312,11 +338,16 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
     Column(
         modifier
             .fillMaxWidth()
-            .padding(6.dp)
+            .padding(start = 6.dp, end = 6.dp, bottom = 6.dp, top = if (held != null) 16.dp else 6.dp)
             .graphicsLayer {
                 alpha = appear.value.coerceIn(0f, 1f)
                 translationY = (1f - appear.value) * 14.dp.toPx()
                 rotationZ = if (letter != null) -1.5f else 0f
+            }
+            // Las patitas de la mascota, apoyadas sobre el borde de arriba (por delante de la tarjeta).
+            .drawWithContent {
+                drawContent()
+                held?.let { (x, petW) -> drawPaws(x - 6.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
             }
             .shadow(8.dp, shape, ambientColor = Ink, spotColor = Ink)
             .background(tone?.card ?: SurfaceRaised, shape)
@@ -369,6 +400,26 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
                     .height(3.dp)
                     .background(Blush, RoundedCornerShape(2.dp)),
             )
+        }
+    }
+}
+
+/**
+ * Dos patitas redondas apoyadas sobre el borde de arriba de la tarjeta, debajo de la cara de la
+ * mascota ([cx]: centro, [petW]: ancho de su ventana), con dos rayitas de dedos.
+ */
+private fun DrawScope.drawPaws(cx: Float, petW: Float, fill: Color, line: Color) {
+    val w = petW * 0.16f
+    val h = w * 0.82f
+    val stroke = Stroke(1.4.dp.toPx())
+    for (side in listOf(-1f, 1f)) {
+        val x = cx + side * petW * 0.12f
+        val tl = Offset(x - w / 2f, -h * 0.45f)
+        drawOval(fill, tl, Size(w, h))
+        drawOval(line, tl, Size(w, h), style = stroke)
+        for (t in listOf(-0.17f, 0.17f)) {
+            val tx = x + t * w
+            drawLine(line, Offset(tx, tl.y + h * 0.62f), Offset(tx, tl.y + h * 0.92f), 1.2.dp.toPx(), StrokeCap.Round)
         }
     }
 }

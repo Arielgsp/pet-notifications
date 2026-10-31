@@ -683,6 +683,37 @@ Para estas pruebas conviene apagar "Se esconde sola" (Ajustes → Avisos), salvo
 | 46.5 | En **Probalo vos**, tocá la mascota 1 y 2 veces. | La lista tiene solo "1 toque" y "2 toques" y se tildan. | |
 | 46.6 | Ajustes → Ayuda → Cómo se usa. | Dice lo mismo que el tutorial. | |
 
+## 47. Cierre de la prueba de Pro con la lista completa (versión 1.0.36)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 47.1 | Herramientas de dueño (7 toques en la versión) → **Ver el cierre de la prueba de Pro**. | El cartel muestra siempre todo lo que se va con Pro: las 11 mascotas, pelajes, calendario, voz, No molestar, tamaño y transparencia, y cuánto insisten los avisos. | |
+| 47.2 | Antes, con Pro, prendé el calendario y cambiá el tamaño. Abrí de nuevo el cartel. | Esas dos líneas salen **en negrita** con "(lo usabas)". | |
+| 47.3 | Leé la primera línea. | "…y tu perro sigue con vos" (o el nombre que le pusiste), con minúscula. | |
+
+## 48. Globo corto y tarjeta sostenida con las patitas (versión 1.0.37)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 48.1 | **Probar un aviso** y salí al inicio. | El globo con el sonido aparece **más chico** (un tercio menos que antes), al costado, con la **punta del pico tocando el cachete** de la mascota. Dura alrededor de un segundo. | |
+| 48.2 | Sin tocar nada. | Sola, aparece la **tarjeta debajo de la mascota**: la mascota queda arriba, la tarjeta le tapa las patas de abajo y sus **dos patitas** quedan apoyadas sobre el borde, como sosteniéndola. | |
+| 48.3 | Probalo con perro, gato, pollito y rana. | Las patitas tienen el color del pelaje de cada una (claro con borde oscuro). Anotá si en alguna se ven raras. | |
+| 48.4 | Poné la mascota bien abajo de la pantalla y probá un aviso. | Como abajo no entra, la tarjeta sale al costado (como antes), sin patitas. | |
+| 48.5 | Recordatorio real: cuando aparece la tarjeta, tocá **Listo**. Otro: tocá la **mascota**. | Listo festeja; tocar la mascota cierra el aviso y deja la carta pendiente a sus pies. | |
+| 48.6 | Tocá el globo antes de que pase el segundo. | Abre la tarjeta enseguida. | |
+| 48.7 | Ajustes → Cómo te aviso, y la tarjeta de "Probando" una mascota Pro. | El globo de muestra se ve más chico. La ayuda dice que el aviso aparece solo, sostenido con las patitas. "Probando" y los consejos dicen "2 veces para que gire". | |
+
+## 49. La mascota grande arriba en Avisos (versión 1.0.38)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 49.1 | Abrí la app en **Avisos**, con y sin recordatorios. | Arriba siempre está la mascota grande en un círculo rosa, con su nombre y una línea (sonido, prueba de Pro o "vuelve a las…"). Ya no está la tarjeta "Perrito está en pantalla". | |
+| 49.2 | Tocá la mascota grande. | Pone cara contenta y da un saltito. | |
+| 49.3 | Sin recordatorios. | Debajo dice "todavía no…" con "Crear el primero" y "Probar un aviso", sin repetir la mascota. | |
+| 49.4 | Ajustes, arriba. | Debajo de "Mascota en pantalla" están **Pausar la mascota** (botón "Pausar 1 h") y **Avisos en silencio** (interruptor). | |
+| 49.5 | Pausá 1 hora y volvé a Avisos. | La mascota grande duerme, dice "Vuelve a las…" y tiene el botón **Mostrar ahora**. En Ajustes, el botón también dice "Mostrar ahora". | |
+| 49.6 | Prendé **Avisos en silencio** y volvé a Avisos. | Debajo de la mascota aparece **Activar sonido**. | |
+
 ---
 
 ## Si algo falla

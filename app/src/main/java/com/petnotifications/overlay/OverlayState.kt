@@ -79,6 +79,12 @@ class OverlayState {
      * derecha de la mascota, -1 = a la izquierda, 0 = arriba o abajo (ver [fxBelow]).
      */
     var fxSide by mutableIntStateOf(0)
+
+    /**
+     * La tarjeta del aviso va debajo de la mascota y ella la sostiene con las patitas: centro de las
+     * patitas (x en la ventana del globo) y ancho de la mascota, en px. null = la tarjeta va suelta.
+     */
+    var held by mutableStateOf<Pair<Float, Float>?>(null)
     /** Al costado: altura (px, desde arriba de la ventana de efectos) de la cabeza de la mascota. */
     var anchorY by mutableFloatStateOf(0f)
     val hearts = mutableStateListOf<Long>()

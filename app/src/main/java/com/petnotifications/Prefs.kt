@@ -316,6 +316,10 @@ class Prefs(context: Context) {
     fun usedCoats() = PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 }
     fun usedCalendar() = sp.getBoolean(KEY_CAL_ENABLED, false)
     fun usedVoice() = sp.getBoolean(KEY_VOICE, false)
+    fun usedBedtime() = sp.getBoolean(KEY_BEDTIME, false)
+    fun usedLook() = sp.getInt(KEY_SIZE, DEFAULT_SIZE) != DEFAULT_SIZE || sp.getInt(KEY_OPACITY, 100) != 100
+    fun usedInsist() = sp.getInt(KEY_INSIST_MIN, FREE_INSIST_MINUTES) != FREE_INSIST_MINUTES ||
+        sp.getInt(KEY_INSIST_MAX, FREE_INSIST_MAX) != FREE_INSIST_MAX
 
     /**
      * Cuántas veces probó una mascota o un pelaje Pro sin Pro, y después de cuántas compró (-1 = no

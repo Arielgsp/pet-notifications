@@ -152,29 +152,38 @@ fun ProBadge(modifier: Modifier = Modifier) = ProTag(modifier)
  * el botón secundario abre los planes. Para el único cambio gratis ([changing]), se puede cancelar.
  */
 /**
- * Al terminar la prueba de Pro (una sola vez): la mascota cuenta qué se va (lo de Pro que usó) y qué
- * queda igual (el vínculo no se toca). Sin presión: "Seguir gratis" pesa lo mismo que "Comprar Pro".
+ * Al terminar la prueba de Pro (una sola vez): todo lo que se va con Pro, con lo que el usuario usó
+ * en negrita y "(lo usabas)", y qué queda igual (el vínculo no se toca). "Seguir gratis" pesa lo
+ * mismo que "Comprar Pro".
  */
 @Composable
 fun TrialEndDialog(prefs: Prefs, onBuy: () -> Unit, onStayFree: () -> Unit) {
     val ctx = LocalContext.current
     val free = prefs.freePets.firstOrNull() ?: prefs.pet
     val chosen = prefs.chosenPet
-    val goes = buildList {
-        if (chosen != free) add(ctx.getString(R.string.trial_end_pet, chosen.label(ctx), free.mention(ctx)))
-        if (prefs.usedCoats()) add(ctx.getString(R.string.trial_end_coats))
-        if (prefs.usedCalendar()) add(ctx.getString(R.string.trial_end_calendar))
-        if (prefs.usedVoice()) add(ctx.getString(R.string.trial_end_voice))
-    }
+    val goes = listOf(
+        R.string.trial_end_pets to (chosen != free),
+        R.string.trial_end_coats to prefs.usedCoats(),
+        R.string.trial_end_calendar to prefs.usedCalendar(),
+        R.string.trial_end_voice to prefs.usedVoice(),
+        R.string.trial_end_dnd to prefs.usedBedtime(),
+        R.string.trial_end_look to prefs.usedLook(),
+        R.string.trial_end_insist to prefs.usedInsist(),
+    )
     AlertDialog(
         onDismissRequest = onStayFree,
         title = { Text(stringResource(R.string.trial_end_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(stringResource(R.string.trial_end_body, free.subject(ctx)))
-                if (goes.isNotEmpty()) {
-                    Text(stringResource(R.string.trial_end_goes), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 4.dp))
-                    goes.forEach { Text("· $it", style = MaterialTheme.typography.bodyMedium) }
+                Text(stringResource(R.string.trial_end_body, free.mention(ctx)))
+                Text(stringResource(R.string.trial_end_goes), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 4.dp))
+                goes.forEach { (res, used) ->
+                    val name = stringResource(res)
+                    Text(
+                        "· " + if (used) stringResource(R.string.trial_end_used, name) else name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (used) FontWeight.Bold else null,
+                    )
                 }
                 Text(stringResource(R.string.trial_end_stays), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
             }

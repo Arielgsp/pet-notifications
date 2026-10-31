@@ -365,6 +365,10 @@
     <string name="home_pause_1h">Pause 1 h</string>
     <string name="home_silence">Mute</string>
     <string name="home_show_pet">Show pet</string>
+    <string name="row_pause">Pause the pet</string>
+    <string name="row_pause_sub">Hides for 1 hour and comes back on its own</string>
+    <string name="row_mute">Mute alerts</string>
+    <string name="row_mute_sub">They arrive without sound or voice</string>
     <string name="home_alert_perm_one">I am missing a permission to alert you</string>
     <string name="home_alert_perm_many">I am missing %1$d permissions to alert you</string>
     <string name="home_alert_perm_body">Without it I may be late or not show up.</string>
@@ -391,7 +395,7 @@
     <string name="tip_2">Swipe me down quickly to jot a quick reminder without opening the app.</string>
     <string name="tip_3">Swipe me left quickly and I show you what is coming.</string>
     <string name="tip_4">Swipe me right quickly and I alert you silently.</string>
-    <string name="tip_5">Tap me twice and I jump; three times and I spin.</string>
+    <string name="tip_5">Tap me once and I jump and send hearts; twice and I spin.</string>
     <string name="tip_6">If I am asleep, a tap wakes me up.</string>
     <string name="tip_7">Hold me to open the app.</string>
     <string name="tip_close">Close tip</string>
@@ -402,7 +406,7 @@
     <string name="pets_more_pro">More friends with Pro</string>
     <string name="try_title">Trying: %1$s</string>
     <string name="try_coat">%1$s, coat %2$d</string>
-    <string name="try_body">Tap it, drag it or tap it 3 times to spin. Yours comes back in %1$s.</string>
+    <string name="try_body">Tap it, drag it or tap it twice to spin. Yours comes back in %1$s.</string>
     <string name="try_back">Back to mine</string>
     <string name="try_hint">Tap one to try it for 5 minutes.</string>
     <string name="pets_yours">Your pets</string>
@@ -519,7 +523,7 @@
     <string name="bond_learned_dance">I learned to dance!</string>
     <string name="bond_learned_crown">I got a flower crown!</string>
     <string name="bond_how_wag">When you unlock your phone, I wag my tail.</string>
-    <string name="bond_how_paw">Tap me 3 times: one time I spin, the next I give you my paw.</string>
+    <string name="bond_how_paw">Tap me twice: one time I spin, the next I give you my paw.</string>
     <string name="bond_how_morning">The first time you unlock your phone in the morning, I say good morning.</string>
     <string name="bond_how_dance">Sometimes I dance when you tap “Done”.</string>
     <string name="bond_how_scarf">Very soon you will see me wearing it.</string>
@@ -569,6 +573,7 @@
     <string name="owner_hearts">Hearts: %1$d (level %2$d)</string>
     <string name="owner_bond_add">+10 hearts</string>
     <string name="owner_bond_reset">Reset bond</string>
+    <string name="owner_trial_end">Show the Pro trial ending</string>
     <string name="owner_close">Close</string>
     <string name="note_from">%1$s reminds you · %2$s</string>
     <string name="note_says">%1$s says</string>
@@ -579,7 +584,7 @@
     <string name="row_bubble">Alert bubble</string>
     <string name="bubble_caramel">Caramel</string>
     <string name="bubble_cloud">Little cloud</string>
-    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble. Tap it to read the alert; tap your pet to leave it for later (a pending letter with a little bell stays at its feet).</string>
+    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble and right away shows you the alert, holding it with its paws. Tap your pet to leave it for later (a pending letter with a little bell stays at its feet).</string>
     <string name="quiet_title">Quiet alerts</string>
     <string name="quiet_sub">They don’t pop up or make a sound: your pet leaves a letter with a moon at its feet. You can also choose it for each reminder.</string>
     <string name="friendly_title">Friendly notes</string>
@@ -596,11 +601,15 @@
     <string name="trial_notice_body_back">Tomorrow I go back to being %1$s. If you liked how we’ve been, you can keep Pro.</string>
     <string name="trial_end_title">Your Pro trial has ended</string>
     <string name="trial_end_body">Thanks for these days. From today we’re on the free plan, and %1$s is still with you.</string>
-    <string name="trial_end_goes">What goes away:</string>
-    <string name="trial_end_pet">%1$s as your pet (%2$s comes back)</string>
+    <string name="trial_end_goes">What goes away with Pro:</string>
+    <string name="trial_end_pets">all 11 pets</string>
     <string name="trial_end_coats">coats</string>
     <string name="trial_end_calendar">calendar alerts</string>
     <string name="trial_end_voice">the spoken voice</string>
+    <string name="trial_end_dnd">Do not disturb hours</string>
+    <string name="trial_end_look">size and transparency</string>
+    <string name="trial_end_insist">choosing how much alerts insist</string>
+    <string name="trial_end_used">%1$s (you used it)</string>
     <string name="trial_end_stays">Your reminders and the bond you built stay the same.</string>
     <string name="trial_end_buy">Buy Pro</string>
     <string name="trial_end_free">Stay free</string>

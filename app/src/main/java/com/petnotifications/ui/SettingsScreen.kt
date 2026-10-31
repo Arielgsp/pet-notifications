@@ -62,7 +62,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -442,61 +447,62 @@ fun SettingsScreen(
     }
 
     // ---------------------------------------------------------------- Avisos
+    /**
+     * Arriba de Avisos, la mascota grande: lo primero que se ve de la app. Tocarla la hace saltar
+     * contenta. Debajo, su nombre y, solo si hace falta, cómo volver a mostrarla o activar el sonido
+     * (pausar y silenciar están en Ajustes).
+     */
     @Composable
-    fun StatusCard() {
-        val shape = CardShape
+    fun PetHero() {
         val off = !enabled || !canOverlay
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .then(
-                    if (paused) Modifier.background(c.surfaceRaised, shape).dashedBorder(c.inkMuted, 26.dp)
-                    else Modifier.shadow(2.dp, shape).background(c.surfaceRaised, shape).border(1.dp, c.line, shape),
-                )
-                .padding(16.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        val hop = remember { Animatable(0f) }
+        var happy by remember { mutableStateOf(false) }
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(176.dp).background(c.blushSoft, CircleShape)) {
                 Image(
-                    petPainter(pet, if (paused || off) PetView.SLEEP else PetView.FRONT, coatOf(pet)),
-                    contentDescription = null, modifier = Modifier.size(52.dp),
+                    petPainter(pet, if (paused || off) PetView.SLEEP else if (happy) PetView.HAPPY else PetView.FRONT, coatOf(pet)),
+                    contentDescription = petSubject,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .graphicsLayer { translationY = -hop.value * 22.dp.toPx() }
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            if (paused || off) return@clickable
+                            scope.launch {
+                                happy = true
+                                hop.animateTo(1f, tween(160))
+                                hop.animateTo(0f, spring(dampingRatio = 0.45f, stiffness = 500f))
+                                delay(500)
+                                happy = false
+                            }
+                        },
                 )
-                Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Text(
-                        when {
-                            off -> stringResource(R.string.status_hidden)
-                            paused -> stringResource(R.string.status_paused, petSubject)
-                            else -> stringResource(R.string.status_on, petSubject)
-                        },
-                        fontSize = 15.sp, fontWeight = FontWeight(800), color = c.ink,
-                    )
-                    Text(
-                        when {
-                            paused -> stringResource(R.string.home_back_at, hhmm(minuteOfDay(pausedUntil)))
-                            muted -> stringResource(R.string.status_muted)
-                            else -> stringResource(R.string.status_sound, stringResource(pet.soundRes))
-                        },
-                        fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted,
-                    )
-                    if (trialDays != null && !paused) {
-                        Text(stringResource(R.string.home_trial_line, trialDays), fontSize = 12.sp, fontWeight = FontWeight(700), color = c.inkMuted)
-                    }
-                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp)) {
+            Text(
+                prefs.petName(pet) ?: stringResource(pet.nameRes),
+                fontSize = 22.sp, fontWeight = FontWeight(800), color = c.ink, modifier = Modifier.padding(top = 10.dp),
+            )
+            Text(
                 when {
-                    off -> SoftChip(stringResource(R.string.home_show_pet), Icons.Outlined.Visibility) { setEnabled(true) }
-                    paused -> SoftChip(stringResource(R.string.pet_resume_now), Icons.Outlined.Visibility) {
-                        resumePet()
-                        if (canOverlay) PetOverlayService.start(ctx)
+                    off -> stringResource(R.string.status_hidden)
+                    paused -> stringResource(R.string.home_back_at, hhmm(minuteOfDay(pausedUntil)))
+                    trialDays != null -> stringResource(R.string.home_trial_line, trialDays)
+                    else -> stringResource(R.string.status_sound, stringResource(pet.soundRes))
+                },
+                fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+            )
+            if (off || paused || muted) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 10.dp)) {
+                    when {
+                        off -> SoftChip(stringResource(R.string.home_show_pet), Icons.Outlined.Visibility) { setEnabled(true) }
+                        paused -> SoftChip(stringResource(R.string.pet_resume_now), Icons.Outlined.Visibility) {
+                            resumePet()
+                            if (canOverlay) PetOverlayService.start(ctx)
+                        }
                     }
-                    else -> OutlineChip(stringResource(R.string.home_pause_1h), Icons.Outlined.Pause) { pauseHour() }
-                }
-                if (muted) SoftChip(stringResource(R.string.unmute), Icons.AutoMirrored.Outlined.VolumeUp) {
-                    muted = false
-                    prefs.muted = false
-                } else if (!paused && !off) OutlineChip(stringResource(R.string.home_silence), Icons.AutoMirrored.Outlined.VolumeOff) {
-                    muted = true
-                    prefs.muted = true
+                    if (muted) SoftChip(stringResource(R.string.unmute), Icons.AutoMirrored.Outlined.VolumeUp) {
+                        muted = false
+                        prefs.muted = false
+                    }
                 }
             }
         }
@@ -691,15 +697,14 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             trying?.let { (p, coat) -> item { TryCard(p, coat) } }
-            item { StatusCard() }
+            item { PetHero() }
             item { AlertCard() }
             if (upcoming.isEmpty() && firedToday.isEmpty()) {
                 item {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                        Image(petPainter(pet, PetView.FRONT, coatOf(pet)), contentDescription = null, modifier = Modifier.size(120.dp))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                         Text(
                             stringResource(R.string.home_empty_title), fontSize = 17.sp, fontWeight = FontWeight(800), color = c.ink,
-                            textAlign = TextAlign.Center, modifier = Modifier.padding(top = 12.dp),
+                            textAlign = TextAlign.Center,
                         )
                         Text(stringResource(R.string.home_empty_body), fontSize = 14.sp, fontWeight = FontWeight(600), color = c.inkMuted, textAlign = TextAlign.Center)
                         Button(
@@ -945,6 +950,31 @@ fun SettingsScreen(
                     stringResource(if (!enabled) R.string.pet_state_off else if (paused) R.string.pet_state_paused else R.string.pet_state_on),
                     onClick = null,
                     trailing = { Switch(checked = enabled, onCheckedChange = ::setEnabled) },
+                )
+                if (enabled) {
+                    RowDivider()
+                    SettingRow(
+                        Icons.Outlined.Pause, stringResource(R.string.row_pause),
+                        if (paused) stringResource(R.string.home_back_at, hhmm(minuteOfDay(pausedUntil))) else stringResource(R.string.row_pause_sub),
+                        onClick = null,
+                        trailing = {
+                            if (paused) OutlineChip(stringResource(R.string.pet_resume_now)) {
+                                resumePet()
+                                if (canOverlay) PetOverlayService.start(ctx)
+                            } else OutlineChip(stringResource(R.string.home_pause_1h)) { pauseHour() }
+                        },
+                    )
+                }
+                RowDivider()
+                SettingRow(
+                    Icons.AutoMirrored.Outlined.VolumeOff, stringResource(R.string.row_mute), stringResource(R.string.row_mute_sub),
+                    onClick = null,
+                    trailing = {
+                        Switch(checked = muted, onCheckedChange = {
+                            muted = it
+                            prefs.muted = it
+                        })
+                    },
                 )
                 RowDivider()
                 SettingRow(Icons.Outlined.Palette, stringResource(R.string.row_theme), null, onClick = null)
