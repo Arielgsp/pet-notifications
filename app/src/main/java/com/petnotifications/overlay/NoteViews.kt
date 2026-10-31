@@ -38,12 +38,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -67,16 +70,27 @@ private val FurTone = Color(0xFFC98A55) // fur
 private val FurDeep = Color(0xFF8A5A3B) // fur-deep
 private val Sage = Color(0xFF7FA88B) // sage
 private val Honey = Color(0xFFEBB854) // honey
-private val HoneyDeep = Color(0xFF8C5F0E) // honey-deep
-private val HoneySoft = Color(0xFFFDF2D8) // honey-soft
 
-/** Los tres colores de las cartas: relleno y borde del sobre, sello, fondo y texto de la tarjeta. */
-private class LetterTone(val fill: Color, val stroke: Color, val seal: Color, val card: Color, val cardLine: Color, val text: Color)
+private val Cream = Color(0xFFF7E6CC) // cream (card-quiet)
+private val SageSoft = Color(0xFFE4F0E6) // sage-soft
 
-private fun LetterColor.tone() = when (this) {
-    LetterColor.RED -> LetterTone(Color(0xFFF6B9B0), Color(0xFFB5483B), Color(0xFFD64535), Color(0xFFFDEDEA), Color(0xFFEBA79E), Color(0xFFB03A2E))
-    LetterColor.YELLOW -> LetterTone(Color(0xFFF9DC8C), HoneyDeep, Color(0xFFE0A526), HoneySoft, Honey, HoneyDeep)
-    LetterColor.SKY -> LetterTone(Color(0xFFC4E4F3), Color(0xFF3F7FA0), Blush, Color(0xFFEAF5FB), Color(0xFF9CCDE3), Color(0xFF2F7193))
+/**
+ * Cada carta, con su color y su ícono (Design, Cartas): pendiente en rosa con campanita, sin
+ * interrumpir en crema con luna, frase en verde suave con hojita. Nunca rojo ni amarillo.
+ */
+private class LetterTone(val fill: Color, val card: Color, val cardLine: Color, val icon: Path)
+
+/** Íconos del sello, en el viewBox 84 × 60 del sobre (centrados en 42, 34). */
+private fun svgPath(d: String) = PathParser().parsePathString(d).toPath()
+
+private val BellIcon by lazy { svgPath("M37 36a5 5 0 0 1 10 0c0 3 1 4 1.5 4.5h-13c.5-.5 1.5-1.5 1.5-4.5zM40.5 43a1.5 1.5 0 0 0 3 0") }
+private val MoonIcon by lazy { svgPath("M46 37.5a6 6 0 1 1-6.5-8 4.8 4.8 0 0 0 6.5 8z") }
+private val LeafIcon by lazy { svgPath("M36.5 39.5c0-6 4-9 10-9.5-.5 6-3.5 10-9.5 10zM36.5 39.5l5-5") }
+
+private fun LetterKind.tone() = when (this) {
+    LetterKind.PENDING -> LetterTone(Blush, BlushSoft, Blush, BellIcon)
+    LetterKind.QUIET -> LetterTone(Cream, Paper, Cream, MoonIcon)
+    LetterKind.PHRASE -> LetterTone(Sage, SageSoft, Sage, LeafIcon)
 }
 
 // ---------------------------------------------------------------- globo de la onomatopeya
@@ -276,7 +290,7 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
     val ctx = LocalContext.current
     val alert = phase.alert
     val letter = phase.letter
-    val tone = letter?.color?.tone()
+    val tone = letter?.kind?.tone()
     val appear = remember(alert.key, letter?.id) { Animatable(0f) }
     LaunchedEffect(alert.key, letter?.id) { appear.animateTo(1f, spring(dampingRatio = 0.75f, stiffness = 380f)) }
     val countdown = remember(alert.key) { Animatable(1f) }
@@ -284,10 +298,10 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
         phase.autoHideMs?.let { countdown.animateTo(0f, tween(it.toInt(), easing = LinearEasing)) }
     }
     val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(letter?.at ?: System.currentTimeMillis()))
-    val meta = when (letter?.color) {
-        LetterColor.RED -> ctx.getString(R.string.note_unattended, time)
-        LetterColor.YELLOW -> ctx.getString(R.string.note_quiet, time)
-        LetterColor.SKY -> ctx.getString(R.string.note_friendly, who)
+    val meta = when (letter?.kind) {
+        LetterKind.PENDING -> ctx.getString(R.string.note_unattended, time)
+        LetterKind.QUIET -> ctx.getString(R.string.note_quiet, time)
+        LetterKind.PHRASE -> ctx.getString(R.string.note_friendly, who)
         null -> when (alert.source) {
             PetAlert.Source.APP, PetAlert.Source.TEST -> ctx.getString(R.string.note_says, who)
             else -> ctx.getString(R.string.note_from, who, time)
@@ -314,10 +328,11 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                meta, style = text, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = tone?.text ?: InkMuted,
+                meta, style = text, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = InkMuted,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
-            if (letter != null) Heart(Modifier.padding(start = 6.dp).size(15.dp))
+            // El sello de la carta (con su ícono), para que no dependa solo del color.
+            if (tone != null) Canvas(Modifier.padding(start = 6.dp).size(20.dp)) { drawSeal(tone) }
         }
         if (alert.title.isNotBlank()) {
             Text(
@@ -336,7 +351,7 @@ fun NoteCard(phase: FxPhase.Bubble, who: String, actions: BubbleActions, modifie
             )
         }
         val actionable = alert.source == PetAlert.Source.LOCAL || alert.source == PetAlert.Source.CALENDAR
-        if (actionable || letter?.color == LetterColor.SKY) {
+        if (actionable || letter?.kind == LetterKind.PHRASE) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp)) {
                 if (actionable) {
                     Pill(stringResource(R.string.action_done), main = true, onClick = actions.onDone)
@@ -378,8 +393,8 @@ private fun Pill(text: String, main: Boolean, onClick: () -> Unit) {
 // ---------------------------------------------------------------- cartas a sus pies
 
 /** Medidas de la pila de sobres (la ventana de las cartas). */
-val LettersWidth: Dp = 62.dp
-val LettersHeight: Dp = 40.dp
+val LettersWidth: Dp = 70.dp
+val LettersHeight: Dp = 46.dp
 
 /**
  * Las cartas a los pies de la mascota: hasta 3 sobres apilados (la última arriba) y, si hay más, un
@@ -409,7 +424,7 @@ fun LettersContent(state: OverlayState, onOpen: () -> Unit) {
                 Modifier
                     .align(Alignment.BottomStart)
                     .offset((4 + i * 7).dp, (-2 - i * 3).dp)
-                    .size(30.dp, 21.dp)
+                    .size(38.dp, 27.dp)
                     .graphicsLayer {
                         rotationZ = if (i % 2 == 0) -6f else 4f
                         if (top) {
@@ -419,33 +434,47 @@ fun LettersContent(state: OverlayState, onOpen: () -> Unit) {
                             translationY = (1f - d.coerceAtMost(1f)) * -16.dp.toPx()
                         }
                     },
-            ) { drawEnvelope(letter.color.tone()) }
+            ) { drawEnvelope(letter.kind.tone()) }
         }
         if (letters.size > 3) {
             Text(
                 "+${letters.size - 3}",
-                fontFamily = Nunito, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Color.White,
+                fontFamily = Nunito, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Ink,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .background(Cocoa, RoundedCornerShape(50))
+                    .background(SurfaceRaised, RoundedCornerShape(50))
+                    .border(1.dp, Line, RoundedCornerShape(50))
                     .padding(horizontal = 5.dp),
             )
         }
     }
 }
 
-/** Sobre de Design (Cartita): papel con borde, solapa en V y sello redondo. */
+/** Sobre de Design (Cartas), en su viewBox de 84 × 60: papel con borde fur-deep, solapa en V y sello con el ícono. */
 private fun DrawScope.drawEnvelope(tone: LetterTone) {
-    val u = size.width / 34f
-    val stroke = Stroke(1.4f * u, join = StrokeJoin.Round)
-    drawRoundRect(tone.fill, Offset(1f * u, 1f * u), Size(32f * u, 22f * u), CornerRadius(3f * u))
-    drawRoundRect(tone.stroke, Offset(1f * u, 1f * u), Size(32f * u, 22f * u), CornerRadius(3f * u), style = stroke)
+    val u = size.width / 84f
+    // shadow-lift: una sombra corta y suave debajo del sobre.
+    drawRoundRect(Ink.copy(alpha = 0.12f), Offset(2f * u, 4f * u), Size(80f * u, 56f * u), CornerRadius(8f * u))
+    drawRoundRect(tone.fill, Offset(2f * u, 2f * u), Size(80f * u, 56f * u), CornerRadius(8f * u))
+    drawRoundRect(FurDeep, Offset(2f * u, 2f * u), Size(80f * u, 56f * u), CornerRadius(8f * u), style = Stroke(2f * u))
     val flap = Path().apply {
-        moveTo(2.5f * u, 3f * u)
-        lineTo(17f * u, 13.5f * u)
-        lineTo(31.5f * u, 3f * u)
+        moveTo(4f * u, 6f * u)
+        lineTo(42f * u, 34f * u)
+        lineTo(80f * u, 6f * u)
     }
-    drawPath(flap, tone.stroke, style = stroke)
-    drawCircle(tone.seal, 3.6f * u, Offset(17f * u, 13.5f * u))
+    drawPath(flap, FurDeep, style = Stroke(2f * u, join = StrokeJoin.Round))
+    scale(u, u, pivot = Offset.Zero) { sealAt(tone, 1f) }
 }
 
+/** El sello solo (para la tarjeta de la carta), ocupando todo el lienzo. */
+private fun DrawScope.drawSeal(tone: LetterTone) {
+    val u = size.width / 24f
+    scale(u, u, pivot = Offset.Zero) { translate(-30f, -22f) { sealAt(tone, 1.3f) } }
+}
+
+/** Sello redondo surface-raised con el ícono, centrado en (42, 34) del sobre. */
+private fun DrawScope.sealAt(tone: LetterTone, weight: Float) {
+    drawCircle(SurfaceRaised, 11f, Offset(42f, 34f))
+    drawCircle(FurDeep, 11f, Offset(42f, 34f), style = Stroke(1.5f * weight))
+    drawPath(tone.icon, FurDeep, style = Stroke(1.8f * weight, cap = StrokeCap.Round, join = StrokeJoin.Round))
+}

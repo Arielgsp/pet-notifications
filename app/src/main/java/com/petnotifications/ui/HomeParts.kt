@@ -125,29 +125,20 @@ private fun ChipBase(text: String, icon: ImageVector?, bg: Color, border: Color?
     }
 }
 
-/** Etiqueta "PRO" (`honey-deep` sobre `honey-soft`). */
+/** Etiqueta "PRO" (`on-pro` sobre `pro`, 10/14 900, radio 6): la misma en fichas, interruptores y Tu plan. */
 @Composable
 fun ProTag(modifier: Modifier = Modifier) {
     val c = Pet.colors
     Text(
         stringResource(R.string.pro_badge),
-        fontSize = 11.sp, fontWeight = FontWeight(900), color = c.honeyDeep,
-        modifier = modifier.background(c.honeySoft, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 2.dp),
+        fontSize = 10.sp, lineHeight = 14.sp, fontWeight = FontWeight(900), letterSpacing = 0.4.sp, color = c.onPro,
+        modifier = modifier.background(c.pro, RoundedCornerShape(6.dp)).padding(horizontal = 6.dp, vertical = 1.dp),
     )
 }
 
-/** Rojo de la etiqueta "PRO" de las fichas bloqueadas (igual en tema claro y oscuro). */
-private val ProRed = Color(0xFFD64535)
-
-/** Etiqueta roja "PRO" en la esquina de una ficha de mascota o pelaje que es de Pro. */
+/** Etiqueta "PRO" en la esquina de una ficha de mascota o pelaje que es de Pro. */
 @Composable
-fun ProCorner(modifier: Modifier = Modifier) {
-    Text(
-        stringResource(R.string.pro_badge),
-        fontSize = 9.sp, fontWeight = FontWeight(900), color = Color.White, lineHeight = 10.sp,
-        modifier = modifier.offset(x = 4.dp, y = (-4).dp).background(ProRed, RoundedCornerShape(50)).padding(horizontal = 6.dp, vertical = 2.dp),
-    )
-}
+fun ProCorner(modifier: Modifier = Modifier) = ProTag(modifier.offset(x = 4.dp, y = (-4).dp))
 
 /** Fila de ajustes: ícono en cuadradito, título 13 800, resumen 12 600 y flecha (o algo a la derecha). */
 @Composable

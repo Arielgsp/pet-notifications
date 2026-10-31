@@ -40,6 +40,7 @@ class Prefs(context: Context) {
     val tryUntil: Long get() = sp.getLong(KEY_TRY_UNTIL, 0L)
 
     fun startTry(p: PetType, coat: Int) = sp.edit {
+        putInt(KEY_TRY_COUNT, tryCount + 1)
         putString(KEY_TRY_PET, p.name)
         putInt(KEY_TRY_COAT, coat)
         putLong(KEY_TRY_UNTIL, System.currentTimeMillis() + TRY_MS)
@@ -57,12 +58,12 @@ class Prefs(context: Context) {
         get() = sp.getInt(KEY_BUBBLE_STYLE, BUBBLE_CARAMEL)
         set(v) = sp.edit { putInt(KEY_BUBBLE_STYLE, v) }
 
-    /** Todos los avisos "sin interrumpir": no aparecen en pantalla, la mascota deja una carta amarilla. */
+    /** Todos los avisos "sin interrumpir": no aparecen en pantalla, la mascota deja una carta sin interrumpir. */
     var quietAlerts: Boolean
         get() = sp.getBoolean(KEY_QUIET_ALERTS, false)
         set(v) = sp.edit { putBoolean(KEY_QUIET_ALERTS, v) }
 
-    /** Frases amigables (carta celeste): [FRIENDLY_OFF], [FRIENDLY_FEW], [FRIENDLY_NORMAL] o [FRIENDLY_MANY]. */
+    /** Frases amigables (carta de frase): [FRIENDLY_OFF], [FRIENDLY_FEW], [FRIENDLY_NORMAL] o [FRIENDLY_MANY]. */
     var friendlyLevel: Int
         get() = sp.getInt(KEY_FRIENDLY, FRIENDLY_FEW)
         set(v) = sp.edit { putInt(KEY_FRIENDLY, v) }
@@ -299,6 +300,34 @@ class Prefs(context: Context) {
         get() = sp.getString(KEY_PET_KILLS, "").orEmpty().split("\n").filter { it.isNotBlank() }
         set(v) = sp.edit { putString(KEY_PET_KILLS, v.takeLast(20).joinToString("\n")) }
 
+    /** Ya se mostró, una sola vez, lo que se va al terminar la prueba de Pro (Comprar Pro / Seguir gratis). */
+    var trialEndShown: Boolean
+        get() = sp.getBoolean(KEY_TRIAL_END, false)
+        set(v) = sp.edit { putBoolean(KEY_TRIAL_END, v) }
+
+    /** Terminó la prueba, no compró y todavía no se le mostró el cierre. */
+    fun shouldShowTrialEnd(now: Long = System.currentTimeMillis()) =
+        !isPro && !proPurchased && !trialEndShown && firstOpenAt > 0 && now >= trialEndsAt
+
+    /** La mascota que eligió el usuario, aunque sin Pro no la pueda usar (para decirle qué se va). */
+    val chosenPet: PetType get() = PetType.from(sp.getString(KEY_PET, null))
+
+    /** Usó algún pelaje de Pro, el calendario o la voz (aunque ahora, sin Pro, no se apliquen). */
+    fun usedCoats() = PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 }
+    fun usedCalendar() = sp.getBoolean(KEY_CAL_ENABLED, false)
+    fun usedVoice() = sp.getBoolean(KEY_VOICE, false)
+
+    /**
+     * Cuántas veces probó una mascota o un pelaje Pro sin Pro, y después de cuántas compró (-1 = no
+     * compró). Solo para el diagnóstico local: nada sale del teléfono.
+     */
+    var tryCount: Int
+        get() = sp.getInt(KEY_TRY_COUNT, 0)
+        set(v) = sp.edit { putInt(KEY_TRY_COUNT, v) }
+    var triesBeforePurchase: Int
+        get() = sp.getInt(KEY_TRIES_BEFORE_BUY, -1)
+        set(v) = sp.edit { putInt(KEY_TRIES_BEFORE_BUY, v) }
+
     /** Ya se avisó que la prueba de Pro termina mañana (se avisa una sola vez). */
     var trialNoticeShown: Boolean
         get() = sp.getBoolean(KEY_TRIAL_NOTICE, false)
@@ -386,9 +415,12 @@ class Prefs(context: Context) {
         const val OWNER_FREE = 2
         const val KEY_FIRST_OPEN = "first_open"
         const val KEY_FREE_PETS = "free_pets"
-        /** Duración de la prueba de Pro: 7 días en la prueba cerrada y 14 en la publicada (app/build.gradle.kts). */
+        /** Duración de la prueba de Pro: 7 días, en la prueba cerrada y en la publicada (app/build.gradle.kts). */
         const val TRIAL_DAYS = BuildConfig.TRIAL_DAYS
         const val KEY_TRIAL_NOTICE = "trial_notice_shown"
+        const val KEY_TRIAL_END = "trial_end_shown"
+        const val KEY_TRY_COUNT = "try_count"
+        const val KEY_TRIES_BEFORE_BUY = "tries_before_purchase"
         const val KEY_MISSED = "missed_list"
         const val KEY_PET_ALIVE = "pet_alive_at"
         const val KEY_MUTED = "muted"

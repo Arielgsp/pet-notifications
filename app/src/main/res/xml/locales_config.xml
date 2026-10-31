@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Idiomas que se pueden elegir para la app en Ajustes › Apps › Pet Notifications › Idioma (Android 13+).
+<!-- Idiomas que se pueden elegir para la app en Ajustes › Apps › MimuPet › Idioma (Android 13+).
      Al agregar portugués: crear values-pt/strings.xml y sumar <locale android:name="pt" />. -->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en" />

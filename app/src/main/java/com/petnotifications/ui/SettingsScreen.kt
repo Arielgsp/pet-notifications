@@ -1539,6 +1539,22 @@ fun SettingsScreen(
             },
         )
     }
+    // Terminó la prueba de Pro: una sola vez, lo que se va, con Comprar Pro y Seguir gratis.
+    var trialEnd by remember { mutableStateOf(prefs.shouldShowTrialEnd()) }
+    if (trialEnd && !showPro && !needFreePets) {
+        TrialEndDialog(
+            prefs,
+            onBuy = {
+                trialEnd = false
+                prefs.trialEndShown = true
+                showPro = true
+            },
+            onStayFree = {
+                trialEnd = false
+                prefs.trialEndShown = true
+            },
+        )
+    }
     if (!showPro && needFreePets) {
         FreePetChooser(
             initial = setOf(pet),

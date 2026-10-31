@@ -15,8 +15,8 @@ texto de historieta.
   calendario de Google/Gmail sincronizado en el teléfono (sin cuentas ni claves extra).
 - Se configura qué pasa al tocar el globo (abrir, borrar, posponer 5–60 min o cerrar) y si el
   globo se oculta solo (3–60 s) o queda fijo.
-- Interacción: arrastrarla para moverla; 1 toque, salta y pone ojitos felices; 2 toques, suelta
-  un corazón; 3 toques, se da la vuelta despacito meneándose; mantener apretado, abre la app.
+- Interacción: arrastrarla para moverla; 1 toque, salta y suelta corazones; 2 toques, se da
+  la vuelta despacito meneándose; mantener apretado, abre la app.
 - Tiene vida propia: parpadea, respira y se duerme (se echa, cierra los ojos, salen "zzz")
   tras un rato sin avisos o en el horario de sueño del usuario. Un aviso o un toque la despiertan.
 - Opcional: dice el sonido en voz alta.

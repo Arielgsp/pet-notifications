@@ -12,9 +12,9 @@ vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recorda
 | Gesto | Resultado |
 |---|---|
 | Arrastrar | La movés a cualquier lugar (recuerda la posición) |
-| 1 toque | Da un saltito y pone ojitos felices |
-| 2 toques | Suelta un ❤️ |
-| 3 toques | Se da la vuelta despacito (frente, perfil, espalda), meneándose |
+| 1 toque | Da un saltito y suelta corazones |
+| 2 toques | Se da la vuelta despacito (frente, perfil, espalda), meneándose; desde que aprendió la patita, alterna con darla |
+| 3 toques | Libre por ahora |
 | 1 toque dormida | La despierta |
 | Mantener apretado | Abre la app |
 

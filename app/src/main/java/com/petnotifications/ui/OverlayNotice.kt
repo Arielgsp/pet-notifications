@@ -6,7 +6,7 @@ import android.content.Intent
 import android.provider.Settings
 
 /**
- * Android muestra una notificación fija "Pet Notifications se muestra sobre otras apps" mientras la
+ * Android muestra una notificación fija "MimuPet se muestra sobre otras apps" mientras la
  * mascota está en pantalla. La app no puede sacarla, pero el usuario sí puede apagarla: Android la
  * publica en un canal propio para cada app, dentro de "Sistema Android".
  *

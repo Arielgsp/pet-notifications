@@ -22,9 +22,9 @@ Esto **no** es parte del rediseño, pero explica qué controla el usuario desde 
 | Gesto sobre la mascota | Qué hace |
 |---|---|
 | Arrastrar | La mueve; queda donde la dejás (también al girar el celular) |
-| 1 toque | Corazones |
-| 2 toques | Salta |
-| 3 toques | Da una vuelta |
+| 1 toque | Salta y tira corazones |
+| 2 toques | Da una vuelta |
+| 3 toques | Libre por ahora |
 | Mantener apretado | **Abre la app** (la pantalla a rediseñar) |
 | Tirón rápido ← | Panel flotante con los próximos avisos (7 días) |
 | Tirón rápido ↓ | Tarjeta flotante de recordatorio rápido (texto + "En 30 min / 1 h / 3 h / Mañana 9:00 / Elegir día y hora") |

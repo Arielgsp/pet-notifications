@@ -27,7 +27,7 @@ data class Reminder(
     val repeat: String = Repeat.NONE.name,
     /** Ya se avisó (solo aplica a los que no se repiten). */
     val fired: Boolean = false,
-    /** Sin interrumpir: no aparece en pantalla, la mascota deja una carta amarilla a sus pies. */
+    /** Sin interrumpir: no aparece en pantalla, la mascota deja una carta sin interrumpir a sus pies. */
     @ColumnInfo(defaultValue = "0") val quiet: Boolean = false,
 )
 
@@ -184,7 +184,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        /** v5: recordatorios "sin interrumpir" (carta amarilla). */
+        /** v5: recordatorios "sin interrumpir" (carta sin interrumpir). */
         private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `reminders` ADD COLUMN `quiet` INTEGER NOT NULL DEFAULT 0")

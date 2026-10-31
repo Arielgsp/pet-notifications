@@ -151,6 +151,39 @@ fun ProBadge(modifier: Modifier = Modifier) = ProTag(modifier)
  * Elegir la mascota gratis (Prefs.FREE_PET_COUNT). Al terminar la prueba es obligatorio (la que usaba viene marcada) y
  * el botón secundario abre los planes. Para el único cambio gratis ([changing]), se puede cancelar.
  */
+/**
+ * Al terminar la prueba de Pro (una sola vez): la mascota cuenta qué se va (lo de Pro que usó) y qué
+ * queda igual (el vínculo no se toca). Sin presión: "Seguir gratis" pesa lo mismo que "Comprar Pro".
+ */
+@Composable
+fun TrialEndDialog(prefs: Prefs, onBuy: () -> Unit, onStayFree: () -> Unit) {
+    val ctx = LocalContext.current
+    val free = prefs.freePets.firstOrNull() ?: prefs.pet
+    val chosen = prefs.chosenPet
+    val goes = buildList {
+        if (chosen != free) add(ctx.getString(R.string.trial_end_pet, chosen.label(ctx), free.mention(ctx)))
+        if (prefs.usedCoats()) add(ctx.getString(R.string.trial_end_coats))
+        if (prefs.usedCalendar()) add(ctx.getString(R.string.trial_end_calendar))
+        if (prefs.usedVoice()) add(ctx.getString(R.string.trial_end_voice))
+    }
+    AlertDialog(
+        onDismissRequest = onStayFree,
+        title = { Text(stringResource(R.string.trial_end_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(stringResource(R.string.trial_end_body, free.subject(ctx)))
+                if (goes.isNotEmpty()) {
+                    Text(stringResource(R.string.trial_end_goes), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 4.dp))
+                    goes.forEach { Text("· $it", style = MaterialTheme.typography.bodyMedium) }
+                }
+                Text(stringResource(R.string.trial_end_stays), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp))
+            }
+        },
+        confirmButton = { TextButton(onClick = onBuy) { Text(stringResource(R.string.trial_end_buy)) } },
+        dismissButton = { TextButton(onClick = onStayFree) { Text(stringResource(R.string.trial_end_free)) } },
+    )
+}
+
 @Composable
 fun FreePetChooser(
     initial: Set<PetType>,

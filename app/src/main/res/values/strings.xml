@@ -3,7 +3,7 @@
 <resources>
 
     <!-- General -->
-    <string name="app_name" translatable="false">Pet Notifications</string>
+    <string name="app_name" translatable="false">MimuPet</string>
     <string name="tts_language">en</string>
     <string name="allow">Allow</string>
     <string name="save">Save</string>
@@ -91,7 +91,7 @@
     <string name="pet_paused_until">Paused until %1$s</string>
     <string name="pet_resume_now">Show now</string>
     <string name="test_alert">Try an alert</string>
-    <string name="gestures_help">Drag to move it · 1 tap: hearts · 2 taps: jumps · 3 taps: turns around · quick swipes: ← upcoming alerts, ↓ quick reminder, ↑ hide for 1 hour, → mute alerts · hold: open the app</string>
+    <string name="gestures_help">Drag to move it · 1 tap: jumps and sends hearts · 2 taps: turns around · quick swipes: ← upcoming alerts, ↓ quick reminder, ↑ hide for 1 hour, → mute alerts · hold: open the app</string>
     <string name="section_pet">Choose your pet</string>
     <string name="size_label">Size: %1$d dp</string>
     <string name="opacity_label">Opacity: %1$d %%</string>
@@ -202,7 +202,7 @@
     <string name="ob_finish">Go to the app</string>
 
     <!-- Pro, prueba gratis y comentarios -->
-    <string name="pro_title">Pet Notifications Pro</string>
+    <string name="pro_title">MimuPet Pro</string>
     <string name="pro_badge">PRO</string>
     <string name="pro_status_owned">You have Pro. Thanks for supporting the app!</string>
     <string name="pro_status_trial">Pro trial: %1$d days left</string>
@@ -250,7 +250,7 @@
     <string name="feedback_title">Send feedback</string>
     <string name="feedback_body">Your email app opens with this technical summary, to help us find problems. It does not include your reminders or events. You can delete anything before sending it.</string>
     <string name="feedback_send">Open email</string>
-    <string name="feedback_subject">Pet Notifications feedback</string>
+    <string name="feedback_subject">MimuPet feedback</string>
     <string name="feedback_greeting">Write your feedback here:</string>
     <string name="feedback_no_email_app">No email app is installed.</string>
 
@@ -287,7 +287,7 @@
 
     <!-- Aviso del día anterior al fin de la prueba de Pro (lo dice la mascota) -->
     <string name="trial_notice_title">Your Pro trial ends tomorrow</string>
-    <string name="trial_notice_body">I am staying with you either way: you keep your reminders, your pet and alerts that insist every 10 minutes. If you want to keep all of Pro, it is under See plans.</string>
+    <string name="trial_notice_body">Your Pro trial ends tomorrow. I’m staying with you either way. If you liked how we’ve been, you can keep Pro.</string>
     <string name="free_pets_change">Change my free pet</string>
     <string name="free_pets_change_sub">1 change left. After that, the others come with Pro.</string>
     <string name="ob_free_pet_hint">This will be your free pet. During the Pro trial (%1$d days) you can use all 11; afterwards you can change it only once.</string>
@@ -453,7 +453,7 @@
     <string name="tut_open">What I can do</string>
     <string name="tut_open_sub">Gestures, alerts and how I look, animated</string>
     <string name="tut_taps_title">Tap me</string>
-    <string name="tut_taps_body">1 tap: I send you hearts. 2 taps: I jump. 3 taps: I spin around.</string>
+    <string name="tut_taps_body">1 tap: I jump and send you hearts. 2 taps: I spin around.</string>
     <string name="tut_move_title">Take me anywhere</string>
     <string name="tut_move_body">Drag me to move me around the screen. Hold me to open the app.</string>
     <string name="tut_flicks_title">Quick flicks</string>
@@ -477,7 +477,6 @@
     <string name="tut_try_show">Show pet</string>
     <string name="tut_g_tap1">1 tap</string>
     <string name="tut_g_tap2">2 taps</string>
-    <string name="tut_g_tap3">3 taps</string>
     <string name="tut_g_left">Flick left</string>
     <string name="tut_g_down">Flick down</string>
     <string name="tut_g_up">Flick up</string>
@@ -573,57 +572,105 @@
     <string name="owner_close">Close</string>
     <string name="note_from">%1$s reminds you · %2$s</string>
     <string name="note_says">%1$s says</string>
-    <string name="note_unattended">Left unattended · %1$s</string>
+    <string name="note_unattended">Still pending · %1$s</string>
     <string name="note_quiet">Arrived quietly · %1$s</string>
     <string name="note_friendly">%1$s left you this</string>
     <string name="action_thanks">Thanks</string>
     <string name="row_bubble">Alert bubble</string>
     <string name="bubble_caramel">Caramel</string>
     <string name="bubble_cloud">Little cloud</string>
-    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble. Tap it to read the alert; tap your pet to leave it for later (a red letter stays at its feet).</string>
+    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble. Tap it to read the alert; tap your pet to leave it for later (a pending letter with a little bell stays at its feet).</string>
     <string name="quiet_title">Quiet alerts</string>
-    <string name="quiet_sub">They don’t pop up or make a sound: your pet leaves a yellow letter at its feet. You can also choose it for each reminder.</string>
+    <string name="quiet_sub">They don’t pop up or make a sound: your pet leaves a letter with a moon at its feet. You can also choose it for each reminder.</string>
     <string name="friendly_title">Friendly notes</string>
-    <string name="friendly_help">Now and then your pet leaves you a light-blue letter with a short note (“drink some water”, “have a great day”). No sound, between 9 am and 9 pm, never during your Do not disturb hours.</string>
+    <string name="friendly_help">Now and then your pet leaves you a letter with a little leaf and a short note (“drink some water”, “have a great day”). No sound, between 9 am and 9 pm, never during your Do not disturb hours.</string>
     <string name="friendly_off">Never</string>
     <string name="friendly_few">A few</string>
     <string name="friendly_normal">Normal</string>
     <string name="friendly_many">Lots</string>
     <string name="friendly_sum">Notes: %1$s</string>
     <string name="reminder_quiet">Quiet</string>
-    <string name="reminder_quiet_sub">It doesn’t pop up: a yellow letter waits at your pet’s feet.</string>
+    <string name="reminder_quiet_sub">It doesn’t pop up: a letter with a moon waits at your pet’s feet.</string>
     <string name="letters_help_title">Little letters</string>
-    <string name="letters_help_body">Red: an alert you closed by tapping your pet, without Done or Later. Yellow: a quiet alert. Light blue: a short note from your pet. Tap the letters to open the top one.</string>
-    <string-array name="friendly_phrases">
-        <item>Have a great day.</item>
-        <item>Don’t forget to drink some water.</item>
-        <item>Had any water lately? One glass and we keep going.</item>
-        <item>Sit up straight and relax your shoulders.</item>
-        <item>Take three deep breaths. I’ll do it with you.</item>
-        <item>Look out the window for a moment: your eyes will thank you.</item>
-        <item>Stand up and stretch your legs for a minute.</item>
-        <item>You’re doing really well.</item>
-        <item>One step at a time. You’re on track.</item>
-        <item>Remember to eat something yummy.</item>
-        <item>Today counts too, even if it’s just a little.</item>
-        <item>If you made a mistake, that’s okay. Let’s keep going.</item>
-        <item>Sending you a furry hug.</item>
-        <item>Take a five-minute break.</item>
-        <item>Smile a little, even if it’s just for me.</item>
-        <item>I’m proud of you.</item>
-        <item>Blink slowly: it rests your eyes.</item>
-        <item>Relax your jaw. See? It was clenched.</item>
-        <item>A glass of water and a good song.</item>
+    <string name="letters_help_body">Little bell: a pending alert you closed by tapping your pet, without Done or Later. Moon: a quiet alert. Leaf: a short note from your pet. Tap the letters to open the top one.</string>
+    <string name="trial_notice_body_back">Tomorrow I go back to being %1$s. If you liked how we’ve been, you can keep Pro.</string>
+    <string name="trial_end_title">Your Pro trial has ended</string>
+    <string name="trial_end_body">Thanks for these days. From today we’re on the free plan, and %1$s is still with you.</string>
+    <string name="trial_end_goes">What goes away:</string>
+    <string name="trial_end_pet">%1$s as your pet (%2$s comes back)</string>
+    <string name="trial_end_coats">coats</string>
+    <string name="trial_end_calendar">calendar alerts</string>
+    <string name="trial_end_voice">the spoken voice</string>
+    <string name="trial_end_stays">Your reminders and the bond you built stay the same.</string>
+    <string name="trial_end_buy">Buy Pro</string>
+    <string name="trial_end_free">Stay free</string>
+    <string name="diag_tries">Pro pet tries</string>
+    <string name="diag_tries_count">Times a Pro pet or coat was tried: %1$d</string>
+    <string name="diag_tries_bought">Bought Pro after %1$d tries</string>
+    <string name="diag_tries_not_bought">Hasn’t bought Pro yet</string>
+    <string-array name="friendly_morning">
+        <item>Good morning. Today’s going to be nice</item>
+        <item>Let’s start slow</item>
+        <item>Had breakfast yet?</item>
+        <item>One step at a time gets you there</item>
+        <item>Have a great day</item>
+        <item>I’m here with you today too</item>
+        <item>Whatever doesn’t happen today can wait</item>
+        <item>I saved you some good vibes</item>
+        <item>The hard part first, then a treat</item>
+        <item>A good day to be kind to yourself</item>
+    </string-array>
+    <string-array name="friendly_afternoon">
+        <item>Don’t forget to drink some water</item>
+        <item>A one-minute break?</item>
+        <item>Stretch your back a little</item>
+        <item>Take a deep breath. Me too</item>
+        <item>You’re doing great, really</item>
+        <item>Look out the window for a bit</item>
+        <item>Half the day is done</item>
+        <item>A glass of water and back to it</item>
+        <item>Hard things end too</item>
+        <item>I like keeping you company</item>
+        <item>Relax your shoulders a little</item>
+        <item>Shall we stretch our legs a minute?</item>
+        <item>Remember to eat something yummy</item>
+        <item>Take a five-minute break</item>
+        <item>Blink slowly: it rests your eyes</item>
+        <item>Relax your jaw. See? It was clenched</item>
         <item>When did you last stretch your arms?</item>
-        <item>Send a nice message to someone you love.</item>
-        <item>Tidy just one little thing and that’s it.</item>
-        <item>The hard part first, then a treat.</item>
-        <item>I love keeping you company.</item>
-        <item>Today is a good day to be kind to yourself.</item>
-        <item>Put the phone down for a bit and look around.</item>
-        <item>You’re doing better than you think.</item>
-        <item>If you’re tired, a little rest is progress too.</item>
-        <item>Thanks for taking care of me. I take care of you too.</item>
-        <item>Water, fresh air and a bit of sunshine.</item>
+    </string-array>
+    <string-array name="friendly_night">
+        <item>You did a lot today</item>
+        <item>It’s almost time to rest</item>
+        <item>We’ll see to the rest tomorrow</item>
+        <item>Thanks for another day together</item>
+        <item>Shall we put the phone down a bit?</item>
+        <item>Rest well</item>
+        <item>I’ll be here tomorrow</item>
+        <item>It was a good day, wasn’t it?</item>
+    </string-array>
+    <string-array name="friendly_any">
+        <item>I’m right here, just in case</item>
+        <item>I love you lots</item>
+        <item>You matter to me</item>
+        <item>Doing things at your own pace is fine</item>
+        <item>A little hug, just in case</item>
+        <item>It doesn’t have to be perfect</item>
+        <item>How about a little laugh?</item>
+        <item>I’m happy to see you</item>
+        <item>You’re doing well</item>
+        <item>One thing at a time</item>
+        <item>Thanks for looking after me</item>
+        <item>Here’s a little heart for you</item>
+        <item>If you need to stop, that’s okay</item>
+        <item>You can count on me</item>
+        <item>Today counts too, even just a little</item>
+        <item>Made a mistake? That’s okay. On we go</item>
+        <item>Sending you a furry hug</item>
+        <item>Send someone a sweet little message</item>
+        <item>Tidy one little thing and that’s it</item>
+        <item>You’re doing better than you think</item>
+        <item>A little rest is progress too</item>
+        <item>Water, fresh air and a bit of sun</item>
     </string-array>
 </resources>

@@ -249,10 +249,9 @@ private fun Demo(card: Card, active: Boolean) {
             label = null; bubble = false; muted = false
             when (card) {
                 Card.TAPS -> {
-                    label = "1"; tap(1); finger = false; hearts++; delay(1300)
+                    label = "1"; tap(1); finger = false; hearts++
+                    petY.animateTo(-36f, tween(180)); petY.animateTo(0f, tween(220)); delay(1100)
                     label = "2"; tap(2); finger = false
-                    petY.animateTo(-36f, tween(180)); petY.animateTo(0f, tween(220)); delay(1000)
-                    label = "3"; tap(3); finger = false
                     spin.animateTo(360f, tween(900, easing = LinearEasing)); delay(1200)
                 }
                 Card.MOVE -> {
@@ -391,7 +390,6 @@ private fun BoxScope.Hearts(tick: Int) {
 private val practiceRows = listOf(
     Gesture.TAP1 to R.string.tut_g_tap1,
     Gesture.TAP2 to R.string.tut_g_tap2,
-    Gesture.TAP3 to R.string.tut_g_tap3,
     Gesture.LEFT to R.string.tut_g_left,
     Gesture.DOWN to R.string.tut_g_down,
     Gesture.UP to R.string.tut_g_up,

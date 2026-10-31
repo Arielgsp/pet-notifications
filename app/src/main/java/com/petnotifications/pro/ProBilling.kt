@@ -187,6 +187,7 @@ object ProBilling {
         // Una consulta completa puede sacar Pro (reembolso); una compra nueva solo lo agrega.
         if (fromQuery || owned) {
             if (prefs.proPurchased != owned) {
+                if (owned && prefs.triesBeforePurchase < 0) prefs.triesBeforePurchase = prefs.tryCount
                 prefs.proPurchased = owned
                 _changes.value++
             }

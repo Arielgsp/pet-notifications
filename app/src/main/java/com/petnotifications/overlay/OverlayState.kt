@@ -43,7 +43,7 @@ sealed interface FxPhase {
     data class Sound(val text: String, val id: Long) : FxPhase
     /**
      * Llega un aviso: la onomatopeya ("guau") en un globo al costado de la mascota. Queda ahí hasta que
-     * se toca (abre la tarjeta del aviso) o se toca la mascota (queda una carta roja a sus pies).
+     * se toca (abre la tarjeta del aviso) o se toca la mascota (queda una carta pendiente a sus pies).
      */
     data class Call(val alert: PetAlert, val text: String, val id: Long) : FxPhase
     /** La tarjeta con el aviso; [letter]: se abrió desde una carta (cerrarla no la saca de sus pies). */

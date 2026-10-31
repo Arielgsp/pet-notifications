@@ -100,6 +100,8 @@ private suspend fun technicalSummary(ctx: Context): String {
             appendLine("Cierres inesperados de la mascota (30 días): ${r.petKills.size}; últimos: " +
                 r.petKills.takeLast(3).joinToString { (at, by) -> "${java.util.Date(at)} ($by)" })
         }
+        appendLine("Pruebas de mascotas Pro: ${r.tries}; compró Pro: " +
+            if (r.triesBeforePurchase >= 0) "sí, después de ${r.triesBeforePurchase}" else "no")
         if (r.delivered > 0) {
             appendLine("Demora: promedio ${r.avgDelaySec} s, máxima ${r.maxDelaySec} s, más de 1 min tarde ${r.late}, sin alarmas exactas ${r.withoutExact}")
         }

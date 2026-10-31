@@ -403,7 +403,7 @@ Un "tirón" es mover el dedo **rápido y corto** sobre la mascota, como sacudien
 | 28.3 | Con la mascota dormida, tocala. | Se levanta (sin corazones). | |
 | 28.4 | Usá otras apps (tocando la pantalla) durante más de 10 minutos. | **No** se duerme mientras estés tocando la pantalla. | |
 | 28.5 | Ajustes › **No molestar**: activalo con un horario que incluya la hora actual. | Al ratito se duerme y queda dormida aunque prendas la pantalla. Si llega un aviso, se despierta, avisa y al minuto vuelve a dormir. | |
-| 28.6 | **1 toque** en la mascota. | Corazones. | |
+| 28.6 | **1 toque** en la mascota. | Corazones (desde la 1.0.35: salta y tira corazones, ver 46). | |
 | 28.7 | **2 toques**. | Salta. | |
 | 28.8 | **3 toques**. | Da una vuelta 360°. | |
 | 28.9 | Tirón **hacia arriba**. | Se esconde 1 hora ("La mascota vuelve en 1 hora"). Vuelve sola. | |
@@ -654,6 +654,34 @@ Para estas pruebas conviene apagar "Se esconde sola" (Ajustes → Avisos), salvo
 | 44.11 | Arrastrá la mascota a otro lado y apagá/prendé el celular. | Los sobres la acompañan y siguen ahí después de reiniciar el celular. | |
 | 44.12 | Con "Se esconde sola" prendido, dejá que un aviso se vaya solo. | Queda un sobre rojo; si el aviso vuelve a sonar (repetición o aplazado), el sobre se saca y avisa de nuevo. | |
 
+
+## 45. Cartas nuevas, PRO en rojo suave, prueba de 7 días y MimuPet (versión 1.0.34)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 45.1 | Instalá encima de la 1.0.33 sin borrar nada. | La app se llama **MimuPet** (ícono, ajustes del celular). Si tenías cartas, siguen ahí con los colores nuevos. | |
+| 45.2 | Dejá un aviso pendiente (tocá la mascota cuando avisa). | Sobre **rosa** con un sello y una **campanita**. Al abrirlo: tarjeta rosa, "Quedó pendiente · hora" y la campanita arriba a la derecha. | |
+| 45.3 | Un recordatorio **Sin interrumpir**. | Sobre **crema** con una **luna**; la tarjeta, color papel. | |
+| 45.4 | Frases amigables en **Muchas**. | Sobre **verde suave** con una **hojita**. A la mañana no dice "que descanses"; a la noche no dice "¿ya desayunaste?". | |
+| 45.5 | Ajustes → Avisos: leé las ayudas del globo, de "sin interrumpir", de frases y de "Las cartitas". | Ningún texto dice "roja", "amarilla" ni "celeste". | |
+| 45.6 | Mirá las etiquetas **PRO** (fichas de mascotas y pelajes, interruptores Pro de Ajustes, Tu plan). | Todas iguales: "PRO" claro sobre **rojo suave**, esquinas apenas redondeadas. En tema oscuro, rojo más claro con letras oscuras. | |
+| 45.7 | Pestaña Mascota sin Pro: probá 2 mascotas Pro. Después Ajustes → Diagnóstico. | En "Prueba de mascotas Pro": "Veces que probó…: 2" y "Todavía no compró Pro". | |
+| 45.8 | Instalación nueva: mirá la tarjeta de la mascota en Avisos. | "Prueba de Pro · te quedan **7** días" (antes 14 en la versión publicada). | |
+| 45.9 | Con el globo **Caramelo**, hacé que avise sobre **WhatsApp, Instagram y el navegador**. | Anotá si molesta o tapa demasiado (pedido de Cowork, C11). | |
+| 45.10 | Fin de la prueba (con Herramientas de dueño o esperando 7 días, sin comprar). Abrí la app. | Una sola vez: "Terminó tu prueba de Pro", lo que se va (la mascota Pro que usabas, pelajes, calendario, voz, solo lo que usaste) y que el vínculo queda igual, con **Comprar Pro** y **Seguir gratis**. No vuelve a aparecer. | |
+| 45.11 | El día antes del fin de la prueba, con una mascota Pro en pantalla. | La mascota avisa "Mañana vuelvo a ser (tu mascota gratis). Si te gustó cómo estamos, podés quedarte con Pro". | |
+
+
+## 46. Gestos nuevos (versión 1.0.35)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 46.1 | **1 toque** en la mascota. | Salta y tira corazones, las dos cosas juntas. | |
+| 46.2 | **2 toques**. | Da la vuelta 360°. Si ya aprendió la patita (nivel 3), una vez da la vuelta y la siguiente la patita. | |
+| 46.3 | **3 toques**. | No hace nada (queda libre por ahora). | |
+| 46.4 | Mascota → Tutorial, tarjeta **Tocame**. | La animación muestra 1 toque (salto con corazones) y 2 toques (vuelta). El texto dice "1 toque: salto y te tiro corazones. 2 toques: doy una vuelta." | |
+| 46.5 | En **Probalo vos**, tocá la mascota 1 y 2 veces. | La lista tiene solo "1 toque" y "2 toques" y se tildan. | |
+| 46.6 | Ajustes → Ayuda → Cómo se usa. | Dice lo mismo que el tutorial. | |
 
 ---
 

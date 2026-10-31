@@ -39,6 +39,9 @@ data class PetColors(
     val honey: Color,
     val honeyDeep: Color,
     val honeySoft: Color,
+    /** Solo para Pro: fondo de la etiqueta PRO (rojo suave). */
+    val pro: Color,
+    val onPro: Color,
 )
 
 private val LightTokens = PetColors(
@@ -47,6 +50,7 @@ private val LightTokens = PetColors(
     fur = Color(0xFFC98A55), blush = Color(0xFFEFA9A0), blushSoft = Color(0xFFFBE7E3),
     sage = Color(0xFF7FA88B), sageSoft = Color(0xFFE4F0E6),
     honey = Color(0xFFEBB854), honeyDeep = Color(0xFF8C5F0E), honeySoft = Color(0xFFFDF2D8),
+    pro = Color(0xFFB8483A), onPro = Color(0xFFFFFDF9),
 )
 
 private val DarkTokens = PetColors(
@@ -55,6 +59,7 @@ private val DarkTokens = PetColors(
     fur = Color(0xFFC98A55), blush = Color(0xFFE79C92), blushSoft = Color(0xFF3A2826),
     sage = Color(0xFF8DB598), sageSoft = Color(0xFF203027),
     honey = Color(0xFFE6B24E), honeyDeep = Color(0xFFE6B24E), honeySoft = Color(0xFF3A301B),
+    pro = Color(0xFFE88A7C), onPro = Color(0xFF1E1A17),
 )
 
 val LocalPetColors = staticCompositionLocalOf { LightTokens }

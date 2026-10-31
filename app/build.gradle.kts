@@ -43,7 +43,7 @@ android {
         }
         create("production") {
             dimension = "channel"
-            buildConfigField("int", "TRIAL_DAYS", "14")
+            buildConfigField("int", "TRIAL_DAYS", "7")
         }
     }
 

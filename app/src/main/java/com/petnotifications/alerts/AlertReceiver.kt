@@ -112,12 +112,19 @@ class AlertReceiver : BroadcastReceiver() {
         val alert = PetAlert(
             key = "app:trial_notice",
             title = ctx.getString(R.string.trial_notice_title),
-            body = ctx.getString(R.string.trial_notice_body),
+            body = trialNoticeBody(ctx, prefs),
             source = PetAlert.Source.APP,
         )
         val petShows = PetOverlayService.canShowAlert(ctx)
         AlertNotifier.post(ctx, alert, loudRequested = !petShows)
         if (petShows) PetOverlayService.show(ctx, alert)
+    }
+
+    /** "Mañana vuelvo a ser Luna…" si la mascota de ahora es de Pro; si ya es la gratis, sin eso. */
+    private fun trialNoticeBody(ctx: Context, prefs: Prefs): String {
+        val free = prefs.freePets.firstOrNull()
+        return if (free != null && free != prefs.chosenPet) ctx.getString(R.string.trial_notice_body_back, free.mention(ctx))
+        else ctx.getString(R.string.trial_notice_body)
     }
 
     private fun onDone(ctx: Context, intent: Intent) {
@@ -155,7 +162,7 @@ class AlertReceiver : BroadcastReceiver() {
             val petShows = PetOverlayService.canShowAlert(ctx)
             if (isQuiet(ctx, alert)) {
                 // Sin interrumpir: notificación callada, no insiste, y la mascota (si está, aunque el
-                // celular esté bloqueado) deja una carta amarilla a sus pies.
+                // celular esté bloqueado) deja una carta sin interrumpir a sus pies.
                 AlertNotifier.post(ctx, alert, loudRequested = false)
                 if (PetOverlayService.running) PetOverlayService.show(ctx, alert, quiet = true)
             } else {

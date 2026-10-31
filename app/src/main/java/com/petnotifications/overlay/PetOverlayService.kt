@@ -179,8 +179,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 ),
             )
             ACTION_SHOW -> if (running) intent.extras?.toPetAlert()?.let { alert ->
-                // Sin interrumpir: no aparece; queda una carta amarilla a sus pies.
-                if (intent.getBooleanExtra(EXTRA_QUIET, false)) addLetter(LetterColor.YELLOW, alert) else enqueue(alert)
+                // Sin interrumpir: no aparece; queda una carta sin interrumpir a sus pies.
+                if (intent.getBooleanExtra(EXTRA_QUIET, false)) addLetter(LetterKind.QUIET, alert) else enqueue(alert)
             }
             ACTION_PLUS_ONE -> if (running) plusOne()
             ACTION_TRICK -> if (running) intent.getStringExtra(EXTRA_REWARD)
@@ -564,22 +564,24 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     // ---------------------------------------------------------------- interacción con la mascota
 
     private var taps = 0
-    /** Cuántas veces se la tocó 3 veces: alterna la vuelta y la patita. */
-    private var tripleTaps = 0
+    /** Cuántas veces se la tocó 2 veces: alterna la vuelta y la patita. */
+    private var doubleTaps = 0
     private val resolveTaps = Runnable {
         val n = taps
         taps = 0
-        practice?.invoke(if (n >= 3) Gesture.TAP3 else if (n == 2) Gesture.TAP2 else Gesture.TAP1)
+        if (n <= 2) practice?.invoke(if (n == 2) Gesture.TAP2 else Gesture.TAP1)
         // El primer mimo del día suma un corazón al vínculo.
         scope.launch(Dispatchers.IO) {
             Bond.seedIfNeeded(this@PetOverlayService)
             Bond.addPetting(this@PetOverlayService)
         }
         when {
-            // Tres toques: vuelta 360°; desde que aprendió a dar la patita, una vez cada cosa.
-            n >= 3 -> if (Bond.knows(this, Bond.Reward.PAW) && tripleTaps++ % 2 == 1) state.play(Trick.PAW) else state.spinTick++
-            n == 2 -> state.bounceTick++ // dos toques: salta
-            else -> { // un toque: corazones
+            // Tres toques: libre por ahora.
+            n >= 3 -> Unit
+            // Dos toques: vuelta 360°; desde que aprendió a dar la patita, una vez cada cosa.
+            n == 2 -> if (Bond.knows(this, Bond.Reward.PAW) && doubleTaps++ % 2 == 1) state.play(Trick.PAW) else state.spinTick++
+            else -> { // un toque: salta y tira corazones
+                state.bounceTick++
                 state.hearts.add(SystemClock.uptimeMillis())
                 layoutFx()
             }
@@ -971,7 +973,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             if (Bond.knows(this@PetOverlayService, Bond.Reward.PAW)) add(Trick.PAW)
         }.filter { it != lastLife }
         when (Random.nextInt(8)) {
-            // La vuelta de 360° (la de los 3 toques).
+            // La vuelta de 360° (la de los 2 toques).
             0 -> {
                 lastLife = null
                 state.spinTick++
@@ -1294,7 +1296,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 delay(WAKE_MS)
             }
             // 1) Onomatopeya en su globo, al costado de la mascota. Queda hasta que se la toca (abre la
-            //    tarjeta) o se toca la mascota (queda una carta roja); con "Se esconde sola", se va sola.
+            //    tarjeta) o se toca la mascota (queda una carta pendiente); con "Se esconde sola", se va sola.
             state.talking = true
             state.who = state.pet.subject(this@PetOverlayService)
             state.phase = FxPhase.Call(alert, callWord(state.pet.sound(this@PetOverlayService)), SystemClock.uptimeMillis())
@@ -1325,21 +1327,21 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /**
-     * Se fue sin respuesta (se escondió sola): queda una carta roja a sus pies. La notificación y las
+     * Se fue sin respuesta (se escondió sola): queda una carta pendiente a sus pies. La notificación y las
      * repeticiones siguen como estaban; si vuelve a avisar, la carta se saca.
      */
     private fun leaveUnattended(alert: PetAlert) {
         if (current?.key != alert.key) return
-        if (alert.source != PetAlert.Source.APP) addLetter(LetterColor.RED, alert)
+        if (alert.source != PetAlert.Source.APP) addLetter(LetterKind.PENDING, alert)
         finishCurrent()
     }
 
     // ---------------------------------------------------------------- cartas
 
-    private fun addLetter(color: LetterColor, alert: PetAlert) {
-        state.letters.removeAll { LetterStore.sameAlert(it.alert, alert) || (color == LetterColor.SKY && it.color == LetterColor.SKY) }
+    private fun addLetter(kind: LetterKind, alert: PetAlert) {
+        state.letters.removeAll { LetterStore.sameAlert(it.alert, alert) || (kind == LetterKind.PHRASE && it.kind == LetterKind.PHRASE) }
         val id = maxOf(System.currentTimeMillis(), (state.letters.maxOfOrNull { it.id } ?: 0L) + 1)
-        state.letters.add(Letter(id, color, alert, System.currentTimeMillis()))
+        state.letters.add(Letter(id, kind, alert, System.currentTimeMillis()))
         LetterStore.save(prefs, state.letters)
         layoutFx()
     }
@@ -1378,7 +1380,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /**
-     * Frase amigable (carta celeste): la deja a sus pies sin sonido y mueve la cola. Nunca en el horario
+     * Frase amigable (carta de frase): la deja a sus pies sin sonido y mueve la cola. Nunca en el horario
      * de No molestar ni con el celular bloqueado.
      */
     private fun maybeFriendly() {
@@ -1387,7 +1389,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         if (!FriendlyPhrases.due(prefs, now)) return
         FriendlyPhrases.markShown(prefs, now)
         val text = FriendlyPhrases.pick(this, prefs)
-        addLetter(LetterColor.SKY, PetAlert(key = "friendly:$now", title = "", body = text, source = PetAlert.Source.APP))
+        addLetter(LetterKind.PHRASE, PetAlert(key = "friendly:$now", title = "", body = text, source = PetAlert.Source.APP))
         if (!state.sleeping && current == null) state.play(Trick.WAG)
     }
 
@@ -1504,8 +1506,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
         AlertNotifier.cancel(this, alert)
         stopInsisting(alert)
-        // Cerrado sin "Listo" ni "Aplazar": queda una carta roja a sus pies, quieta (no vuelve a llamar).
-        if (alert.source != PetAlert.Source.APP) addLetter(LetterColor.RED, alert)
+        // Cerrado sin "Listo" ni "Aplazar": queda una carta pendiente a sus pies, quieta (no vuelve a llamar).
+        if (alert.source != PetAlert.Source.APP) addLetter(LetterKind.PENDING, alert)
         finishCurrent()
         return true
     }
@@ -1648,7 +1650,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /** Gestos sobre la mascota que el tutorial reconoce en la práctica. */
-    enum class Gesture { TAP1, TAP2, TAP3, LEFT, RIGHT, UP, DOWN }
+    enum class Gesture { TAP1, TAP2, LEFT, RIGHT, UP, DOWN }
 
     companion object {
         /**

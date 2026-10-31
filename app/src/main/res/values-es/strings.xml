@@ -90,7 +90,7 @@
     <string name="pet_paused_until">Pausada hasta las %1$s</string>
     <string name="pet_resume_now">Mostrar ahora</string>
     <string name="test_alert">Probar un aviso</string>
-    <string name="gestures_help">Arrastrala para moverla · 1 toque: corazones · 2 toques: salta · 3 toques: da una vuelta · tirones rápidos: ← próximos avisos, ↓ recordatorio rápido, ↑ esconderla 1 hora, → avisos en silencio · mantené apretado: abrir la app</string>
+    <string name="gestures_help">Arrastrala para moverla · 1 toque: salta y tira corazones · 2 toques: da una vuelta · tirones rápidos: ← próximos avisos, ↓ recordatorio rápido, ↑ esconderla 1 hora, → avisos en silencio · mantené apretado: abrir la app</string>
     <string name="section_pet">Elegí tu mascota</string>
     <string name="size_label">Tamaño: %1$d dp</string>
     <string name="opacity_label">Opacidad: %1$d %%</string>
@@ -201,7 +201,7 @@
     <string name="ob_finish">Ir a la app</string>
 
     <!-- Pro, prueba gratis y comentarios -->
-    <string name="pro_title">Pet Notifications Pro</string>
+    <string name="pro_title">MimuPet Pro</string>
     <string name="pro_badge">PRO</string>
     <string name="pro_status_owned">Tenés Pro. ¡Gracias por apoyar la app!</string>
     <string name="pro_status_trial">Prueba de Pro: te quedan %1$d días</string>
@@ -249,7 +249,7 @@
     <string name="feedback_title">Enviar comentarios</string>
     <string name="feedback_body">Se abre tu app de correo con este resumen técnico, para ayudarnos a encontrar problemas. No incluye tus recordatorios ni tus eventos. Podés borrar lo que quieras antes de mandarlo.</string>
     <string name="feedback_send">Abrir el correo</string>
-    <string name="feedback_subject">Comentarios sobre Pet Notifications</string>
+    <string name="feedback_subject">Comentarios sobre MimuPet</string>
     <string name="feedback_greeting">Escribí tu comentario acá:</string>
     <string name="feedback_no_email_app">No hay ninguna app de correo instalada.</string>
 
@@ -286,7 +286,7 @@
 
     <!-- Aviso del día anterior al fin de la prueba de Pro (lo dice la mascota) -->
     <string name="trial_notice_title">Mañana termina tu prueba de Pro</string>
-    <string name="trial_notice_body">Yo me quedo con vos igual: seguís teniendo tus recordatorios, tu mascota y que insista cada 10 minutos. Si querés seguir con todo Pro, está en Ver planes.</string>
+    <string name="trial_notice_body">Mañana termina la prueba de Pro. Yo me quedo con vos igual. Si te gustó cómo estamos, podés quedarte con Pro.</string>
     <string name="free_pets_change">Cambiar mi mascota gratis</string>
     <string name="free_pets_change_sub">Te queda 1 cambio. Después, las demás vienen con Pro.</string>
     <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) podés usar las 11; después, la podés cambiar una sola vez.</string>
@@ -452,7 +452,7 @@
     <string name="tut_open">Lo que sé hacer</string>
     <string name="tut_open_sub">Gestos, avisos y cómo me veo, con animaciones</string>
     <string name="tut_taps_title">Tocame</string>
-    <string name="tut_taps_body">1 toque: te tiro corazones. 2 toques: salto. 3 toques: doy una vuelta.</string>
+    <string name="tut_taps_body">1 toque: salto y te tiro corazones. 2 toques: doy una vuelta.</string>
     <string name="tut_move_title">Llevame a donde quieras</string>
     <string name="tut_move_body">Arrastrame para cambiarme de lugar en la pantalla. Si me mantenés apretada, se abre la app.</string>
     <string name="tut_flicks_title">Tirones rápidos</string>
@@ -476,7 +476,6 @@
     <string name="tut_try_show">Mostrar mascota</string>
     <string name="tut_g_tap1">1 toque</string>
     <string name="tut_g_tap2">2 toques</string>
-    <string name="tut_g_tap3">3 toques</string>
     <string name="tut_g_left">Tirón a la izquierda</string>
     <string name="tut_g_down">Tirón hacia abajo</string>
     <string name="tut_g_up">Tirón hacia arriba</string>
@@ -572,57 +571,105 @@
     <string name="owner_close">Cerrar</string>
     <string name="note_from">%1$s te avisa · %2$s</string>
     <string name="note_says">%1$s te dice</string>
-    <string name="note_unattended">Quedó sin atender · %1$s</string>
+    <string name="note_unattended">Quedó pendiente · %1$s</string>
     <string name="note_quiet">Llegó sin interrumpir · %1$s</string>
     <string name="note_friendly">%1$s te dejó esto</string>
     <string name="action_thanks">Gracias</string>
     <string name="row_bubble">Globo del aviso</string>
     <string name="bubble_caramel">Caramelo</string>
     <string name="bubble_cloud">Nubecita</string>
-    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo. Tocalo para leer el aviso; tocá la mascota para dejarlo para después (queda una carta roja a sus pies).</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo. Tocalo para leer el aviso; tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
     <string name="quiet_title">Avisos sin interrumpir</string>
-    <string name="quiet_sub">No aparecen en pantalla ni suenan: tu mascota deja una carta amarilla a sus pies. También se puede elegir en cada recordatorio.</string>
+    <string name="quiet_sub">No aparecen en pantalla ni suenan: tu mascota deja una carta con una luna a sus pies. También se puede elegir en cada recordatorio.</string>
     <string name="friendly_title">Frases amigables</string>
-    <string name="friendly_help">De vez en cuando tu mascota te deja una carta celeste con un mensajito (“tomá agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.</string>
+    <string name="friendly_help">De vez en cuando tu mascota te deja una carta con una hojita y un mensajito (“tomá agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.</string>
     <string name="friendly_off">Nunca</string>
     <string name="friendly_few">Pocas</string>
     <string name="friendly_normal">Normal</string>
     <string name="friendly_many">Muchas</string>
     <string name="friendly_sum">Frases: %1$s</string>
     <string name="reminder_quiet">Sin interrumpir</string>
-    <string name="reminder_quiet_sub">No aparece en pantalla: queda una carta amarilla a los pies de tu mascota.</string>
+    <string name="reminder_quiet_sub">No aparece en pantalla: queda una carta con una luna a los pies de tu mascota.</string>
     <string name="letters_help_title">Las cartitas</string>
-    <string name="letters_help_body">Roja: un aviso que cerraste tocando la mascota, sin Listo ni Aplazar. Amarilla: un aviso sin interrumpir. Celeste: un mensajito de tu mascota. Tocá las cartas para abrir la de arriba.</string>
-    <string-array name="friendly_phrases">
-        <item>Éxito en tu jornada.</item>
-        <item>No te olvides de tomar agua.</item>
-        <item>¿Tomaste agua hace poco? Un vasito y seguimos.</item>
-        <item>Enderezá la espalda y aflojá los hombros.</item>
-        <item>Respirá hondo tres veces. Yo te acompaño.</item>
-        <item>Mirá un ratito por la ventana: tus ojos te lo agradecen.</item>
-        <item>Levantate y estirá las piernas un minuto.</item>
-        <item>Lo estás haciendo muy bien.</item>
-        <item>Un paso a la vez. Vas bien.</item>
-        <item>Acordate de comer algo rico.</item>
-        <item>Hoy también cuenta, aunque sea poquito.</item>
-        <item>Si te equivocaste, no pasa nada. Seguimos.</item>
-        <item>Te mando un abrazo peludo.</item>
-        <item>Tomate un recreo de cinco minutos.</item>
-        <item>Sonreí un poquito, aunque sea para mí.</item>
-        <item>Qué orgullo me das.</item>
-        <item>Parpadeá despacio: descansan los ojos.</item>
-        <item>Aflojá la mandíbula. ¿Viste? Estaba apretada.</item>
-        <item>Un vaso de agua y una buena canción.</item>
+    <string name="letters_help_body">Campanita: un aviso pendiente, que cerraste tocando la mascota sin Listo ni Aplazar. Luna: un aviso sin interrumpir. Hojita: un mensajito de tu mascota. Tocá las cartas para abrir la de arriba.</string>
+    <string name="trial_notice_body_back">Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, podés quedarte con Pro.</string>
+    <string name="trial_end_title">Terminó tu prueba de Pro</string>
+    <string name="trial_end_body">Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue con vos.</string>
+    <string name="trial_end_goes">Lo que se va:</string>
+    <string name="trial_end_pet">%1$s como mascota (vuelve %2$s)</string>
+    <string name="trial_end_coats">los pelajes</string>
+    <string name="trial_end_calendar">los avisos del calendario</string>
+    <string name="trial_end_voice">la voz en voz alta</string>
+    <string name="trial_end_stays">Tus recordatorios y el cariño que juntaron quedan igual.</string>
+    <string name="trial_end_buy">Comprar Pro</string>
+    <string name="trial_end_free">Seguir gratis</string>
+    <string name="diag_tries">Prueba de mascotas Pro</string>
+    <string name="diag_tries_count">Veces que probó una mascota o pelaje Pro: %1$d</string>
+    <string name="diag_tries_bought">Compró Pro después de %1$d pruebas</string>
+    <string name="diag_tries_not_bought">Todavía no compró Pro</string>
+    <string-array name="friendly_morning">
+        <item>Buen día. Hoy va a salir lindo</item>
+        <item>Arrancamos de a poquito</item>
+        <item>¿Ya desayunaste?</item>
+        <item>Un paso a la vez, así se llega</item>
+        <item>Éxito en tu jornada</item>
+        <item>Hoy también estoy con vos</item>
+        <item>Lo que hoy no salga, sale mañana</item>
+        <item>Te guardé un poco de buena onda</item>
+        <item>Lo difícil primero, después un mimo</item>
+        <item>Hoy es un buen día para ser amable con vos</item>
+    </string-array>
+    <string-array name="friendly_afternoon">
+        <item>No te olvides de tomar agua</item>
+        <item>¿Una pausa de un minuto?</item>
+        <item>Estirá un poquito la espalda</item>
+        <item>Respirá hondo. Yo también</item>
+        <item>Vas muy bien, en serio</item>
+        <item>Mirá un ratito por la ventana</item>
+        <item>Ya pasó la mitad del día</item>
+        <item>Un vasito de agua y seguimos</item>
+        <item>Lo difícil también se termina</item>
+        <item>Me gusta acompañarte</item>
+        <item>Aflojá los hombros un poquito</item>
+        <item>¿Estiramos las piernas un minuto?</item>
+        <item>Acordate de comer algo rico</item>
+        <item>Tomate un recreo de cinco minutos</item>
+        <item>Parpadeá despacio: descansan los ojos</item>
+        <item>Aflojá la mandíbula. ¿Viste? Estaba apretada</item>
         <item>¿Hace cuánto no estirás los brazos?</item>
-        <item>Mandale un mensaje lindo a alguien que quieras.</item>
-        <item>Ordená una sola cosita y listo.</item>
-        <item>Lo difícil primero, después un mimo.</item>
-        <item>Me encanta acompañarte.</item>
-        <item>Hoy es un buen día para ser amable con vos.</item>
-        <item>Dejá el celu un ratito y mirá a tu alrededor.</item>
-        <item>Vas mejor de lo que pensás.</item>
-        <item>Si hay cansancio, un descansito también es avanzar.</item>
-        <item>Gracias por cuidarme. Yo también te cuido.</item>
-        <item>Agua, aire y un ratito de sol.</item>
+    </string-array>
+    <string-array name="friendly_night">
+        <item>Hoy hiciste un montón</item>
+        <item>Ya casi es hora de descansar</item>
+        <item>Lo que falta, mañana lo vemos</item>
+        <item>Gracias por un día más juntos</item>
+        <item>¿Dejamos el celular un ratito?</item>
+        <item>Que descanses lindo</item>
+        <item>Mañana te espero acá</item>
+        <item>Fue un buen día, ¿no?</item>
+    </string-array>
+    <string-array name="friendly_any">
+        <item>Acá estoy, por si acaso</item>
+        <item>Te quiero mucho</item>
+        <item>Sos importante para mí</item>
+        <item>Hacer las cosas a tu ritmo está bien</item>
+        <item>Un mimo, por las dudas</item>
+        <item>No hace falta hacerlo perfecto</item>
+        <item>¿Y si te reís un poco?</item>
+        <item>Me alegra verte</item>
+        <item>Lo estás haciendo bien</item>
+        <item>Una cosa por vez</item>
+        <item>Gracias por cuidarme</item>
+        <item>Acá te dejo un corazoncito</item>
+        <item>Si necesitás parar, está bien</item>
+        <item>Contá conmigo</item>
+        <item>Hoy también cuenta, aunque sea poquito</item>
+        <item>Si te equivocaste, no pasa nada. Seguimos</item>
+        <item>Te mando un abrazo peludo</item>
+        <item>Mandale un mensajito lindo a alguien</item>
+        <item>Ordená una sola cosita y listo</item>
+        <item>Vas mejor de lo que pensás</item>
+        <item>Descansar un ratito también es avanzar</item>
+        <item>Agua, aire y un ratito de sol</item>
     </string-array>
 </resources>

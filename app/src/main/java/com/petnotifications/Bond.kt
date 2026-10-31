@@ -107,7 +107,7 @@ object Bond {
         return true
     }
 
-    /** El primer mimo del día (1, 2 o 3 toques) suma un corazón. */
+    /** El primer mimo del día (1 o 2 toques) suma un corazón. */
     @Synchronized
     fun addPetting(ctx: Context): Boolean {
         val sp = sp(ctx)

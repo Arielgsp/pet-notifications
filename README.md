@@ -1,4 +1,4 @@
-# Pet Notifications 🐶
+# MimuPet 🐶
 
 App Android donde una mascota (perro, gato, pato, rana, vaca, chancho, pollito, león, mono o búho)
 vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recordatorios y eventos.
@@ -12,9 +12,9 @@ vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recorda
 | Gesto | Resultado |
 |---|---|
 | Arrastrar | La movés a cualquier lugar (recuerda la posición) |
-| 1 toque | Da un saltito y pone ojitos felices |
-| 2 toques | Suelta un ❤️ |
-| 3 toques | Se da la vuelta despacito (frente, perfil, espalda), meneándose |
+| 1 toque | Da un saltito y suelta corazones |
+| 2 toques | Se da la vuelta despacito (frente, perfil, espalda), meneándose; desde que aprendió la patita, alterna con darla |
+| 3 toques | Libre por ahora |
 | 1 toque dormida | La despierta |
 | Mantener apretado | Abre la app |
 
@@ -101,7 +101,7 @@ Para sumar portugués: `values-pt/strings.xml` + `<locale android:name="pt" />` 
 El nombre visible de la app sale solo de `app_name` en `values/strings.xml`.
 
 ## Versiones y firma
-Dos sabores: `closedTest` (prueba cerrada, 7 días de Pro) y `production` (publicación, 14 días). A
+Dos sabores: `closedTest` (prueba cerrada) y `production` (publicación), los dos con 7 días de prueba de Pro. A
 producción se sube una compilación `production` (no promover la de la prueba cerrada). La versión
 final usa R8. La llave de subida se lee de `keystore.properties` (fuera del repositorio); sin ese
 archivo, la versión final se firma con la llave de prueba y Google Play la rechaza. Subir

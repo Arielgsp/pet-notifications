@@ -53,6 +53,9 @@ data class DiagReport(
     val calendar: Boolean,
     /** Cierres inesperados de la mascota en los últimos 30 días: (cuándo se cerró, cómo volvió). */
     val petKills: List<Pair<Long, String>> = emptyList(),
+    /** Veces que probó una mascota o pelaje Pro, y después de cuántas compró (-1 = no compró). */
+    val tries: Int = 0,
+    val triesBeforePurchase: Int = -1,
 )
 
 const val DIAG_DAYS = 30
@@ -88,6 +91,8 @@ suspend fun diagReport(ctx: Context): DiagReport = withContext(Dispatchers.IO) {
             val at = p.getOrNull(0)?.toLongOrNull() ?: return@mapNotNull null
             if (at < now - DIAG_DAYS * Prefs.DAY_MS) null else at to (p.getOrNull(2) ?: "")
         },
+        tries = prefs.tryCount,
+        triesBeforePurchase = prefs.triesBeforePurchase,
     )
 }
 
@@ -143,6 +148,13 @@ fun DiagnosticsDialog(onDismiss: () -> Unit, onSendByEmail: () -> Unit) {
                             Line("· " + dateTime(at) + " — " + how)
                         }
                     }
+
+                    Heading(stringResource(R.string.diag_tries))
+                    Line(stringResource(R.string.diag_tries_count, r.tries))
+                    Line(
+                        if (r.triesBeforePurchase >= 0) stringResource(R.string.diag_tries_bought, r.triesBeforePurchase)
+                        else stringResource(R.string.diag_tries_not_bought),
+                    )
 
                     Heading(stringResource(R.string.diag_permissions))
                     Permission(stringResource(R.string.permission_overlay), r.overlay)
