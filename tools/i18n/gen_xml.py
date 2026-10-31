@@ -1,18 +1,18 @@
 """
 Genera los textos de la app (values/strings.xml en inglés y values-es/strings.xml en español) desde
-strings.py, la lista de (clave, español, inglés). No editar los strings.xml a mano: editar strings.py y
+strings.py, la lista de (clave, español, inglés) y las listas de frases (A). No editar los strings.xml a mano: editar strings.py y
 correr `python tools/i18n/gen_xml.py --write`. Usar comillas tipográficas (“ ”), no rectas.
 """
 import os, re, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from strings import S
+from strings import S, A
 
 RES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "app", "src", "main", "res")
 old = open(os.path.join(RES, "values-es", "strings.xml"), encoding="utf-8").read()
 old_map = dict(re.findall(r'<string name="([^"]+)">(.*?)</string>', old, re.S))
 
 def esc(v):
-    v = v.replace("&", "&amp;").replace("<", "&lt;").replace("'", "\\'").replace("\n", "\\n")
+    v = v.replace("&", "&amp;").replace("<", "&lt;").replace("'", "\\'").replace('"', '\\"').replace("\n", "\\n")
     return v
 
 keys = [k for k, _, _ in S if k != "#"]
@@ -36,6 +36,10 @@ def write(path, idx, header):
         v = (es, en)[idx]
         attr = ' translatable="false"' if k == "app_name" else ""
         lines.append(f'    <string name="{k}"{attr}>{esc(v)}</string>')
+    for name, items in A:
+        lines.append(f'    <string-array name="{name}">')
+        lines.extend(f"        <item>{esc((es, en)[idx])}</item>" for es, en in items)
+        lines.append("    </string-array>")
     lines.append("</resources>\n")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     open(path, "w", encoding="utf-8", newline="\n").write("\n".join(lines))
