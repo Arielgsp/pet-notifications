@@ -1,0 +1,126 @@
+<!-- @dsCard group="Pantallas" height=730 width=640 subtitle="Pestaña Mascota: probarse y comprar accesorios" -->
+<!doctype html>
+<html lang="es">
+<head>
+<link rel="stylesheet" href="../../tokens.css">
+<meta charset="utf-8">
+<title>Vestidor — maqueta</title>
+<style>
+html,body{margin:0}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.row{display:flex;gap:16px;justify-content:center;padding:16px 16px 4px;align-items:flex-start}
+.col{display:flex;flex-direction:column;align-items:center;gap:2px}
+.phone{position:relative;width:296px;height:640px;border-radius:30px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-soft);overflow:hidden}
+.sbar{height:22px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:11px;font-weight:700;color:var(--ink-muted)}
+.scroll{padding:6px 14px 0}
+.ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.head{display:flex;align-items:center;gap:10px;padding:4px 2px 10px}
+.head svg.pet{width:44px;height:47px;flex:none}
+.head .grow{flex:1;min-width:0}
+.date{font-size:18px;line-height:23px;font-weight:800}
+.sub2{font-size:12px;line-height:16px;font-weight:700;color:var(--ink-muted)}
+.state{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:11px;line-height:14px;font-weight:800;color:var(--cocoa);background:var(--surface-raised);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.week{display:flex;gap:4px;margin-bottom:12px}
+.day{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 5px;border-radius:14px;background:var(--surface-raised);border:1px solid var(--line)}
+.day .d{font-size:10px;line-height:12px;font-weight:700;color:var(--ink-muted)}
+.day .n{font-size:15px;line-height:18px;font-weight:800}
+.day .dot{width:5px;height:5px;border-radius:50%;background:transparent}
+.day .dot.on{background:var(--cocoa)}
+.day.today{background:var(--cocoa);border-color:var(--cocoa)}
+.day.today .d,.day.today .n{color:var(--surface)}
+.day.today .dot.on{background:var(--surface)}
+.lbl{font-size:12px;line-height:16px;font-weight:800;color:var(--ink-muted);margin:2px 4px 6px}
+.card{background:var(--surface-raised);border:1px solid var(--line);border-radius:22px;box-shadow:0 2px 6px rgba(0,0,0,.05);padding:12px 14px}
+.empty{text-align:center}
+.empty .t{font-size:14px;line-height:19px;font-weight:800}
+.empty .s{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);margin:2px 0 10px}
+.tpl{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chip{display:flex;align-items:center;gap:6px;font-size:12px;line-height:16px;font-weight:800;color:var(--cocoa);background:var(--blush-soft);border-radius:14px;padding:8px 10px;text-align:left}
+.chip.ghost{background:transparent;border:1px dashed var(--line)}
+.item{display:flex;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .hr{width:40px;font-size:13px;font-weight:800;flex:none}
+.item .grow{flex:1;min-width:0}
+.item .ttl{font-size:14px;line-height:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .m{display:flex;align-items:center;gap:4px;font-size:11px;line-height:14px;font-weight:700;color:var(--ink-muted)}
+.item .m .ic{width:12px;height:12px}
+.ideas{display:flex;gap:6px;align-items:center;margin:8px 2px 0;overflow:hidden}
+.ideas .k{font-size:11px;font-weight:800;color:var(--ink-muted);flex:none}
+.ideas .chip{padding:5px 9px;border-radius:999px;white-space:nowrap;font-size:11px}
+.phrase{display:flex;gap:10px;align-items:flex-start;background:var(--sage-soft);border-radius:18px;padding:10px 12px;margin-top:10px}
+.phrase .ic{width:18px;height:18px;color:var(--cocoa);margin-top:1px}
+.phrase .q{font-size:13px;line-height:18px;font-weight:700}
+.phrase .w{font-size:11px;line-height:14px;font-weight:700;color:var(--ink-muted)}
+.bond{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px}
+.bond .ic{width:18px;height:18px;color:var(--cocoa)}
+.bond .grow{flex:1}
+.bar{height:6px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blush)}
+.bond .chev{width:16px;height:16px;fill:none;stroke:var(--ink-muted);stroke-width:2.2;stroke-linecap:round}
+.fold{display:flex;justify-content:space-between;align-items:center;padding:12px 6px 0;font-size:13px;font-weight:800;color:var(--ink-muted)}
+.fold svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.fab{position:absolute;right:14px;bottom:76px;display:flex;align-items:center;gap:6px;background:var(--cocoa);color:var(--surface);font-size:14px;font-weight:800;border-radius:18px;padding:12px 16px;box-shadow:var(--shadow-soft)}
+.fab svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.nav{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--surface-raised);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--ink-muted);width:80px}
+.tab .pill{width:52px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--cocoa);font-weight:900}.tab.on .pill{background:var(--blush-soft)}
+.cap{font-size:12px;line-height:16px;font-weight:800;margin-top:8px;text-align:center}
+.sub{font-size:12px;line-height:16px;font-weight:600;color:var(--ink-muted);text-align:center;max-width:296px}
+
+.phone{height:640px}
+.scene{position:relative;height:200px;border-radius:26px;background:var(--blush-soft);overflow:hidden;margin-bottom:12px}
+.scene .floor{position:absolute;left:-10%;right:-10%;bottom:-40px;height:80px;border-radius:50%;background:var(--surface-raised);opacity:.7}
+.scene svg.big{position:absolute;right:18px;bottom:10px;width:132px;height:142px}
+.scene .txt{position:absolute;left:16px;top:16px;max-width:140px}
+.scene .date{font-size:20px;line-height:24px}
+.vest{position:absolute;left:16px;bottom:14px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:var(--cocoa);background:var(--surface-raised);border-radius:999px;padding:6px 11px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.vest .ic{width:15px;height:15px}
+.sticky{display:flex;align-items:center;gap:10px;padding:4px 2px 10px;border-bottom:1px solid var(--line);margin:0 -14px 10px;padding-left:16px;padding-right:16px;background:var(--surface)}
+.sticky svg.pet{width:40px;height:43px}
+.lbl2{display:flex;justify-content:space-between}
+/* vestidor */
+.stage{position:relative;height:230px;display:flex;justify-content:center;align-items:flex-end}
+.stage .disc{position:absolute;left:50%;bottom:6px;width:210px;height:210px;margin-left:-105px;border-radius:50%;background:var(--blush-soft)}
+.stage svg.big{position:relative;width:170px;height:183px;margin-bottom:6px}
+.name{display:flex;justify-content:center;align-items:center;gap:8px;margin:6px 0 10px}
+.name b{font-size:20px;font-weight:800}
+.lv{font-size:11px;font-weight:900;color:var(--cocoa);background:var(--blush-soft);border-radius:999px;padding:2px 9px}
+.slots{display:flex;gap:6px;margin-bottom:10px}
+.slot{flex:1;text-align:center;border:1px solid var(--line);border-radius:14px;padding:6px 2px;background:var(--surface-raised)}
+.slot .k{font-size:10px;font-weight:800;color:var(--ink-muted)}
+.slot .v{font-size:12px;font-weight:800}
+.slot.empty .v{color:var(--ink-muted);font-weight:600}
+.seg{display:flex;background:var(--surface-raised);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:10px}
+.seg span{flex:1;text-align:center;font-size:12px;font-weight:800;color:var(--ink-muted);padding:5px 0;border-radius:999px}
+.seg span.on{background:var(--cocoa);color:var(--surface)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.it{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--surface-raised);padding:8px 4px 7px;text-align:center}
+.it .pic{height:38px;display:flex;align-items:center;justify-content:center}
+.it .pic svg{width:46px;height:38px}
+.it .n{font-size:11px;line-height:14px;font-weight:800}
+.it .s{font-size:10px;line-height:13px;font-weight:700;color:var(--ink-muted)}
+.it.on{border:2px solid var(--cocoa);padding:7px 3px 6px}
+.it.try{border:2px dashed var(--cocoa);padding:7px 3px 6px}
+.it .badge{position:absolute;right:5px;top:5px;width:16px;height:16px;border-radius:50%;background:var(--cocoa);color:var(--surface);display:flex;align-items:center;justify-content:center}
+.it .badge svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.it.lock .pic,.it.lock .n{opacity:.55}
+.it .s .ic{width:10px;height:10px;vertical-align:-1px}
+.price{font-size:10px;font-weight:900;color:var(--cocoa)}
+.trybar{position:absolute;left:12px;right:12px;bottom:72px;background:var(--surface-raised);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-soft);padding:10px 12px}
+.trybar .btns{display:flex;gap:8px;margin-top:8px}.trybar .btns .p{flex:1;text-align:center}
+.trybar .grow{flex:1;min-width:0}
+.trybar .t{font-size:13px;font-weight:800}
+.trybar .s{font-size:11px;font-weight:600;color:var(--ink-muted)}
+.btn{font-size:12px;font-weight:800;border-radius:999px;padding:8px 12px;white-space:nowrap}
+.btn.p{background:var(--cocoa);color:var(--surface)}
+.btn.g{border:1px solid var(--line);color:var(--cocoa)}
+.trytag{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:11px;font-weight:800;color:var(--cocoa);background:var(--surface-raised);border:1px dashed var(--cocoa);border-radius:999px;padding:3px 10px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="row"><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="stage"><div class="disc"></div><svg class="big" viewBox="0 0 80 86" aria-hidden="true"><path d="M57 72 q14 -2 12 -18" style="fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round"/><ellipse cx="40" cy="66" rx="20" ry="17" style="fill:var(--fur)"/><ellipse cx="40" cy="70" rx="11" ry="10" style="fill:var(--cream)"/><ellipse cx="31" cy="81" rx="6.5" ry="4.2" style="fill:var(--cream)"/><ellipse cx="49" cy="81" rx="6.5" ry="4.2" style="fill:var(--cream)"/><rect x="28" y="49" width="24" height="5.5" rx="2.75" style="fill:var(--sage)"/><circle cx="40" cy="32" r="18" style="fill:var(--fur)"/><ellipse cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)" style="fill:var(--fur-deep)"/><ellipse cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)" style="fill:var(--fur-deep)"/><ellipse cx="40" cy="40" rx="9.5" ry="7.5" style="fill:var(--cream)"/><ellipse cx="40" cy="36.4" rx="3.2" ry="2.3" style="fill:var(--pet-ink)"/><path d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0" style="fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round"/><circle cx="32.5" cy="29" r="2.7" style="fill:var(--pet-ink)"/><circle cx="47.5" cy="29" r="2.7" style="fill:var(--pet-ink)"/><circle cx="33.4" cy="28.1" r=".9" fill="#fffdf9"/><circle cx="48.4" cy="28.1" r=".9" fill="#fffdf9"/><ellipse cx="28.5" cy="37.5" rx="3.2" ry="2" style="fill:var(--blush)" opacity=".85"/><ellipse cx="51.5" cy="37.5" rx="3.2" ry="2" style="fill:var(--blush)" opacity=".85"/><path d="M28 49.5 Q40 53.5 52 49.5 L41.2 63 Q40 64.6 38.8 63 Z" style="fill:var(--sage)"/><circle cx="36" cy="53.5" r="1.1" fill="#fffdf9"/><circle cx="43.5" cy="53.8" r="1.1" fill="#fffdf9"/><circle cx="40" cy="58.5" r="1.1" fill="#fffdf9"/></svg></div><div class="name"><b>Perrito</b><span class="lv">Nivel 2</span></div><div class="slots"><div class="slot empty"><div class="k">Cabeza</div><div class="v">Vacío</div></div><div class="slot"><div class="k">Cuello</div><div class="v">Pañuelo</div></div><div class="slot empty"><div class="k">Camita</div><div class="v">Al dormir</div></div></div><div class="seg"><span class="on">Accesorios</span><span>Mascotas</span></div><div class="grid"><div class="it on"><span class="badge"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 10 Q23 16 40 10 L24 32 Q23 34 22 32 Z" style="fill:var(--sage)"/><circle cx="18" cy="15" r="1.4" fill="#fffdf9"/><circle cx="28" cy="15" r="1.4" fill="#fffdf9"/><circle cx="23" cy="22" r="1.4" fill="#fffdf9"/></svg></div><div class="n">Pañuelo</div><div class="s">Puesto</div></div><div class="it "><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 30 Q20 10 34 26 Q37 14 42 12 Q36 6 26 7 Q12 9 6 30Z" style="fill:var(--blush)"/><rect x="4" y="26" width="32" height="7" rx="3.5" style="fill:var(--cream);stroke:var(--line)"/><circle cx="42" cy="12" r="4" style="fill:var(--cream);stroke:var(--line)"/></svg></div><div class="n">Gorro navideño</div><div class="s"><span class="price">$ precio</span></div></div><div class="it "><div class="pic"><svg viewBox="0 0 46 38"><ellipse cx="23" cy="24" rx="15" ry="11" style="fill:var(--honey)"/><path d="M23 13 v-6" style="stroke:var(--fur-deep);stroke-width:2.4;stroke-linecap:round"/><path d="M17 15 Q16 24 17 33M29 15 Q30 24 29 33" style="fill:none;stroke:var(--fur-deep);stroke-width:1;opacity:.4"/></svg></div><div class="n">Calabacita</div><div class="s"><span class="price">$ precio</span></div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><path d="M8 28 Q8 8 23 8 Q38 8 38 28Z" style="fill:var(--honey)"/><rect x="6" y="25" width="34" height="7" rx="3.5" style="fill:var(--fur-deep)"/><circle cx="23" cy="7" r="4.5" style="fill:var(--cream)"/></svg></div><div class="n">Gorrito de lana</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 6</div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><ellipse cx="23" cy="26" rx="20" ry="9" style="fill:var(--sage)"/><ellipse cx="23" cy="23" rx="14" ry="5" style="fill:var(--cream)"/></svg></div><div class="n">Camita</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 5</div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 24 Q23 30 40 24" style="fill:none;stroke:var(--sage);stroke-width:3"/><circle cx="9" cy="22" r="4.5" style="fill:var(--blush)"/><circle cx="17" cy="25" r="4.5" style="fill:var(--honey)"/><circle cx="25" cy="26" r="4.5" style="fill:var(--blush)"/><circle cx="33" cy="25" r="4.5" style="fill:var(--honey)"/><circle cx="39" cy="22" r="4.5" style="fill:var(--blush)"/></svg></div><div class="n">Corona de flores</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 8</div></div></div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Vestidor</div><div class="sub">Lo que tiene puesto, lo ganado y lo que se compra</div></div><div class="col"><div class="phone"><div class="sbar"><span>9:41</span><span>●●●</span></div><div class="scroll"><div class="stage"><div class="disc"></div><span class="trytag">Probando: Gorro navideño</span><svg class="big" viewBox="0 0 80 86" aria-hidden="true"><path d="M57 72 q14 -2 12 -18" style="fill:none;stroke:var(--fur);stroke-width:6;stroke-linecap:round"/><ellipse cx="40" cy="66" rx="20" ry="17" style="fill:var(--fur)"/><ellipse cx="40" cy="70" rx="11" ry="10" style="fill:var(--cream)"/><ellipse cx="31" cy="81" rx="6.5" ry="4.2" style="fill:var(--cream)"/><ellipse cx="49" cy="81" rx="6.5" ry="4.2" style="fill:var(--cream)"/><rect x="28" y="49" width="24" height="5.5" rx="2.75" style="fill:var(--sage)"/><circle cx="40" cy="32" r="18" style="fill:var(--fur)"/><ellipse cx="23" cy="31" rx="6.5" ry="12.5" transform="rotate(16 23 31)" style="fill:var(--fur-deep)"/><ellipse cx="57" cy="31" rx="6.5" ry="12.5" transform="rotate(-16 57 31)" style="fill:var(--fur-deep)"/><ellipse cx="40" cy="40" rx="9.5" ry="7.5" style="fill:var(--cream)"/><ellipse cx="40" cy="36.4" rx="3.2" ry="2.3" style="fill:var(--pet-ink)"/><path d="M36.6 40.6 q1.7 2.1 3.4 0 q1.7 2.1 3.4 0" style="fill:none;stroke:var(--pet-ink);stroke-width:1.6;stroke-linecap:round"/><circle cx="32.5" cy="29" r="2.7" style="fill:var(--pet-ink)"/><circle cx="47.5" cy="29" r="2.7" style="fill:var(--pet-ink)"/><circle cx="33.4" cy="28.1" r=".9" fill="#fffdf9"/><circle cx="48.4" cy="28.1" r=".9" fill="#fffdf9"/><ellipse cx="28.5" cy="37.5" rx="3.2" ry="2" style="fill:var(--blush)" opacity=".85"/><ellipse cx="51.5" cy="37.5" rx="3.2" ry="2" style="fill:var(--blush)" opacity=".85"/><path d="M28 49.5 Q40 53.5 52 49.5 L41.2 63 Q40 64.6 38.8 63 Z" style="fill:var(--sage)"/><circle cx="36" cy="53.5" r="1.1" fill="#fffdf9"/><circle cx="43.5" cy="53.8" r="1.1" fill="#fffdf9"/><circle cx="40" cy="58.5" r="1.1" fill="#fffdf9"/><path d="M23 21 Q40 6 56 19 Q60 8 66 7 Q58 2 46 3 Q30 4 23 21Z" style="fill:var(--blush)"/><path d="M46 3 Q58 2 66 7 Q60 8 56 19" style="fill:none;stroke:var(--fur-deep);stroke-width:.8;opacity:.35"/><rect x="20.5" y="17" width="39" height="7" rx="3.5" style="fill:var(--cream)"/><circle cx="66" cy="7.5" r="4" style="fill:var(--cream)"/></svg></div><div class="name"><b>Perrito</b><span class="lv">Nivel 2</span></div><div class="slots"><div class="slot"><div class="k">Cabeza</div><div class="v">Gorro navideño</div></div><div class="slot"><div class="k">Cuello</div><div class="v">Pañuelo</div></div><div class="slot empty"><div class="k">Camita</div><div class="v">Al dormir</div></div></div><div class="seg"><span class="on">Accesorios</span><span>Mascotas</span></div><div class="grid"><div class="it on"><span class="badge"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 10 Q23 16 40 10 L24 32 Q23 34 22 32 Z" style="fill:var(--sage)"/><circle cx="18" cy="15" r="1.4" fill="#fffdf9"/><circle cx="28" cy="15" r="1.4" fill="#fffdf9"/><circle cx="23" cy="22" r="1.4" fill="#fffdf9"/></svg></div><div class="n">Pañuelo</div><div class="s">Puesto</div></div><div class="it try"><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 30 Q20 10 34 26 Q37 14 42 12 Q36 6 26 7 Q12 9 6 30Z" style="fill:var(--blush)"/><rect x="4" y="26" width="32" height="7" rx="3.5" style="fill:var(--cream);stroke:var(--line)"/><circle cx="42" cy="12" r="4" style="fill:var(--cream);stroke:var(--line)"/></svg></div><div class="n">Gorro navideño</div><div class="s"><span class="price">$ precio</span></div></div><div class="it "><div class="pic"><svg viewBox="0 0 46 38"><ellipse cx="23" cy="24" rx="15" ry="11" style="fill:var(--honey)"/><path d="M23 13 v-6" style="stroke:var(--fur-deep);stroke-width:2.4;stroke-linecap:round"/><path d="M17 15 Q16 24 17 33M29 15 Q30 24 29 33" style="fill:none;stroke:var(--fur-deep);stroke-width:1;opacity:.4"/></svg></div><div class="n">Calabacita</div><div class="s"><span class="price">$ precio</span></div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><path d="M8 28 Q8 8 23 8 Q38 8 38 28Z" style="fill:var(--honey)"/><rect x="6" y="25" width="34" height="7" rx="3.5" style="fill:var(--fur-deep)"/><circle cx="23" cy="7" r="4.5" style="fill:var(--cream)"/></svg></div><div class="n">Gorrito de lana</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 6</div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><ellipse cx="23" cy="26" rx="20" ry="9" style="fill:var(--sage)"/><ellipse cx="23" cy="23" rx="14" ry="5" style="fill:var(--cream)"/></svg></div><div class="n">Camita</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 5</div></div><div class="it lock"><div class="pic"><svg viewBox="0 0 46 38"><path d="M6 24 Q23 30 40 24" style="fill:none;stroke:var(--sage);stroke-width:3"/><circle cx="9" cy="22" r="4.5" style="fill:var(--blush)"/><circle cx="17" cy="25" r="4.5" style="fill:var(--honey)"/><circle cx="25" cy="26" r="4.5" style="fill:var(--blush)"/><circle cx="33" cy="25" r="4.5" style="fill:var(--honey)"/><circle cx="39" cy="22" r="4.5" style="fill:var(--blush)"/></svg></div><div class="n">Corona de flores</div><div class="s"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> Nivel 8</div></div></div></div><div class="trybar"><div class="grow"><div class="t">¿Te gusta cómo me queda?</div><div class="s">Solo se ve acá hasta que lo compres</div></div><div class="btns"><span class="btn g">Sacar</span><span class="btn p">Comprar · $ precio</span></div></div><div class="nav"><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6z"/><path d="M10 19.5a2 2 0 0 0 4 0"/></svg></span>Avisos</div><div class="tab on"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="10" r="2"/><path d="M12 12c-3 0-5.5 3-5.5 5.2 0 1.7 1.6 2.3 3 2 1-.2 1.6-.6 2.5-.6s1.5.4 2.5.6c1.4.3 3-.3 3-2C17.5 15 15 12 12 12z"/></svg></span>Mascota</div><div class="tab"><span class="pill"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span>Ajustes</div></div></div><div class="cap">Probador</div><div class="sub">Se lo pone para verlo; Comprar o Sacar</div></div></div>
+</body>
+</html>

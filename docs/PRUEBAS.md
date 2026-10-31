@@ -714,6 +714,28 @@ Para estas pruebas conviene apagar "Se esconde sola" (Ajustes → Avisos), salvo
 | 49.5 | Pausá 1 hora y volvé a Avisos. | La mascota grande duerme, dice "Vuelve a las…" y tiene el botón **Mostrar ahora**. En Ajustes, el botón también dice "Mostrar ahora". | |
 | 49.6 | Prendé **Avisos en silencio** y volvé a Avisos. | Debajo de la mascota aparece **Activar sonido**. | |
 
+## 50. La pantalla de Avisos nueva (versiones 1.0.39 y 1.0.40)
+
+Reemplaza la 49.1 a 49.3 y la 49.5 y 49.6 (la 49.4, Ajustes, sigue igual).
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 50.1 | Abrí la app en **Avisos**. | Arriba, una tarjeta rosa con un piso claro: la fecha grande ("Sábado 31 de octubre"), debajo "N cosas para hoy" (o "Nada pendiente para hoy"), la mascota grande abajo a la derecha y el chip **Vestir** abajo a la izquierda. | |
+| 50.2 | Bajá por la lista despacio. | La escena se achica de a poco: la mascota grande se achica y se va, aparece una chiquita a la izquierda de la fecha, y queda un encabezado fijo con una línea abajo. Nada se pisa en el medio. | |
+| 50.3 | Volvé a subir hasta arriba de todo. | Recién cuando la lista llega arriba, la escena se agranda otra vez. | |
+| 50.4 | Tocá la mascota grande o **Vestir**. | Abre la pestaña Mascota (por ahora la de siempre; el vestidor viene después). | |
+| 50.5 | Pausá la mascota 1 h, después activá **Avisos en silencio**, después apagá la mascota. | Debajo de "cosas para hoy" aparece una pastilla: "Vuelve a las…" (con la mascota dormida), "Avisos en silencio" o "Mostrar mascota". Tocarla lo arregla. | |
+| 50.6 | Teléfono en inglés. | La fecha dice "Saturday, October 31". | |
+| 50.7 | Debajo de la escena (y del cartel amarillo, si falta un permiso). | La **semana**: 7 días desde hoy; hoy en marrón con letras claras, el resto blancos. Los días con algo tienen un puntito. Ya no hay cartel amarillo por "mascota apagada" (lo dice la pastilla de la escena). | |
+| 50.8 | Sin nada para hoy. | "Hoy no tenés nada pendiente", "Empezá con uno de estos; se repiten solos" y 6 botones: Tomar agua, Pastilla, Regar las plantas, Sacar la basura, Cumpleaños y Otro (punteado). | |
+| 50.9 | Tocá **Tomar agua**. | Abre "Nuevo recordatorio" con el título puesto y "Todos los días" marcado, y enseguida el reloj para elegir la hora. Guardalo. **Cumpleaños** abre el formulario sin reloj (falta la fecha). **Otro** lo abre vacío. | |
+| 50.10 | Con 1 o 2 recordatorios que se repiten. | Debajo de la lista de Hoy, una fila "Ideas:" con las plantillas que todavía no usaste. Con 3 o más que se repiten, desaparece. | |
+| 50.11 | Mirá los puntitos de la semana. | Un recordatorio de todos los días pone punto en los 7 días; uno semanal, solo en su día. | |
+| 50.12 | Tocá otro día de la semana. | Queda con borde marrón y la lista muestra ese día ("Martes 3"), o "Nada para ese día". Tocá hoy para volver. Con hoy elegido, abajo aparecen también Mañana y Más adelante (lo que pasa de la semana). | |
+| 50.13 | Más abajo. | La **frase del día** (fondo verde, hojita, "Frase del día · Tu león"): la misma todo el día. Con las frases en "Nunca" no aparece. | |
+| 50.14 | Debajo de la frase. | El **vínculo en una línea**: "Nivel 1 · Recién llegada", "Faltan N «Listo» para el nivel 2" y una barrita rosa. Tocarlo abre Mascota. Después, "Ya avisados hoy (N)" plegado. | |
+| 50.15 | Con el reloj del teléfono en 12 horas. | La hora "6:40 p. m." entra en una sola línea. | |
+
 ---
 
 ## Si algo falla

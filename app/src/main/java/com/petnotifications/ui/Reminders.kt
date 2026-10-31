@@ -121,7 +121,7 @@ fun ReminderRow(r: Reminder, onClick: () -> Unit, onDelete: () -> Unit) {
 @Composable
 fun ReminderEditor(initial: Reminder?, onDismiss: () -> Unit, onSave: (Reminder) -> Unit) {
     val start = remember {
-        initial?.timeMillis?.toLocal()
+        initial?.timeMillis?.takeIf { it > 0 }?.toLocal()
             ?: LocalDateTime.now(zone).plusMinutes(30).withSecond(0).withNano(0)
     }
     var title by remember { mutableStateOf(initial?.title.orEmpty()) }
@@ -132,11 +132,19 @@ fun ReminderEditor(initial: Reminder?, onDismiss: () -> Unit, onSave: (Reminder)
     var quiet by remember { mutableStateOf(initial?.quiet ?: false) }
     var pickDate by remember { mutableStateOf(false) }
     var pickTime by remember { mutableStateOf(false) }
+    // Desde una plantilla (sin hora todavía) lo único que falta es la hora: el reloj se abre solo,
+    // un instante después del formulario (dos diálogos en el mismo cuadro pelean por el foco).
+    LaunchedEffect(Unit) {
+        if (initial != null && initial.timeMillis == 0L && initial.repeat != Repeat.NONE.name) {
+            kotlinx.coroutines.delay(300)
+            pickTime = true
+        }
+    }
     val dateFmt = dayFormatter()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(if (initial == null) R.string.new_reminder else R.string.edit_reminder)) },
+        title = { Text(stringResource(if (initial == null || initial.id == 0L) R.string.new_reminder else R.string.edit_reminder)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(

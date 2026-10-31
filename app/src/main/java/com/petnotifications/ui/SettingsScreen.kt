@@ -1,5 +1,24 @@
 package com.petnotifications.ui
 
+import androidx.compose.material.icons.outlined.WaterDrop
+import androidx.compose.material.icons.outlined.Medication
+import androidx.compose.material.icons.outlined.LocalFlorist
+import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Cake
+import androidx.compose.material.icons.outlined.Eco
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.outlined.Checkroom
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.platform.LocalDensity
 import android.Manifest
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.ColumnScope
@@ -84,6 +103,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
@@ -269,6 +289,8 @@ fun SettingsScreen(
 
     val reminders by remember { dao.observeAll() }.collectAsStateWithLifecycle(emptyList())
     var editing by remember { mutableStateOf<Reminder?>(null) }
+    /** Recordatorio nuevo armado desde una plantilla de Avisos (id 0, sin hora todavía). */
+    var draft by remember { mutableStateOf<Reminder?>(null) }
     var creating by remember { mutableStateOf(false) }
 
     suspend fun reloadCalendars() {
@@ -448,61 +470,131 @@ fun SettingsScreen(
 
     // ---------------------------------------------------------------- Avisos
     /**
-     * Arriba de Avisos, la mascota grande: lo primero que se ve de la app. Tocarla la hace saltar
-     * contenta. Debajo, su nombre y, solo si hace falta, cómo volver a mostrarla o activar el sonido
-     * (pausar y silenciar están en Ajustes).
+     * Arriba de Avisos, la escena: la mascota grande (con lo que tenga puesto), la fecha, cuántas cosas
+     * hay para hoy y el chip Vestir. [open] va de 1 (escena entera) a 0 (encabezado fijo de 56 dp con
+     * la mascota chiquita): al bajar por la lista se achica de a poco y al volver arriba se agranda.
+     * Tocar la mascota o Vestir abre la pestaña Mascota.
      */
     @Composable
-    fun PetHero() {
+    fun PetScene(open: Float, todayCount: Int) {
         val off = !enabled || !canOverlay
-        val hop = remember { Animatable(0f) }
-        var happy by remember { mutableStateOf(false) }
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(176.dp).background(c.blushSoft, CircleShape)) {
+        val f = open.coerceIn(0f, 1f)
+        fun lerp(a: Float, b: Float) = a + (b - a) * f
+        val fade = ((f - 0.5f) / 0.5f).coerceIn(0f, 1f)
+        val locale = ctx.resources.configuration.locales[0]
+        val date = remember(locale) {
+            java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern(ctx.getString(R.string.home_date_pattern), locale))
+                .replaceFirstChar { it.titlecase(locale) }
+        }
+        val toVestidor = { tab = TAB_PET }
+        val shape = RoundedCornerShape(lerp(0f, 26f).dp)
+        BoxWithConstraints(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = lerp(0f, 16f).dp, end = lerp(0f, 16f).dp, top = lerp(4f, 12f).dp)
+                .height(lerp(SCENE_MIN_DP, SCENE_MAX_DP).dp)
+                .clip(shape)
+                .background(c.blushSoft.copy(alpha = f))
+                .drawBehind {
+                    // el piso suave, que se va con la escena; abajo, la línea del encabezado fijo
+                    val box = this.size // (no el tamaño de la mascota)
+                    drawOval(
+                        c.surfaceRaised.copy(alpha = 0.7f * f),
+                        topLeft = Offset(-box.width * 0.1f, box.height - 40.dp.toPx()),
+                        size = Size(box.width * 1.2f, 80.dp.toPx()),
+                    )
+                    if (f < 1f) drawLine(c.line.copy(alpha = 1f - f), Offset(0f, box.height - 1f), Offset(box.width, box.height - 1f), 1.dp.toPx())
+                },
+        ) {
+            val w = maxWidth.value
+            val h = lerp(SCENE_MIN_DP, SCENE_MAX_DP)
+            // La grande se achica en su rincón y se va; la chiquita aparece a la izquierda del texto
+            // (si una viajara hasta la otra, le pasaría por encima a la fecha).
+            val small = 1f - (f / 0.35f).coerceIn(0f, 1f)
+            val big = ((f - 0.25f) / 0.35f).coerceIn(0f, 1f)
+            val painter = petPainter(pet, if (paused || off) PetView.SLEEP else PetView.FRONT, coatOf(pet))
+            val tap = Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = toVestidor)
+            if (big > 0f) {
+                val petSize = 130f * (0.55f + 0.45f * f)
                 Image(
-                    petPainter(pet, if (paused || off) PetView.SLEEP else if (happy) PetView.HAPPY else PetView.FRONT, coatOf(pet)),
-                    contentDescription = petSubject,
-                    modifier = Modifier
-                        .size(150.dp)
-                        .graphicsLayer { translationY = -hop.value * 22.dp.toPx() }
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                            if (paused || off) return@clickable
-                            scope.launch {
-                                happy = true
-                                hop.animateTo(1f, tween(160))
-                                hop.animateTo(0f, spring(dampingRatio = 0.45f, stiffness = 500f))
-                                delay(500)
-                                happy = false
-                            }
-                        },
+                    painter, contentDescription = petSubject,
+                    modifier = Modifier.offset((w - 18f - petSize).dp, (h - 10f - petSize).dp).size(petSize.dp).alpha(big).then(tap),
                 )
             }
-            Text(
-                prefs.petName(pet) ?: stringResource(pet.nameRes),
-                fontSize = 22.sp, fontWeight = FontWeight(800), color = c.ink, modifier = Modifier.padding(top = 10.dp),
-            )
-            Text(
-                when {
-                    off -> stringResource(R.string.status_hidden)
-                    paused -> stringResource(R.string.home_back_at, hhmm(minuteOfDay(pausedUntil)))
-                    trialDays != null -> stringResource(R.string.home_trial_line, trialDays)
-                    else -> stringResource(R.string.status_sound, stringResource(pet.soundRes))
-                },
-                fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
-            )
-            if (off || paused || muted) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 10.dp)) {
-                    when {
-                        off -> SoftChip(stringResource(R.string.home_show_pet), Icons.Outlined.Visibility) { setEnabled(true) }
-                        paused -> SoftChip(stringResource(R.string.pet_resume_now), Icons.Outlined.Visibility) {
-                            resumePet()
-                            if (canOverlay) PetOverlayService.start(ctx)
-                        }
+            if (small > 0f) {
+                Image(
+                    painter, contentDescription = if (big > 0f) null else petSubject,
+                    modifier = Modifier.offset(16.dp, ((SCENE_MIN_DP - 40f) / 2).dp).size(40.dp).alpha(small).then(tap),
+                )
+            }
+            Column(
+                Modifier
+                    .offset((16f + 50f * small).dp, lerp(10f, 16f).dp)
+                    .width(lerp(w - 82f, w - 16f - 130f - 30f).dp),
+            ) {
+                Text(
+                    date, fontSize = lerp(16f, 20f).sp, lineHeight = lerp(20f, 24f).sp, fontWeight = FontWeight(800), color = c.ink,
+                    maxLines = if (f < 0.5f) 1 else 2, overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    when (todayCount) {
+                        0 -> stringResource(R.string.home_today_none)
+                        1 -> stringResource(R.string.home_today_one)
+                        else -> stringResource(R.string.home_today_many, todayCount)
+                    },
+                    fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight(700), color = c.inkMuted,
+                    modifier = Modifier.padding(top = (4f * f).dp),
+                )
+                // pausa, silencio u oculta: una pastilla que lo arregla de un toque
+                val state = when {
+                    off -> stringResource(R.string.home_show_pet) to { setEnabled(true) }
+                    paused -> stringResource(R.string.home_back_at, hhmm(minuteOfDay(pausedUntil))) to {
+                        resumePet()
+                        if (canOverlay) PetOverlayService.start(ctx)
                     }
-                    if (muted) SoftChip(stringResource(R.string.unmute), Icons.AutoMirrored.Outlined.VolumeUp) {
+                    muted -> stringResource(R.string.row_mute) to {
                         muted = false
                         prefs.muted = false
                     }
+                    else -> null
+                }
+                if (state != null && fade > 0f) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .alpha(fade)
+                            .background(c.surfaceRaised, RoundedCornerShape(50))
+                            .border(1.dp, c.line, RoundedCornerShape(50))
+                            .clickable(enabled = fade > 0.5f, onClick = state.second)
+                            .padding(horizontal = 9.dp, vertical = 3.dp),
+                    ) {
+                        Icon(
+                            when {
+                                off -> Icons.Outlined.Visibility
+                                paused -> Icons.Outlined.Bedtime
+                                else -> Icons.AutoMirrored.Outlined.VolumeOff
+                            },
+                            contentDescription = null, tint = c.cocoa, modifier = Modifier.size(12.dp),
+                        )
+                        Text(state.first, fontSize = 11.sp, lineHeight = 14.sp, fontWeight = FontWeight(800), color = c.cocoa, modifier = Modifier.padding(start = 5.dp))
+                    }
+                }
+            }
+            if (fade > 0f) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 16.dp, bottom = 14.dp)
+                        .alpha(fade)
+                        .shadow(2.dp, RoundedCornerShape(50))
+                        .background(c.surfaceRaised, RoundedCornerShape(50))
+                        .clickable(enabled = fade > 0.5f, onClick = toVestidor)
+                        .padding(horizontal = 11.dp, vertical = 6.dp),
+                ) {
+                    Icon(Icons.Outlined.Checkroom, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(15.dp))
+                    Text(stringResource(R.string.home_dress), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.cocoa, modifier = Modifier.padding(start = 5.dp))
                 }
             }
         }
@@ -510,7 +602,8 @@ fun SettingsScreen(
 
     @Composable
     fun AlertCard() {
-        // Una sola por vez y solo si hace falta: permiso faltante > prueba que termina > mascota apagada.
+        // Una sola por vez y solo si hace falta: permiso faltante > prueba que termina. (Si la mascota
+        // está apagada lo dice la pastilla de la escena.)
         val (title, body, action, onAction) = when {
             missingPerms > 0 -> Quad(
                 if (missingPerms == 1) stringResource(R.string.home_alert_perm_one) else stringResource(R.string.home_alert_perm_many, missingPerms),
@@ -522,11 +615,6 @@ fun SettingsScreen(
                 stringResource(R.string.home_alert_trial_body),
                 stringResource(R.string.pro_see_plans),
             ) { showPro = true }
-            !enabled -> Quad(
-                stringResource(R.string.home_alert_off),
-                stringResource(R.string.home_alert_off_body),
-                stringResource(R.string.home_turn_on),
-            ) { setEnabled(true) }
             else -> return
         }
         val shape = RoundedCornerShape(18.dp)
@@ -581,7 +669,7 @@ fun SettingsScreen(
                 .clickable { item.reminder?.let { detailId = it.id } ?: item.event?.let(::openEvent) }
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
-            Text(hhmmOf(item.at), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.ink, modifier = Modifier.width(52.dp))
+            Text(hhmmOf(item.at), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.ink, maxLines = 1, softWrap = false, modifier = Modifier.widthIn(min = 52.dp).padding(end = 8.dp))
             Column(Modifier.weight(1f)) {
                 Text(item.title, fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 val repeat = item.reminder?.let { Repeat.from(it.repeat) } ?: Repeat.NONE
@@ -681,96 +769,298 @@ fun SettingsScreen(
         }
     }
 
+    /** Plantillas de un toque: título y repetición sugerida; el formulario abre pidiendo la hora. */
+    val templates = listOf(
+        Template(R.string.tpl_water, R.string.tpl_water, Icons.Outlined.WaterDrop, Repeat.DAILY),
+        Template(R.string.tpl_pill, R.string.tpl_pill_title, Icons.Outlined.Medication, Repeat.DAILY),
+        Template(R.string.tpl_plants, R.string.tpl_plants, Icons.Outlined.LocalFlorist, Repeat.WEEKLY),
+        Template(R.string.tpl_trash, R.string.tpl_trash, Icons.Outlined.DeleteOutline, Repeat.DAILY),
+        Template(R.string.tpl_bday, R.string.tpl_bday, Icons.Outlined.Cake, Repeat.NONE),
+    )
+
+    fun useTemplate(t: Template) {
+        draft = Reminder(title = ctx.getString(t.title), timeMillis = 0, repeat = t.repeat.name)
+    }
+
+    /** La semana desde hoy: hoy en cocoa, un punto en los días con algo, el elegido con borde. */
+    @Composable
+    fun WeekStrip(days: List<java.time.LocalDate>, busy: Set<java.time.LocalDate>, selected: java.time.LocalDate, onPick: (java.time.LocalDate) -> Unit) {
+        val locale = ctx.resources.configuration.locales[0]
+        val fmt = remember(locale) { java.time.format.DateTimeFormatter.ofPattern("EEE", locale) }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
+            days.forEachIndexed { i, d ->
+                val today = i == 0
+                val shape = RoundedCornerShape(14.dp)
+                val fg = if (today) c.surface else c.ink
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(shape)
+                        .background(if (today) c.cocoa else c.surfaceRaised)
+                        .border(if (d == selected && !today) 2.dp else 1.dp, if (today || d == selected) c.cocoa else c.line, shape)
+                        .clickable { onPick(d) }
+                        .padding(top = 6.dp, bottom = 5.dp),
+                ) {
+                    Text(
+                        d.format(fmt).trimEnd('.').take(3).replaceFirstChar { it.titlecase(locale) },
+                        fontSize = 11.sp, lineHeight = 13.sp, fontWeight = FontWeight(700), color = if (today) c.surface else c.inkMuted,
+                    )
+                    Text(d.dayOfMonth.toString(), fontSize = 16.sp, lineHeight = 19.sp, fontWeight = FontWeight(800), color = fg)
+                    Box(
+                        Modifier.padding(top = 2.dp).size(5.dp)
+                            .background(if (d in busy) (if (today) c.surface else c.cocoa) else Color.Transparent, CircleShape),
+                    )
+                }
+            }
+        }
+    }
+
+    /** Hoy sin nada: las plantillas en dos columnas y "Otro" (formulario vacío). */
+    @Composable
+    fun TemplatesCard() {
+        PetCard {
+            Text(stringResource(R.string.home_today_empty_title), fontSize = 15.sp, fontWeight = FontWeight(800), color = c.ink, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            Text(
+                stringResource(R.string.home_today_empty_body), fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+                textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 2.dp, bottom = 12.dp),
+            )
+            val cells: List<Template?> = templates + null
+            cells.chunked(2).forEach { pair ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                    pair.forEach { t ->
+                        val shape = RoundedCornerShape(14.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(shape)
+                                .then(if (t == null) Modifier.dashedBorder(c.line, 14.dp) else Modifier.background(c.blushSoft))
+                                .clickable { if (t == null) creating = true else useTemplate(t) }
+                                .heightIn(min = 44.dp)
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                        ) {
+                            Icon(t?.icon ?: Icons.Default.Add, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(18.dp))
+                            Text(
+                                stringResource(t?.label ?: R.string.tpl_other), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.cocoa,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(start = 8.dp),
+                            )
+                        }
+                    }
+                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+    }
+
+    /** Con 1 o 2 recordatorios que se repiten: las plantillas que faltan, en una fila de chips chicos. */
+    @Composable
+    fun IdeasRow(have: Set<String>) {
+        val left = templates.filter { ctx.getString(it.title) !in have }
+        if (left.isEmpty()) return
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 2.dp),
+        ) {
+            Text(stringResource(R.string.home_ideas), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.inkMuted)
+            left.forEach { t ->
+                Text(
+                    stringResource(t.label), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.cocoa,
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(c.blushSoft).clickable { useTemplate(t) }
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+        }
+    }
+
+    /** La frase amigable del día (la misma todo el día), sin interrumpir. No sale con las frases en "Nunca". */
+    @Composable
+    fun PhraseOfDay() {
+        if (friendly == Prefs.FRIENDLY_OFF) return
+        val phrase = remember {
+            val all = ctx.resources.getStringArray(R.array.friendly_any)
+            all[Math.floorMod(java.time.LocalDate.now().toEpochDay(), all.size.toLong()).toInt()]
+        }
+        val shape = RoundedCornerShape(18.dp)
+        Row(Modifier.fillMaxWidth().background(c.sageSoft, shape).padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Icon(Icons.Outlined.Eco, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(18.dp).padding(top = 1.dp))
+            Column(Modifier.padding(start = 10.dp)) {
+                Text(phrase, fontSize = 14.sp, lineHeight = 19.sp, fontWeight = FontWeight(700), color = c.ink)
+                Text(
+                    stringResource(R.string.home_phrase_by, prefs.petName(pet) ?: stringResource(pet.nameRes)),
+                    fontSize = 12.sp, fontWeight = FontWeight(700), color = c.inkMuted,
+                )
+            }
+        }
+    }
+
+    /** El vínculo en una línea: nivel, cuánto falta y la barra; toca y va a Mascota. */
+    @Composable
+    fun BondLine() {
+        val level = Bond.levelFor(bondHearts)
+        val next = Bond.next(level)
+        val (have, need) = Bond.progress(bondHearts)
+        PetCard(Modifier.clickable { tab = TAB_PET }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(20.dp))
+                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
+                    Text(stringResource(R.string.bond_chip, level.number, stringResource(level.name)), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.ink)
+                    Text(
+                        when {
+                            next == null -> stringResource(R.string.bond_max)
+                            next.from - bondHearts == 1 -> stringResource(R.string.bond_missing_one, next.number)
+                            else -> stringResource(R.string.bond_missing_many, next.from - bondHearts, next.number)
+                        },
+                        fontSize = 12.sp, fontWeight = FontWeight(700), color = c.inkMuted,
+                    )
+                    Box(Modifier.padding(top = 6.dp).fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(c.line)) {
+                        Box(Modifier.fillMaxWidth(if (need > 0) have.toFloat() / need else 1f).fillMaxHeight().background(c.blush))
+                    }
+                }
+                Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.inkMuted)
+            }
+        }
+    }
+
     @Composable
     fun AlertsTab(padding: PaddingValues) {
         val zone = java.time.ZoneId.systemDefault()
         val today = java.time.LocalDate.now(zone)
         fun dayOf(at: Long) = java.time.Instant.ofEpochMilli(at).atZone(zone).toLocalDate()
-        val upcoming = remember(reminders, events) {
-            (reminders.filter { !it.fired }.map { HomeItem(it.timeMillis, it.title, it, null) } +
-                events.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).sortedBy { it.at }
+        val days = remember(today) { (0L..6L).map { today.plusDays(it) } }
+        var selected by remember { mutableStateOf(today) }
+        if (selected !in days) selected = today
+        /** Lo que hay un día: los recordatorios que se repiten aparecen en cada día que les toca. */
+        fun itemsOn(day: java.time.LocalDate): List<HomeItem> {
+            val mine = reminders.filter { !it.fired }.mapNotNull { r ->
+                val first = java.time.Instant.ofEpochMilli(r.timeMillis).atZone(zone)
+                val hits = when (Repeat.from(r.repeat)) {
+                    Repeat.NONE -> first.toLocalDate() == day
+                    Repeat.DAILY -> !day.isBefore(first.toLocalDate())
+                    Repeat.WEEKLY -> !day.isBefore(first.toLocalDate()) && day.dayOfWeek == first.dayOfWeek
+                }
+                if (hits) HomeItem(first.with(day).toInstant().toEpochMilli(), r.title, r, null) else null
+            }
+            val cal = events.filter { e -> e.eventBegin?.let { dayOf(it) == day } == true }.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }
+            return (mine + cal).sortedBy { it.at }
+        }
+        val byDay = remember(reminders, events, today) { days.associateWith(::itemsOn) }
+        val later = remember(reminders, events, today) {
+            val end = today.plusDays(6)
+            (reminders.filter { !it.fired && Repeat.from(it.repeat) == Repeat.NONE }.map { HomeItem(it.timeMillis, it.title, it, null) } +
+                events.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).filter { dayOf(it.at).isAfter(end) }.sortedBy { it.at }
         }
         val firedToday = reminders.filter { it.fired && dayOf(it.timeMillis) == today }
+        val todayCount = byDay[today].orEmpty().count { it.at >= System.currentTimeMillis() || it.event != null }
+        val repeating = reminders.filter { Repeat.from(it.repeat) != Repeat.NONE }
+        @Composable
+        fun DayList(list: List<HomeItem>) = PetCard(padding = 0.dp) {
+            list.forEachIndexed { i, it ->
+                if (i > 0) RowDivider()
+                ItemRow(it, showDay = false)
+            }
+        }
+        val locale = ctx.resources.configuration.locales[0]
+        val dayName = when (selected) {
+            today -> stringResource(R.string.today)
+            today.plusDays(1) -> stringResource(R.string.tomorrow)
+            else -> selected.format(java.time.format.DateTimeFormatter.ofPattern(stringResource(R.string.home_day_pattern), locale))
+                .replaceFirstChar { it.titlecase(locale) }
+        }
+        val chosen = byDay[selected].orEmpty()
+        val density = LocalDensity.current
+        val range = with(density) { (SCENE_MAX_DP - SCENE_MIN_DP).dp.toPx() }
+        // 0 = escena entera; range = encabezado fijo. Se achica antes de que la lista suba y se
+        // agranda solo cuando la lista ya volvió arriba.
+        var shrunk by remember { mutableFloatStateOf(0f) }
+        val connection = remember(range) {
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y >= 0f) return Offset.Zero
+                    val before = shrunk
+                    shrunk = (shrunk - available.y).coerceAtMost(range)
+                    return Offset(0f, before - shrunk)
+                }
+
+                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                    if (available.y <= 0f) return Offset.Zero
+                    val before = shrunk
+                    shrunk = (shrunk - available.y).coerceAtLeast(0f)
+                    return Offset(0f, before - shrunk)
+                }
+            }
+        }
+        Column(
+            Modifier
+                .padding(top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding())
+                .nestedScroll(connection),
+        ) {
+        PetScene(1f - shrunk / range, todayCount)
         LazyColumn(
-            modifier = Modifier.padding(top = padding.calculateTopPadding(), bottom = padding.calculateBottomPadding()),
+            modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             trying?.let { (p, coat) -> item { TryCard(p, coat) } }
-            item { PetHero() }
             item { AlertCard() }
-            if (upcoming.isEmpty() && firedToday.isEmpty()) {
-                item {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                        Text(
-                            stringResource(R.string.home_empty_title), fontSize = 17.sp, fontWeight = FontWeight(800), color = c.ink,
-                            textAlign = TextAlign.Center,
-                        )
-                        Text(stringResource(R.string.home_empty_body), fontSize = 14.sp, fontWeight = FontWeight(600), color = c.inkMuted, textAlign = TextAlign.Center)
-                        Button(
-                            onClick = { creating = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = c.cocoa, contentColor = c.surface),
-                            modifier = Modifier.padding(top = 16.dp).heightIn(min = 48.dp),
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null)
-                            Text(stringResource(R.string.home_create_first), fontWeight = FontWeight(800), modifier = Modifier.padding(start = 6.dp))
-                        }
-                        OutlinedButton(onClick = ::testAlert, modifier = Modifier.padding(top = 8.dp).heightIn(min = 48.dp)) {
-                            Text(stringResource(R.string.test_alert), color = c.cocoa, fontWeight = FontWeight(800))
-                        }
+            item { WeekStrip(days, days.filter { byDay[it].orEmpty().isNotEmpty() }.toSet(), selected) { selected = it } }
+
+            item { SectionLabel(dayName, Modifier.padding(top = 2.dp)) }
+            when {
+                chosen.isNotEmpty() -> item { DayList(chosen) }
+                selected == today -> item { TemplatesCard() }
+                else -> item {
+                    PetCard {
+                        Text(stringResource(R.string.home_day_empty), fontSize = 14.sp, fontWeight = FontWeight(700), color = c.inkMuted, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     }
                 }
-            } else {
-                upcoming.firstOrNull()?.let { first ->
-                    item { SectionLabel(stringResource(R.string.home_next)) }
-                    item { NextCard(first) }
+            }
+            if (selected == today) {
+                if (chosen.isNotEmpty() && repeating.size < 3) item { IdeasRow(reminders.map { it.title }.toSet()) }
+                val tomorrow = byDay[today.plusDays(1)].orEmpty()
+                if (tomorrow.isNotEmpty()) {
+                    item { SectionLabel(stringResource(R.string.tomorrow), Modifier.padding(top = 4.dp)) }
+                    item { DayList(tomorrow) }
                 }
-                val rest = upcoming.drop(1)
-                val groups = rest.groupBy { item ->
-                    val d = dayOf(item.at)
-                    when {
-                        !d.isAfter(today) -> 0
-                        d == today.plusDays(1) -> 1
-                        !d.isAfter(today.plusDays(7)) -> 2
-                        else -> 3
-                    }
-                }
-                val names = listOf(R.string.today, R.string.tomorrow, R.string.home_week, R.string.home_later)
-                groups.toSortedMap().forEach { (g, list) ->
-                    item { SectionLabel(stringResource(names[g]), Modifier.padding(top = 4.dp)) }
+                if (later.isNotEmpty()) {
+                    item { SectionLabel(stringResource(R.string.home_later), Modifier.padding(top = 4.dp)) }
                     item {
                         PetCard(padding = 0.dp) {
-                            list.forEachIndexed { i, it ->
+                            later.forEachIndexed { i, it ->
                                 if (i > 0) RowDivider()
-                                ItemRow(it, showDay = g >= 2)
-                            }
-                        }
-                    }
-                }
-                if (firedToday.isNotEmpty()) {
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().clickable { showFiredToday = !showFiredToday }.padding(vertical = 6.dp),
-                        ) {
-                            SectionLabel(stringResource(R.string.home_fired_today, firedToday.size), Modifier.weight(1f))
-                            Icon(
-                                if (showFiredToday) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                                contentDescription = null, tint = c.inkMuted,
-                            )
-                        }
-                    }
-                    if (showFiredToday) item {
-                        PetCard(padding = 0.dp) {
-                            firedToday.forEachIndexed { i, r ->
-                                if (i > 0) RowDivider()
-                                ItemRow(HomeItem(r.timeMillis, r.title, r, null), showDay = false, faded = true)
+                                ItemRow(it, showDay = true)
                             }
                         }
                     }
                 }
             }
+            item { PhraseOfDay() }
+            item { BondLine() }
+            if (firedToday.isNotEmpty()) {
+                item {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().clickable { showFiredToday = !showFiredToday }.padding(vertical = 6.dp),
+                    ) {
+                        SectionLabel(stringResource(R.string.home_fired_today, firedToday.size), Modifier.weight(1f))
+                        Icon(
+                            if (showFiredToday) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = null, tint = c.inkMuted,
+                        )
+                    }
+                }
+                if (showFiredToday) item {
+                    PetCard(padding = 0.dp) {
+                        firedToday.forEachIndexed { i, r ->
+                            if (i > 0) RowDivider()
+                            ItemRow(HomeItem(r.timeMillis, r.title, r, null), showDay = false, faded = true)
+                        }
+                    }
+                }
+            }
             item { TipCard() }
+        }
         }
     }
 
@@ -1608,16 +1898,18 @@ fun SettingsScreen(
         }
     }
 
-    if (creating || editing != null) {
+    if (creating || editing != null || draft != null) {
         ReminderEditor(
-            initial = editing,
+            initial = editing ?: draft,
             onDismiss = {
                 creating = false
                 editing = null
+                draft = null
             },
             onSave = { r ->
                 creating = false
                 editing = null
+                draft = null
                 scope.launch {
                     withContext(Dispatchers.IO) {
                         val saved = if (r.id == 0L) r.copy(id = dao.insert(r)) else r.also { dao.update(it) }
@@ -1782,6 +2074,9 @@ internal fun batteryUnrestricted(ctx: Context) =
 
 private const val TAB_ALERTS = 0
 private const val TAB_PET = 1
+/** Alto de la escena de Avisos: entera y achicada a encabezado fijo. */
+private const val SCENE_MAX_DP = 200f
+private const val SCENE_MIN_DP = 56f
 private const val TAB_SETTINGS = 2
 private const val TAB_COUNT = 3
 private const val SUB_NOTIFY = "notify"
@@ -1793,6 +2088,10 @@ private const val SUB_PATH = "path"
 
 /** Algo que va a sonar: un recordatorio propio o un evento del calendario. */
 private data class HomeItem(val at: Long, val title: String, val reminder: Reminder?, val event: PetAlert?)
+
+/** Plantilla de Avisos: lo que dice el chip, el título que pone y la repetición sugerida. */
+private class Template(@androidx.annotation.StringRes val label: Int, @androidx.annotation.StringRes val title: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector, val repeat: Repeat)
+
 
 private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
