@@ -38,9 +38,10 @@ PALETTES = {
              ("Celeste", dict(main="#9FD4EA", light="#E3F4FA")),
              ("Amarilla", dict(main="#F5DC7A", light="#FBF3D2")),
              ("Rosa", dict(main="#F5B7C8", light="#FCE6EC")),
-             ("Con lunares", dict(main="#A6D98A", light="#E6F5D0", spots=[('head', 50, 104, 7.5, 6.5, '#6AA653', 0), ('head', 150, 98, 6.5, 6, '#6AA653', 0), ('head', 118, 90, 5.5, 5, '#6AA653', 0), ('head', 84, 92, 9.5, 8.5, '#6AA653', 1), ('head', 118, 112, 7.5, 6.5, '#6AA653', 1), ('head', 100, 80, 6.5, 5.5, '#6AA653', 1), ('body', 76, 176, 6.5, 6, '#6AA653', 0), ('body', 128, 180, 6, 5.5, '#6AA653', 0), ('body', 88, 172, 8.5, 7.5, '#6AA653', 1), ('body', 116, 188, 7.5, 6.5, '#6AA653', 1)]))],
+             # Lila: en verde con lunares verdes se veía igual que la original (los lunares casi no se ven de frente).
+             ("Lila con lunares", dict(main="#C9B6E8", light="#F1EAFB", spots=[('head', 50, 104, 7.5, 6.5, '#8C6CC4', 0), ('head', 150, 98, 6.5, 6, '#8C6CC4', 0), ('head', 118, 90, 5.5, 5, '#8C6CC4', 0), ('head', 84, 92, 9.5, 8.5, '#8C6CC4', 1), ('head', 118, 112, 7.5, 6.5, '#8C6CC4', 1), ('head', 100, 80, 6.5, 5.5, '#8C6CC4', 1), ('body', 76, 176, 6.5, 6, '#8C6CC4', 0), ('body', 128, 180, 6, 5.5, '#8C6CC4', 0), ('body', 88, 172, 8.5, 7.5, '#8C6CC4', 1), ('body', 116, 188, 7.5, 6.5, '#8C6CC4', 1)]))],
     "COW": [("Manchas marrones", dict(main="#FFFCF7", spot="#7A5646")),
-            ("Manchas negras", dict(main="#FFFCF7", spot="#3D3536")),
+            ("Negra", dict(main="#4A4244", spot="#FFFCF7")),  # la inversa de la original (antes manchas negras: casi igual)
             ("Marrón", dict(main="#D9A57A", spot="#9A6644")),
             ("Gris", dict(main="#D6D3D0", spot="#8E8784"))],
     "PIG": [("Rosa", dict(main="#FFC6D1", dark="#F29BB0", snout="#FFB0C0", belly="#FFDDE4")),
