@@ -177,6 +177,20 @@ PETS = {
 }
 VIEWS = ["FRONT", "BLINK", "HAPPY", "SIDE", "BACK", "LIE", "SLEEP", "PAW", "SIT", "SIT_BLINK", "SIT_HAPPY", "SIT_BODY"]
 
+# Sin la pieza que reemplaza lo que tiene puesto (LEEME de docs/accesorios-especies): la cáscara del pollito
+# con algo en la cabeza; la campana de la vaca y el moñito del pato con pañuelo, que no se ve acostada.
+NECK_VIEWS = ["FRONT", "BLINK", "HAPPY", "SIDE", "BACK", "PAW", "SIT", "SIT_BLINK", "SIT_HAPPY"]
+PLAIN = {
+    "CHICK": ('fill="#FFFDF5"', NECK_VIEWS + ["LIE", "SLEEP"]),
+    "COW": ('(?:stroke="#E86A6A"|fill="#FFD166")', NECK_VIEWS),
+    "DUCK": ('fill="#7FB8E8"', NECK_VIEWS),
+}
+
+
+def plain(markup, attr):
+    return re.sub(rf'<(path|circle)[^>]*{attr}[^>]*></\1>', "", markup)
+
+
 written = []
 for enum, (name, front, side, back, bird) in PETS.items():
     sleep = G.SLEEP[name][1]()
@@ -203,6 +217,13 @@ for enum, (name, front, side, back, bird) in PETS.items():
         with open(os.path.join(DRAW, fname), "w", encoding="utf-8", newline="\n") as f:
             f.write(vector(markup, tx, ty))
         written.append(fname)
+        if view in PLAIN.get(enum, ("", ()))[1]:
+            fname = f"pet_{enum.lower()}_{view.lower()}_plain.xml"
+            stripped = plain(markup, PLAIN[enum][0])
+            assert stripped != markup, fname
+            with open(os.path.join(DRAW, fname), "w", encoding="utf-8", newline="\n") as f:
+                f.write(vector(stripped, tx, ty))
+            written.append(fname)
 
 kt = ['package com.petnotifications', '',
       '// Generado desde el lienzo "Mascotas tiernas"; no editar a mano.', '',
@@ -218,6 +239,14 @@ for enum in PETS:
     for v in VIEWS:
         kt.append(f'        PetView.{v} -> R.drawable.pet_{enum.lower()}_{v.lower()}')
     kt.append('    }')
+kt += ['    else -> null', '}', '',
+       '/** Dibujo fijo sin la pieza que reemplaza lo que tiene puesto (ver PetModel.coversArt); null si no hay. */',
+       'fun PetType.plainArt(view: PetView): Int? = when (this) {']
+for enum, (_, views) in PLAIN.items():
+    kt.append(f'    PetType.{enum} -> when (view) {{')
+    for v in views:
+        kt.append(f'        PetView.{v} -> R.drawable.pet_{enum.lower()}_{v.lower()}_plain')
+    kt += ['        else -> null', '    }']
 kt += ['    else -> null', '}', '']
 with open(os.path.join(APP, "java", "com", "petnotifications", "PetArt.kt"), "w", encoding="utf-8", newline="\n") as f:
     f.write("\n".join(kt))

@@ -13,6 +13,8 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.petnotifications.Accessory
+import com.petnotifications.Outfit
 import com.petnotifications.Prefs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +28,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
 
 /**
- * Compra de Pro con Google Play (un producto de pago único, [PRODUCT_ID]). La compra la hace la
+ * Compras con Google Play: Pro (un producto de pago único, [PRODUCT_ID]) y los accesorios de
+ * temporada del vestidor (uno por accesorio, Accessory.productId, también de pago único). La compra la hace la
  * app Play Store; acá solo se pide, se confirma y se guarda el resultado en [Prefs.proPurchased],
- * así Pro funciona sin conexión. Cada vez que se abre la app se vuelve a consultar a Play (eso
+ * así Pro funciona sin conexión (los accesorios, en Outfit.KEY_BOUGHT). Cada vez que se abre la app se vuelve a consultar a Play (eso
  * también es "Restaurar compras": en un celular nuevo aparece la compra hecha con la misma cuenta).
  */
 object ProBilling {
@@ -40,6 +43,7 @@ object ProBilling {
     private val mutex = Mutex()
     private var client: BillingClient? = null
     private var product: ProductDetails? = null
+    private var accProducts: Map<String, ProductDetails> = emptyMap()
 
     private val _status = MutableStateFlow(Status.IDLE)
     val status: StateFlow<Status> = _status
@@ -47,6 +51,10 @@ object ProBilling {
     /** Precio en la moneda del usuario, tal como lo muestra Play ("US$ 4,99"), o null si no se sabe. */
     private val _price = MutableStateFlow<String?>(null)
     val price: StateFlow<String?> = _price
+
+    /** Precio de cada accesorio a la venta (por productId), con la moneda y el precio del país del usuario. */
+    private val _accPrices = MutableStateFlow<Map<String, String>>(emptyMap())
+    val accPrices: StateFlow<Map<String, String>> = _accPrices
 
     /** Aumenta cada vez que cambia si el usuario tiene Pro, para que la pantalla se actualice. */
     private val _changes = MutableStateFlow(0)
@@ -80,12 +88,13 @@ object ProBilling {
         true
     }
 
-    /** Abre la pantalla de pago de Google Play. */
-    fun buy(activity: Activity) {
+    /** Abre la pantalla de pago de Google Play (de Pro, o del accesorio con ese [productId]). */
+    fun buy(activity: Activity, productId: String = PRODUCT_ID) {
         scope.launch {
             _status.value = Status.WORKING
             val c = mutex.withLock { connected(activity) }
-            val details = product ?: c?.let { loadProduct(it) }
+            fun known() = if (productId == PRODUCT_ID) product else accProducts[productId]
+            val details = known() ?: c?.let { loadProduct(it); known() }
             if (c == null || details == null) {
                 _status.value = Status.UNAVAILABLE
                 return@launch
@@ -141,22 +150,27 @@ object ProBilling {
         return c.takeIf { ok }
     }
 
+    /** Pide a Play Pro y los accesorios juntos; un producto que no está cargado en Play Console no vuelve. */
     private suspend fun loadProduct(c: BillingClient): ProductDetails? {
+        val ids = listOf(PRODUCT_ID) + Accessory.forSale.mapNotNull { it.productId }
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
-                listOf(
+                ids.map {
                     QueryProductDetailsParams.Product.newBuilder()
-                        .setProductId(PRODUCT_ID)
+                        .setProductId(it)
                         .setProductType(BillingClient.ProductType.INAPP)
-                        .build(),
-                ),
+                        .build()
+                },
             )
             .build()
-        val details = suspendCancellableCoroutine { cont ->
-            c.queryProductDetailsAsync(params) { _, result -> cont.resume(result.productDetailsList.firstOrNull()) }
+        val list = suspendCancellableCoroutine { cont ->
+            c.queryProductDetailsAsync(params) { _, result -> cont.resume(result.productDetailsList) }
         }
+        val details = list.firstOrNull { it.productId == PRODUCT_ID }
         product = details
         _price.value = details?.oneTimePurchaseOfferDetails?.formattedPrice
+        accProducts = list.filter { it.productId != PRODUCT_ID }.associateBy { it.productId }
+        _accPrices.value = accProducts.mapNotNull { (id, d) -> d.oneTimePurchaseOfferDetails?.formattedPrice?.let { id to it } }.toMap()
         return details
     }
 
@@ -192,8 +206,21 @@ object ProBilling {
                 _changes.value++
             }
         }
+        // Accesorios: la consulta completa deja exactamente lo que Play dice; una compra nueva lo suma y se lo pone.
+        val accs = purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+            .flatMap { it.products }.mapNotNull(Accessory::ofProduct).toSet()
+        if (!fromQuery && purchases.any { p -> p.purchaseState == Purchase.PurchaseState.PENDING && p.products.any { Accessory.ofProduct(it) != null } }) {
+            _status.value = Status.PENDING
+        }
+        val before = Prefs(ctx).sp.getStringSet(Outfit.KEY_BOUGHT, emptySet()).orEmpty().mapNotNull(Accessory::ofProduct).toSet()
+        val now = if (fromQuery) accs else before + accs
+        if (now != before) {
+            Outfit.setBought(ctx, now)
+            if (!fromQuery) (accs - before).forEach { Outfit.wear(ctx, it) }
+            _changes.value++
+        }
         val c = client ?: return
-        pro.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged }.forEach { p ->
+        purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged }.forEach { p ->
             suspendCancellableCoroutine { cont ->
                 c.acknowledgePurchase(AcknowledgePurchaseParams.newBuilder().setPurchaseToken(p.purchaseToken).build()) {
                     cont.resume(Unit)

@@ -1,5 +1,10 @@
 package com.petnotifications.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -216,60 +221,90 @@ fun PetTile(pet: PetType, selected: Boolean, locked: Boolean, coat: Int = 0, onC
     }
 }
 
-/** Grilla simple de 4 columnas de fichas de mascota. */
+/**
+ * Las mascotas en filas de 6, chicas y juntas, sin deslizar: [mine] primera y con borde cocoa; las bloqueadas
+ * ([isLocked]) con borde punteado y candado; [previewed], la que se está mirando, con el punteado en cocoa.
+ */
 @Composable
-fun PetGrid(
-    pets: List<PetType>, selected: PetType?, locked: Boolean, coatOf: (PetType) -> Int = { 0 }, onClick: (PetType) -> Unit,
+fun PetStrip(
+    mine: PetType, previewed: PetType?, isLocked: (PetType) -> Boolean, coatOf: (PetType) -> Int, onClick: (PetType) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        pets.chunked(4).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { p -> PetTile(p, selected = p == selected, locked = locked, coat = coatOf(p)) { onClick(p) } }
+    val c = Pet.colors
+    val shape = RoundedCornerShape(14.dp)
+    val proWord = stringResource(R.string.pro_word)
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        (listOf(mine) + (PetType.entries - mine)).chunked(6).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                row.forEach { p ->
+                    val locked = isLocked(p)
+                    val name = stringResource(p.nameRes)
+                    val a11y = stringResource(R.string.pet_strip_a11y, if (locked) "$name, $proWord" else name)
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(1f)
+                            .clip(shape)
+                            .background(c.surfaceRaised)
+                            .then(
+                                when {
+                                    p == mine -> Modifier.border(2.dp, c.cocoa, shape)
+                                    p == previewed -> Modifier.dashedBorder(c.cocoa, 14.dp)
+                                    locked -> Modifier.dashedBorder(c.line, 14.dp)
+                                    else -> Modifier.border(1.dp, c.line, shape)
+                                },
+                            )
+                            .clickable(role = Role.Button) { onClick(p) }
+                            .clearAndSetSemantics { contentDescription = a11y },
+                    ) {
+                        Image(petPainter(p, PetView.FRONT, coatOf(p)), contentDescription = null, modifier = Modifier.fillMaxSize().padding(5.dp))
+                        if (locked) {
+                            Icon(
+                                Icons.Outlined.Lock, contentDescription = null, tint = c.inkMuted,
+                                modifier = Modifier.align(Alignment.TopEnd).padding(top = 3.dp, end = 3.dp).size(11.dp),
+                            )
+                        }
+                    }
+                }
+                repeat(6 - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
 }
 
 /**
- * Pelajes de la mascota (Pro; el original es gratis): una ficha con su dibujo por pelaje, en una fila
- * que se desliza. Sin Pro, los otros pelajes llevan la etiqueta roja "PRO" y se pueden probar; [trying]
- * es el que se está probando (se marca con el borde).
+ * Pelajes: una fila de puntitos de color que se desliza, con un aro en el elegido. Con [locked] (sin Pro), todos
+ * menos el original llevan candado.
  */
 @Composable
-fun CoatRow(pet: PetType, selected: Int, locked: Boolean, trying: Int? = null, onClick: (Int) -> Unit) {
+fun CoatDots(pet: PetType, selected: Int, locked: Boolean, onClick: (Int) -> Unit) {
     val c = Pet.colors
-    val shape = RoundedCornerShape(18.dp)
-    // Margen arriba y a la derecha para que la tilde y la etiqueta PRO (corridas 4 dp) no se corten.
-    Row(
-        Modifier.horizontalScroll(rememberScrollState()).padding(top = 6.dp, end = 6.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
+    val proWord = stringResource(R.string.pro_word)
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         PetModel.coats(pet).indices.forEach { i ->
             val lock = locked && i > 0
-            val sel = if (trying != null) i == trying else i == selected && !lock
-            Box(Modifier.width(64.dp)) {
+            val label = stringResource(R.string.coat_n, i + 1)
+            val a11y = if (lock) "$label, $proWord" else label
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable(role = Role.RadioButton) { onClick(i) }
+                    .clearAndSetSemantics { contentDescription = a11y },
+            ) {
                 Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (sel) Modifier.background(c.surfaceRaised, shape).border(2.dp, c.cocoa, shape)
-                            else Modifier.background(c.surfaceRaised, shape).border(1.dp, c.line, shape),
-                        )
-                        .clickable(role = Role.RadioButton, onClickLabel = stringResource(R.string.coat_n, i + 1)) { onClick(i) }
-                        .padding(vertical = 8.dp),
-                ) {
-                    Image(
-                        petPainter(pet, PetView.FRONT, i), contentDescription = stringResource(R.string.coat_n, i + 1),
-                        modifier = Modifier.size(44.dp),
-                    )
-                }
-                if (lock) ProCorner(Modifier.align(Alignment.TopEnd))
-                else if (sel) {
-                    Surface(
-                        shape = CircleShape, color = c.cocoa,
-                        modifier = Modifier.align(Alignment.TopEnd).offset(x = 4.dp, y = (-4).dp).size(20.dp),
-                    ) { Icon(Icons.Outlined.Check, contentDescription = null, tint = c.surface, modifier = Modifier.padding(3.dp)) }
+                    Modifier
+                        .size(30.dp)
+                        .then(if (i == selected) Modifier.border(2.dp, c.cocoa, CircleShape) else Modifier)
+                        .padding(4.dp)
+                        .background(Color(PetModel.coatColor(pet, i)), CircleShape)
+                        .border(1.dp, c.line, CircleShape),
+                )
+                if (lock) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.align(Alignment.TopEnd).padding(top = 5.dp, end = 3.dp).size(15.dp).background(c.surfaceRaised, CircleShape),
+                    ) { Icon(Icons.Outlined.Lock, contentDescription = null, tint = c.inkMuted, modifier = Modifier.size(10.dp)) }
                 }
             }
         }

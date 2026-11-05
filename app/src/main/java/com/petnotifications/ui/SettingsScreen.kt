@@ -1,12 +1,16 @@
 package com.petnotifications.ui
 
+import com.petnotifications.BuildConfig
+import com.petnotifications.Slot
+import com.petnotifications.Outfit
+import com.petnotifications.pro.ProBilling
+import com.petnotifications.Accessory
 import androidx.compose.material.icons.outlined.WaterDrop
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.LocalFlorist
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Cake
-import androidx.compose.material.icons.outlined.Eco
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -65,6 +69,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import android.content.ContentUris
 import android.provider.CalendarContract
 import com.petnotifications.overlay.PetAlert
+import android.app.Activity
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -392,6 +397,48 @@ fun SettingsScreen(
     }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { bondVersion++ }
     val bondHearts = remember(bondVersion) { Bond.hearts(ctx) }
+    /** Lo que tiene puesto (vestidor); su clave empieza como las del vínculo, así que se relee igual. */
+    val outfit = remember(bondVersion) { Outfit.current(ctx) }
+    /** Hoja Vestir abierta en este lugar; null = cerrada. */
+    var dressSlot by remember { mutableStateOf<Slot?>(null) }
+    /** Probador: lo que está a la venta se lo pone solo en la hoja Vestir; cerrarla lo saca. */
+    var tryOn by remember { mutableStateOf<Accessory?>(null) }
+    /** Cómo se gana el accesorio bloqueado que se tocó en la hoja. */
+    var lockedNote by remember { mutableStateOf<String?>(null) }
+    /** Mascota Pro que se está mirando en el escenario, sin Pro: no cambia la del usuario. */
+    var previewPet by remember { mutableStateOf<PetType?>(null) }
+    /** Pelaje que se está mirando en la vista previa (también de la propia mascota, sin Pro). */
+    var previewCoat by remember { mutableIntStateOf(0) }
+    /** Lo que se le prueba a esa mascota en la hoja Vestir: solo se ve en el escenario, no toca lo puesto. */
+    var previewOutfit by remember(previewPet) { mutableStateOf<Outfit?>(null) }
+    LaunchedEffect(tab, sub) {
+        if (tab != TAB_PET || sub != null) {
+            tryOn = null
+            dressSlot = null
+            lockedNote = null
+            previewPet = null
+        }
+    }
+    val bought = remember(bondVersion) { Outfit.bought(ctx) }
+    val accPrices by ProBilling.accPrices.collectAsStateWithLifecycle()
+    val billingStatus by ProBilling.status.collectAsStateWithLifecycle()
+    val boughtText = stringResource(R.string.shop_bought)
+    // Compra confirmada por Play (ProBilling ya se lo puso): deja de "probarlo".
+    LaunchedEffect(bought) {
+        if (tryOn != null && tryOn in bought) {
+            tryOn = null
+            previewOutfit = null
+            snackbar.showSnackbar(boughtText)
+        }
+    }
+    /** Lo que muestra el escenario un ratito (la camita: dormida; tocarla: contenta); null = de frente. */
+    var stageView by remember { mutableStateOf<PetView?>(null) }
+    LaunchedEffect(stageView) {
+        if (stageView != null) {
+            delay(if (stageView == PetView.SLEEP) 2_500 else 700)
+            stageView = null
+        }
+    }
     val celebration = remember(bondVersion) { Bond.pending(ctx) }
     LaunchedEffect(openBondPath) {
         if (openBondPath) {
@@ -451,6 +498,7 @@ fun SettingsScreen(
     fun endTry() {
         prefs.endTry()
         trying = null
+        previewPet = null
     }
 
     fun selectPet(p: PetType) {
@@ -473,7 +521,7 @@ fun SettingsScreen(
      * Arriba de Avisos, la escena: la mascota grande (con lo que tenga puesto), la fecha, cuántas cosas
      * hay para hoy y el chip Vestir. [open] va de 1 (escena entera) a 0 (encabezado fijo de 56 dp con
      * la mascota chiquita): al bajar por la lista se achica de a poco y al volver arriba se agranda.
-     * Tocar la mascota o Vestir abre la pestaña Mascota.
+     * Tocar la mascota abre la pestaña Mascota, y Vestir además la hoja Vestir.
      */
     @Composable
     fun PetScene(open: Float, todayCount: Int) {
@@ -486,7 +534,7 @@ fun SettingsScreen(
             java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern(ctx.getString(R.string.home_date_pattern), locale))
                 .replaceFirstChar { it.titlecase(locale) }
         }
-        val toVestidor = { tab = TAB_PET }
+        val toPetTab = { tab = TAB_PET }
         val shape = RoundedCornerShape(lerp(0f, 26f).dp)
         BoxWithConstraints(
             Modifier
@@ -512,8 +560,8 @@ fun SettingsScreen(
             // (si una viajara hasta la otra, le pasaría por encima a la fecha).
             val small = 1f - (f / 0.35f).coerceIn(0f, 1f)
             val big = ((f - 0.25f) / 0.35f).coerceIn(0f, 1f)
-            val painter = petPainter(pet, if (paused || off) PetView.SLEEP else PetView.FRONT, coatOf(pet))
-            val tap = Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = toVestidor)
+            val painter = petPainter(pet, if (paused || off) PetView.SLEEP else PetView.FRONT, coatOf(pet), outfit)
+            val tap = Modifier.clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = toPetTab)
             if (big > 0f) {
                 val petSize = 130f * (0.55f + 0.45f * f)
                 Image(
@@ -590,7 +638,10 @@ fun SettingsScreen(
                         .alpha(fade)
                         .shadow(2.dp, RoundedCornerShape(50))
                         .background(c.surfaceRaised, RoundedCornerShape(50))
-                        .clickable(enabled = fade > 0.5f, onClick = toVestidor)
+                        .clickable(enabled = fade > 0.5f) {
+                            tab = TAB_PET
+                            dressSlot = Slot.HEAD
+                        }
                         .padding(horizontal = 11.dp, vertical = 6.dp),
                 ) {
                     Icon(Icons.Outlined.Checkroom, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(15.dp))
@@ -727,7 +778,7 @@ fun SettingsScreen(
 
     /** Prueba de una mascota o pelaje Pro: cuánto falta, un aviso de prueba, volver a la propia o ver Pro. */
     @Composable
-    fun TryCard(p: PetType, coat: Int) {
+    fun TryCard(p: PetType, coat: Int, modifier: Modifier = Modifier, fill: Boolean = false) {
         var left by remember { mutableLongStateOf(prefs.tryUntil - System.currentTimeMillis()) }
         LaunchedEffect(p, coat) {
             while (true) {
@@ -740,31 +791,34 @@ fun SettingsScreen(
             }
         }
         val secs = (left.coerceAtLeast(0) + 999) / 1000
-        PetCard {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(petPainter(p, PetView.HAPPY, coat), contentDescription = null, modifier = Modifier.size(56.dp))
-                Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            stringResource(
-                                R.string.try_title,
-                                if (coat == 0) stringResource(p.nameRes) else stringResource(R.string.try_coat, stringResource(p.nameRes), coat + 1),
-                            ),
-                            fontSize = 15.sp, fontWeight = FontWeight(800), color = c.ink, modifier = Modifier.weight(1f, fill = false),
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        ProTag()
-                    }
+        PetCard(modifier, padding = 10.dp) {
+            Column(if (fill) Modifier.fillMaxHeight() else Modifier, verticalArrangement = Arrangement.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        stringResource(R.string.try_body, "%d:%02d".format(secs / 60, secs % 60)),
-                        fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+                        stringResource(
+                            R.string.try_title,
+                            if (coat == 0) stringResource(p.nameRes) else stringResource(R.string.try_coat, stringResource(p.nameRes), coat + 1),
+                        ),
+                        fontSize = 15.sp, lineHeight = 18.sp, fontWeight = FontWeight(800), color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
+                    Spacer(Modifier.width(6.dp))
+                    ProTag()
                 }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp).horizontalScroll(rememberScrollState())) {
-                SoftChip(stringResource(R.string.test_alert), Icons.Outlined.NotificationsNone) { testAlert() }
-                OutlineChip(stringResource(R.string.try_back)) { endTry() }
-                OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
+                Text(
+                    stringResource(R.string.try_body, "%d:%02d".format(secs / 60, secs % 60)),
+                    fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight(600), color = c.inkMuted, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+                val small = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+                    androidx.compose.material3.Button(
+                        onClick = { endTry() }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small,
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = c.cocoa, contentColor = c.surface),
+                    ) { Text(stringResource(R.string.try_back), fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1) }
+                    OutlinedButton(onClick = { showPro = true }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small) {
+                        Text(stringResource(R.string.pro_see_plans), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1)
+                    }
+                }
             }
         }
     }
@@ -870,55 +924,6 @@ fun SettingsScreen(
                     modifier = Modifier.clip(RoundedCornerShape(50)).background(c.blushSoft).clickable { useTemplate(t) }
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                 )
-            }
-        }
-    }
-
-    /** La frase amigable del día (la misma todo el día), sin interrumpir. No sale con las frases en "Nunca". */
-    @Composable
-    fun PhraseOfDay() {
-        if (friendly == Prefs.FRIENDLY_OFF) return
-        val phrase = remember {
-            val all = ctx.resources.getStringArray(R.array.friendly_any)
-            all[Math.floorMod(java.time.LocalDate.now().toEpochDay(), all.size.toLong()).toInt()]
-        }
-        val shape = RoundedCornerShape(18.dp)
-        Row(Modifier.fillMaxWidth().background(c.sageSoft, shape).padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Icon(Icons.Outlined.Eco, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(18.dp).padding(top = 1.dp))
-            Column(Modifier.padding(start = 10.dp)) {
-                Text(phrase, fontSize = 14.sp, lineHeight = 19.sp, fontWeight = FontWeight(700), color = c.ink)
-                Text(
-                    stringResource(R.string.home_phrase_by, prefs.petName(pet) ?: stringResource(pet.nameRes)),
-                    fontSize = 12.sp, fontWeight = FontWeight(700), color = c.inkMuted,
-                )
-            }
-        }
-    }
-
-    /** El vínculo en una línea: nivel, cuánto falta y la barra; toca y va a Mascota. */
-    @Composable
-    fun BondLine() {
-        val level = Bond.levelFor(bondHearts)
-        val next = Bond.next(level)
-        val (have, need) = Bond.progress(bondHearts)
-        PetCard(Modifier.clickable { tab = TAB_PET }) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(20.dp))
-                Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                    Text(stringResource(R.string.bond_chip, level.number, stringResource(level.name)), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.ink)
-                    Text(
-                        when {
-                            next == null -> stringResource(R.string.bond_max)
-                            next.from - bondHearts == 1 -> stringResource(R.string.bond_missing_one, next.number)
-                            else -> stringResource(R.string.bond_missing_many, next.from - bondHearts, next.number)
-                        },
-                        fontSize = 12.sp, fontWeight = FontWeight(700), color = c.inkMuted,
-                    )
-                    Box(Modifier.padding(top = 6.dp).fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(c.line)) {
-                        Box(Modifier.fillMaxWidth(if (need > 0) have.toFloat() / need else 1f).fillMaxHeight().background(c.blush))
-                    }
-                }
-                Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = c.inkMuted)
             }
         }
     }
@@ -1035,8 +1040,6 @@ fun SettingsScreen(
                     }
                 }
             }
-            item { PhraseOfDay() }
-            item { BondLine() }
             if (firedToday.isNotEmpty()) {
                 item {
                     Row(
@@ -1068,6 +1071,37 @@ fun SettingsScreen(
     @Composable
     fun PetTab(padding: PaddingValues) {
         val freeMode = !isPro && !needFreePets && prefs.freePets.size >= Prefs.FREE_PET_COUNT
+        // Precio de Play en la moneda del usuario; con las herramientas de dueño, uno de prueba si Play no lo da.
+        val ownerPrice = stringResource(R.string.owner_price)
+        fun priceOf(a: Accessory): String? = a.productId?.let { accPrices[it] } ?: ownerPrice.takeIf { BuildConfig.OWNER_TOOLS && a.forSale }
+        val tryingAcc = tryOn
+        val preview = previewPet
+        val triedPet = trying?.first
+        val previewing = preview != null && preview != triedPet
+        val level = Bond.levelFor(bondHearts)
+        val dressed = (if (previewing) previewOutfit else null) ?: outfit
+        val shown = tryingAcc?.let { dressed.with(it) } ?: dressed
+        /**
+         * [content] ocupa justo lo que el nivel y "Lo próximo" (dibujados invisibles debajo, para medir):
+         * así las mascotas de abajo no se mueven al mirar o probar una Pro.
+         */
+        @Composable
+        fun SameHeightAsBond(content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
+            Box(Modifier.fillMaxWidth()) {
+                Column(Modifier.alpha(0f).clearAndSetSemantics { }, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    BondLine(petName ?: stringResource(pet.nameRes), bondHearts, enabled = false) { }
+                    BondNextCard(bondHearts, enabled = false) { }
+                }
+                content()
+            }
+        }
+        val stagePet = preview ?: triedPet ?: pet
+        val stageCoat = when {
+            previewing -> previewCoat
+            stagePet == triedPet -> trying?.second ?: 0
+            stagePet == pet -> coatOf(pet)
+            else -> 0
+        }
         Column(
             Modifier
                 .fillMaxSize()
@@ -1076,122 +1110,200 @@ fun SettingsScreen(
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(92.dp).background(c.blushSoft, CircleShape)) {
-                    Image(petPainter(pet, PetView.FRONT, coatOf(pet)), contentDescription = null, modifier = Modifier.size(76.dp))
-                }
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
-                    Text(petName ?: stringResource(pet.nameRes), fontSize = 18.sp, fontWeight = FontWeight(800), color = c.ink)
-                    Spacer(Modifier.width(8.dp))
-                    OutlineChip(stringResource(if (petName == null) R.string.pet_name_give_chip else R.string.pet_name_chip)) { naming = pet }
-                }
-                Text(
-                    stringResource(R.string.pet_says, stringResource(pet.nameRes), stringResource(pet.soundRes)),
-                    fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted,
-                )
-            }
-            BondSummaryCard(bondHearts) { sub = SUB_PATH }
-            if (freeMode) {
-                val free = PetType.entries.filter { it in prefs.freePets }
-                SectionLabel(stringResource(R.string.pets_your_two))
-                PetGrid(free, selected = pet.takeIf { trying == null }, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
-                if (canChangeFreePets) {
-                    // Botón con borde e ícono (antes era un texto suelto y no se notaba que se podía tocar).
-                    OutlinedButton(
-                        onClick = { changingFreePets = true },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                    ) {
-                        Icon(Icons.Outlined.SwapHoriz, contentDescription = null, tint = c.cocoa, modifier = Modifier.size(20.dp))
-                        Column(Modifier.weight(1f).padding(start = 10.dp)) {
-                            Text(stringResource(R.string.free_pets_change), color = c.cocoa, fontSize = 14.sp, fontWeight = FontWeight(800))
-                            Text(stringResource(R.string.free_pets_change_sub), color = c.inkMuted, fontSize = 12.sp, fontWeight = FontWeight(600))
+            WardrobeStage(
+                stagePet, stageCoat, shown, stageView ?: PetView.FRONT, petSubject,
+                if (previewing) stringResource(R.string.pet_preview) else null,
+                activeSlot = dressSlot,
+                onTap = { stageView = PetView.HAPPY },
+                onSlot = { dressSlot = it },
+            )
+            when {
+                previewing -> preview?.let { p ->
+                    SameHeightAsBond {
+                        PetCard(Modifier.matchParentSize(), padding = 10.dp) {
+                            Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        if (previewCoat == 0) stringResource(p.nameRes) else stringResource(R.string.try_coat, stringResource(p.nameRes), previewCoat + 1),
+                                        fontSize = 15.sp, lineHeight = 18.sp, fontWeight = FontWeight(800), color = c.ink, maxLines = 1,
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    ProTag()
+                                }
+                                Text(
+                                    stringResource(R.string.pet_preview_body), fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                )
+                                val small = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 6.dp)) {
+                                    androidx.compose.material3.Button(
+                                        onClick = { startTry(p, previewCoat) }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small,
+                                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = c.cocoa, contentColor = c.surface),
+                                    ) { Text(stringResource(R.string.pet_preview_try), fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1) }
+                                    OutlinedButton(onClick = { showPro = true }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small) {
+                                        Text(stringResource(R.string.see_pro), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SectionLabel(stringResource(R.string.pets_more_pro), Modifier.weight(1f))
-                    OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
+                trying != null -> trying?.let { (p, coat) ->
+                    SameHeightAsBond { TryCard(p, coat, Modifier.matchParentSize(), fill = true) }
                 }
-                PetGrid(PetType.entries - free.toSet(), selected = trying?.first, locked = true) { startTry(it, 0) }
-                Text(stringResource(R.string.try_hint), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SectionLabel(stringResource(R.string.pets_yours), Modifier.weight(1f))
-                    if (isPro) ProTag()
+                else -> {
+                    BondLine(petName ?: stringResource(pet.nameRes), bondHearts) { sub = SUB_PATH }
+                    BondNextCard(bondHearts) { sub = SUB_PATH }
                 }
-                PetGrid(PetType.entries, selected = pet, locked = false, coatOf = ::coatOf, onClick = ::selectPet)
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
-                SectionLabel(stringResource(R.string.coat_title), Modifier.weight(1f))
-                if (isPro) ProTag()
+                SectionLabel(stringResource(R.string.dress_pets))
+                if (!isPro) {
+                    Spacer(Modifier.width(6.dp))
+                    ProTag()
+                    Spacer(Modifier.weight(1f))
+                    TextButton(onClick = { showPro = true }) { Text(stringResource(R.string.see_pro), color = c.cocoa, fontWeight = FontWeight(800)) }
+                }
             }
-            // Probando un pelaje de otra mascota Pro: la fila muestra los de esa mascota.
-            val coatPet = trying?.first ?: pet
-            CoatRow(coatPet, selected = coatOf(coatPet), locked = !isPro, trying = trying?.second) { i ->
+            PetStrip(
+                mine = pet, previewed = preview, isLocked = { p -> freeMode && p !in prefs.freePets }, coatOf = { p -> if (p == pet) coatOf(p) else 0 },
+            ) { p ->
                 when {
-                    isPro -> {
+                    p == pet -> {
+                        previewPet = null
+                        previewCoat = 0
+                    }
+                    freeMode && p !in prefs.freePets -> {
+                        previewPet = p
+                        previewCoat = 0
+                    }
+                    else -> {
+                        previewPet = null
+                        selectPet(p)
+                    }
+                }
+            }
+            // Pelajes, debajo de la tira para que ella no se mueva. Sin Pro se ven con candado: tocarlos los muestra en la vista previa.
+            val coatPet = if (previewing) preview ?: pet else triedPet ?: pet
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.coat_title), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.inkMuted)
+                if (!isPro) {
+                    Spacer(Modifier.width(6.dp))
+                    ProTag()
+                }
+            }
+            CoatDots(
+                coatPet,
+                selected = when {
+                    previewing -> previewCoat
+                    triedPet != null -> trying?.second ?: 0
+                    else -> coatOf(pet)
+                },
+                locked = !isPro,
+            ) { i ->
+                when {
+                    isPro && triedPet == null -> {
                         prefs.setCoat(pet, i)
                         coats = coats + (pet to i)
                     }
-                    i > 0 || coatPet != pet -> startTry(coatPet, i)
-                    else -> endTry()
-                }
-            }
-            trying?.let { (p, coat) -> TryCard(p, coat) }
-            SectionLabel(stringResource(R.string.look_title), Modifier.padding(top = 4.dp))
-            PetCard {
-                ProLock(isPro, onLocked = { showPro = true }) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.size_title), fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, modifier = Modifier.weight(1f))
-                        }
-                        PetSlider(size.toFloat(), { size = it.toInt() }, { prefs.petSizeDp = size }, 48f..120f)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.transparency_title), fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, modifier = Modifier.weight(1f))
-                        }
-                        PetSlider(opacity.toFloat(), { opacity = it.toInt() }, { prefs.petOpacity = opacity }, 40f..100f)
+                    previewing || triedPet == null -> {
+                        previewCoat = i
+                        // El original de la propia mascota es lo que ya tiene: no hay nada que previsualizar.
+                        previewPet = if (coatPet == pet && i == 0) null else coatPet
                     }
+                    else -> startTry(coatPet, i)
                 }
-                HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f).padding(end = 12.dp)) {
-                        Text(stringResource(R.string.ghost_title), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
-                        Text(stringResource(R.string.ghost_help), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
-                    }
-                    Switch(checked = ghost, onCheckedChange = {
-                        ghost = it
-                        prefs.ghostMode = it
-                    })
-                }
-                HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
-                // Vida propia: cada cuánto hace algo sola (gratis para todos).
-                Text(stringResource(R.string.lively_title), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
-                Text(stringResource(R.string.lively_help), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
-                Spacer(Modifier.height(6.dp))
-                ChipRow(
-                    listOf(Prefs.LIVELY_CALM, Prefs.LIVELY_NORMAL, Prefs.LIVELY_ACTIVE), liveliness,
-                    label = {
-                        when (it) {
-                            Prefs.LIVELY_CALM -> ctx.getString(R.string.lively_calm)
-                            Prefs.LIVELY_ACTIVE -> ctx.getString(R.string.lively_active)
-                            else -> ctx.getString(R.string.lively_normal)
+            }
+            if (freeMode && canChangeFreePets) {
+                OutlineChip(stringResource(R.string.free_pets_change), Icons.Outlined.SwapHoriz) { changingFreePets = true }
+            }
+        }
+        dressSlot?.let { slot ->
+            val available = Accessory.entries.filter { !it.forSale || it in bought || (Outfit.onSale(ctx, it) && priceOf(it) != null) }
+            val items = dressItems(slot, available)
+            val lockedText = stringResource(R.string.acc_locked)
+            val lockedOneText = stringResource(R.string.acc_locked_one)
+            fun closeSheet() {
+                dressSlot = null
+                tryOn = null
+                lockedNote = null
+            }
+            DressSheet(
+                slot,
+                onSlot = {
+                    dressSlot = it
+                    tryOn = null
+                    lockedNote = null
+                },
+                onDismiss = ::closeSheet,
+                note = lockedNote,
+                grid = {
+                    AccessoryGrid(
+                        slot, items, dressed, level.number, bought, items.mapNotNull { a -> priceOf(a)?.let { a to it } }.toMap(), tryingAcc,
+                        onNone = {
+                            tryOn = null
+                            lockedNote = null
+                            if (previewing) previewOutfit = dressed.without(slot) else Outfit.save(ctx, outfit.without(slot))
+                        },
+                    ) { acc ->
+                        lockedNote = null
+                        if (!acc.forSale && acc.level > level.number) {
+                            tryOn = null
+                            val from = Bond.LEVELS.first { it.number == acc.level }.from
+                            val missing = from - bondHearts
+                            lockedNote = if (missing == 1) lockedOneText.format(acc.level, from) else lockedText.format(acc.level, from, missing)
+                        } else if (acc.forSale && acc !in bought) {
+                            tryOn = if (tryingAcc == acc) null else acc
+                        } else {
+                            tryOn = null
+                            val next = dressed.toggle(acc)
+                            if (previewing) previewOutfit = next else Outfit.save(ctx, next)
+                            if (acc == Accessory.BED && next.wearing(acc)) stageView = PetView.SLEEP
                         }
-                    },
-                ) {
-                    liveliness = it
-                    prefs.liveliness = it
-                }
-            }
-            PetCard(padding = 0.dp) {
-                SettingRow(Icons.Outlined.TouchApp, stringResource(R.string.tut_open), stringResource(R.string.tut_open_sub), onClick = onShowTutorial)
-            }
-            OutlinedButton(onClick = ::testAlert, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text(stringResource(R.string.test_alert), color = c.cocoa, fontWeight = FontWeight(800))
-            }
+                    }
+                },
+                footer = {
+                    if (tryingAcc != null) {
+                        val price = priceOf(tryingAcc).orEmpty()
+                        val fromPlay = tryingAcc.productId?.let { accPrices[it] } != null
+                        // El estado de Play es de toda la app (también la consulta al abrir): solo cuenta después de tocar Comprar.
+                        var buyTapped by remember(tryingAcc) { mutableStateOf(false) }
+                        val note = if (!buyTapped) null else when (billingStatus) {
+                            ProBilling.Status.WORKING -> stringResource(R.string.pro_working)
+                            ProBilling.Status.PENDING -> stringResource(R.string.shop_pending)
+                            ProBilling.Status.UNAVAILABLE -> stringResource(R.string.pro_unavailable)
+                            ProBilling.Status.ERROR -> stringResource(R.string.pro_error)
+                            ProBilling.Status.IDLE -> null
+                        }
+                        TryBar(
+                            price, note, busy = billingStatus == ProBilling.Status.WORKING,
+                            onRemove = { tryOn = null },
+                            onBuy = {
+                                buyTapped = true
+                                if (fromPlay) {
+                                    (ctx as? Activity)?.let { ProBilling.buy(it, tryingAcc.productId!!) }
+                                } else {
+                                    // Herramientas de dueño sin el producto en Play: compra de mentira.
+                                    Outfit.ownerBuy(ctx, tryingAcc)
+                                    Outfit.wear(ctx, tryingAcc)
+                                }
+                            },
+                        )
+                    }
+                },
+            )
         }
     }
 
     // ---------------------------------------------------------------- Ajustes
+    @Composable
+    fun PermsRow() = SettingRow(
+        Icons.Outlined.BatteryChargingFull, stringResource(R.string.row_perms),
+        if (missingPerms == 0) stringResource(R.string.perms_ok) else "⚠ " + stringResource(R.string.perms_missing, missingPerms),
+        summaryColor = if (missingPerms == 0) null else c.honeyDeep,
+        onClick = { sub = SUB_PERMS },
+    )
+
     @Composable
     fun SettingsTab(padding: PaddingValues) {
         Column(
@@ -1234,6 +1346,70 @@ fun SettingsScreen(
                 }
                 OutlineChip(stringResource(R.string.pro_see_plans)) { showPro = true }
             }
+            SectionLabel(stringResource(R.string.tab_alerts), Modifier.padding(top = 4.dp))
+            PetCard(padding = 0.dp) {
+                // Sin un permiso los avisos pueden llegar tarde: mientras falte, va primero.
+                if (missingPerms > 0) {
+                    PermsRow()
+                    RowDivider()
+                }
+                SettingRow(
+                    Icons.Outlined.NotificationsNone, stringResource(R.string.row_notify),
+                    listOfNotNull(
+                        stringResource(
+                            R.string.notify_sum_style,
+                            stringResource(if (bubbleStyle == Prefs.BUBBLE_CLOUD) R.string.bubble_cloud else R.string.bubble_caramel),
+                        ),
+                        if (quietAlerts) stringResource(R.string.quiet_title).lowercase() else null,
+                    ).joinToString(" · "),
+                    onClick = { sub = SUB_NOTIFY },
+                )
+                RowDivider()
+                SettingRow(
+                    Icons.Outlined.Schedule, stringResource(R.string.row_unanswered),
+                    listOf(
+                        if (autoHide) stringResource(R.string.notify_sum_auto, autoSeconds) else stringResource(R.string.notify_sum_fixed),
+                        if (insistMinutes > 0) stringResource(R.string.notify_sum_insist, insistMinutes) else stringResource(R.string.notify_sum_no_insist),
+                    ).joinToString(" · "),
+                    onClick = { sub = SUB_UNANSWERED },
+                )
+                RowDivider()
+                SettingRow(
+                    Icons.Outlined.TouchApp, stringResource(R.string.section_tap),
+                    stringResource(tapAction.labelRes),
+                    onClick = { sub = SUB_TAP },
+                )
+                RowDivider()
+                SettingRow(
+                    Icons.AutoMirrored.Outlined.VolumeOff, stringResource(R.string.row_mute), stringResource(R.string.row_mute_sub),
+                    onClick = null,
+                    trailing = {
+                        Switch(checked = muted, onCheckedChange = {
+                            muted = it
+                            prefs.muted = it
+                        })
+                    },
+                )
+                RowDivider()
+                SettingRow(
+                    Icons.Outlined.Bedtime, stringResource(R.string.row_dnd),
+                    if (bedtime && isPro) stringResource(R.string.dnd_sum_on, hhmm(bedStart), hhmm(bedEnd)) else stringResource(R.string.dnd_sum_off),
+                    onClick = { sub = SUB_DND },
+                )
+                RowDivider()
+                val lead = if (calLead == 0) stringResource(R.string.cal_at_start) else stringResource(R.string.cal_sum_lead, calLead)
+                SettingRow(
+                    Icons.Outlined.CalendarMonth, stringResource(R.string.row_calendar),
+                    when {
+                        !(calEnabled && hasCalendar && isPro) -> stringResource(R.string.cal_sum_off)
+                        calIds.isEmpty() -> stringResource(R.string.cal_sum_all, lead)
+                        else -> stringResource(R.string.cal_sum_some, calIds.size, lead)
+                    },
+                    onClick = { sub = SUB_CALENDAR },
+                    trailing = if (!isPro) ({ ProTag() }) else null,
+                )
+            }
+            SectionLabel(stringResource(R.string.tab_pet), Modifier.padding(top = 4.dp))
             PetCard(padding = 0.dp) {
                 SettingRow(
                     Icons.Outlined.Visibility, stringResource(R.string.row_pet_onscreen),
@@ -1256,17 +1432,16 @@ fun SettingsScreen(
                     )
                 }
                 RowDivider()
-                SettingRow(
-                    Icons.AutoMirrored.Outlined.VolumeOff, stringResource(R.string.row_mute), stringResource(R.string.row_mute_sub),
-                    onClick = null,
-                    trailing = {
-                        Switch(checked = muted, onCheckedChange = {
-                            muted = it
-                            prefs.muted = it
-                        })
-                    },
-                )
+                SettingRow(Icons.Outlined.Pets, stringResource(R.string.row_look), stringResource(R.string.row_look_sub), onClick = { sub = SUB_LOOK })
                 RowDivider()
+                SettingRow(
+                    Icons.Outlined.MailOutline, stringResource(R.string.friendly_title),
+                    stringResource(friendlyLabel(friendly)),
+                    onClick = { sub = SUB_FRIENDLY },
+                )
+            }
+            SectionLabel(stringResource(R.string.settings_group_general), Modifier.padding(top = 4.dp))
+            PetCard(padding = 0.dp) {
                 SettingRow(Icons.Outlined.Palette, stringResource(R.string.row_theme), null, onClick = null)
                 Box(Modifier.padding(start = 14.dp, end = 14.dp, bottom = 12.dp)) {
                     ChipRow(
@@ -1284,41 +1459,10 @@ fun SettingsScreen(
                     }
                 }
                 RowDivider()
-                SettingRow(
-                    Icons.Outlined.NotificationsNone, stringResource(R.string.row_notify),
-                    listOf(
-                        if (autoHide) stringResource(R.string.notify_sum_auto, autoSeconds) else stringResource(R.string.notify_sum_fixed),
-                        if (insistMinutes > 0) stringResource(R.string.notify_sum_insist, insistMinutes) else stringResource(R.string.notify_sum_no_insist),
-                        stringResource(R.string.friendly_sum, stringResource(friendlyLabel(friendly)).lowercase()),
-                    ).joinToString(" · "),
-                    onClick = { sub = SUB_NOTIFY },
-                )
-                RowDivider()
-                SettingRow(
-                    Icons.Outlined.Bedtime, stringResource(R.string.row_dnd),
-                    if (bedtime && isPro) stringResource(R.string.dnd_sum_on, hhmm(bedStart), hhmm(bedEnd)) else stringResource(R.string.dnd_sum_off),
-                    onClick = { sub = SUB_DND },
-                )
-                RowDivider()
-                val lead = if (calLead == 0) stringResource(R.string.cal_at_start) else stringResource(R.string.cal_sum_lead, calLead)
-                SettingRow(
-                    Icons.Outlined.CalendarMonth, stringResource(R.string.row_calendar),
-                    when {
-                        !(calEnabled && hasCalendar && isPro) -> stringResource(R.string.cal_sum_off)
-                        calIds.isEmpty() -> stringResource(R.string.cal_sum_all, lead)
-                        else -> stringResource(R.string.cal_sum_some, calIds.size, lead)
-                    },
-                    onClick = { sub = SUB_CALENDAR },
-                    trailing = if (!isPro) ({ ProTag() }) else null,
-                )
-                RowDivider()
-                SettingRow(
-                    Icons.Outlined.BatteryChargingFull, stringResource(R.string.row_perms),
-                    if (missingPerms == 0) stringResource(R.string.perms_ok) else "⚠ " + stringResource(R.string.perms_missing, missingPerms),
-                    summaryColor = if (missingPerms == 0) null else c.honeyDeep,
-                    onClick = { sub = SUB_PERMS },
-                )
-                RowDivider()
+                if (missingPerms == 0) {
+                    PermsRow()
+                    RowDivider()
+                }
                 SettingRow(
                     Icons.AutoMirrored.Outlined.HelpOutline, stringResource(R.string.row_help), stringResource(R.string.help_sum),
                     onClick = { sub = SUB_HELP },
@@ -1395,35 +1539,26 @@ fun SettingsScreen(
                 prefs.quietAlerts = it
             }
         }
-        SectionLabel(stringResource(R.string.friendly_title))
         PetCard {
-            Text(stringResource(R.string.friendly_help), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
-            ChipRow(
-                listOf(Prefs.FRIENDLY_OFF, Prefs.FRIENDLY_FEW, Prefs.FRIENDLY_NORMAL, Prefs.FRIENDLY_MANY), friendly,
-                label = { ctx.getString(friendlyLabel(it)) },
-            ) {
-                friendly = it
-                prefs.friendlyLevel = it
-            }
-            HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 8.dp))
-            Text(stringResource(R.string.letters_help_title), style = MaterialTheme.typography.labelLarge)
-            Text(stringResource(R.string.letters_help_body), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
-        }
-        SectionLabel(stringResource(R.string.section_tap))
-        PetCard {
-            TapAction.entries.forEach { action ->
-                RadioRow(stringResource(action.labelRes), stringResource(action.descriptionRes), tapAction == action) {
-                    tapAction = action
-                    prefs.tapAction = action
+            ProLock(isPro, onLocked = { showPro = true }) {
+                Column {
+                    SwitchRow(stringResource(R.string.voice_title), stringResource(R.string.voice_sub), voice) {
+                        voice = it
+                        prefs.voice = it
+                    }
+                    if (voice) {
+                        SwitchRow(stringResource(R.string.voice_ignore_silent), stringResource(R.string.voice_ignore_silent_help), voiceIgnoreSilent) {
+                            voiceIgnoreSilent = it
+                            prefs.voiceIgnoreSilent = it
+                        }
+                    }
                 }
             }
-            Text(stringResource(R.string.action_snooze), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 6.dp))
-            val minLabel = stringResource(R.string.minutes_n)
-            ChipRow(listOf(5, 10, 15, 30, 60), snooze, { minLabel.format(it) }) {
-                snooze = it
-                prefs.snoozeMinutes = it
-            }
         }
+    }
+
+    @Composable
+    fun UnansweredPage(padding: PaddingValues) = SubPage(padding) {
         SectionLabel(stringResource(R.string.insist_title))
         PetCard {
             Text(stringResource(R.string.insist_help), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
@@ -1478,21 +1613,40 @@ fun SettingsScreen(
                 prefs.unlockRepeat = it
             }
         }
+    }
+
+    @Composable
+    fun TapPage(padding: PaddingValues) = SubPage(padding) {
         PetCard {
-            ProLock(isPro, onLocked = { showPro = true }) {
-                Column {
-                    SwitchRow(stringResource(R.string.voice_title), stringResource(R.string.voice_sub), voice) {
-                        voice = it
-                        prefs.voice = it
-                    }
-                    if (voice) {
-                        SwitchRow(stringResource(R.string.voice_ignore_silent), stringResource(R.string.voice_ignore_silent_help), voiceIgnoreSilent) {
-                            voiceIgnoreSilent = it
-                            prefs.voiceIgnoreSilent = it
-                        }
-                    }
+            TapAction.entries.forEach { action ->
+                RadioRow(stringResource(action.labelRes), stringResource(action.descriptionRes), tapAction == action) {
+                    tapAction = action
+                    prefs.tapAction = action
                 }
             }
+            Text(stringResource(R.string.action_snooze), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 6.dp))
+            val minLabel = stringResource(R.string.minutes_n)
+            ChipRow(listOf(5, 10, 15, 30, 60), snooze, { minLabel.format(it) }) {
+                snooze = it
+                prefs.snoozeMinutes = it
+            }
+        }
+    }
+
+    @Composable
+    fun FriendlyPage(padding: PaddingValues) = SubPage(padding) {
+        PetCard {
+            Text(stringResource(R.string.friendly_help), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
+            ChipRow(
+                listOf(Prefs.FRIENDLY_OFF, Prefs.FRIENDLY_FEW, Prefs.FRIENDLY_NORMAL, Prefs.FRIENDLY_MANY), friendly,
+                label = { ctx.getString(friendlyLabel(it)) },
+            ) {
+                friendly = it
+                prefs.friendlyLevel = it
+            }
+            HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 8.dp))
+            Text(stringResource(R.string.letters_help_title), style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.letters_help_body), style = MaterialTheme.typography.bodySmall, color = c.inkMuted)
         }
     }
 
@@ -1649,10 +1803,69 @@ fun SettingsScreen(
         BondPathList(bondHearts)
     }
 
+    /** "Cómo se ve la mascota": su nombre, tamaño y transparencia (Pro), modo fantasma y qué tan inquieta es. */
+    @Composable
+    fun LookPage(padding: PaddingValues) = SubPage(padding) {
+        PetCard {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.pet_says, stringResource(pet.nameRes), stringResource(pet.soundRes)),
+                    fontSize = 13.sp, fontWeight = FontWeight(600), color = c.inkMuted, modifier = Modifier.weight(1f),
+                )
+                OutlineChip(stringResource(if (petName == null) R.string.pet_name_give_chip else R.string.pet_name_chip)) { naming = pet }
+            }
+        }
+        PetCard {
+            ProLock(isPro, onLocked = { showPro = true }) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.size_title), fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, modifier = Modifier.weight(1f))
+                    }
+                    PetSlider(size.toFloat(), { size = it.toInt() }, { prefs.petSizeDp = size }, 48f..120f)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.transparency_title), fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, modifier = Modifier.weight(1f))
+                    }
+                    PetSlider(opacity.toFloat(), { opacity = it.toInt() }, { prefs.petOpacity = opacity }, 40f..100f)
+                }
+            }
+            HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                    Text(stringResource(R.string.ghost_title), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
+                    Text(stringResource(R.string.ghost_help), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
+                }
+                Switch(checked = ghost, onCheckedChange = {
+                    ghost = it
+                    prefs.ghostMode = it
+                })
+            }
+            HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
+            // Vida propia: cada cuánto hace algo sola (gratis para todos).
+            Text(stringResource(R.string.lively_title), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
+            Text(stringResource(R.string.lively_help), fontSize = 12.sp, fontWeight = FontWeight(600), color = c.inkMuted)
+            Spacer(Modifier.height(6.dp))
+            ChipRow(
+                listOf(Prefs.LIVELY_CALM, Prefs.LIVELY_NORMAL, Prefs.LIVELY_ACTIVE), liveliness,
+                label = {
+                    when (it) {
+                        Prefs.LIVELY_CALM -> ctx.getString(R.string.lively_calm)
+                        Prefs.LIVELY_ACTIVE -> ctx.getString(R.string.lively_active)
+                        else -> ctx.getString(R.string.lively_normal)
+                    }
+                },
+            ) {
+                liveliness = it
+                prefs.liveliness = it
+            }
+        }
+    }
+
     @Composable
     fun HelpPage(padding: PaddingValues) = SubPage(padding) {
         PetCard(padding = 0.dp) {
             SettingRow(Icons.Outlined.TouchApp, stringResource(R.string.help_how), stringResource(R.string.tut_open_sub), onClick = onShowTutorial)
+            RowDivider()
+            SettingRow(Icons.Outlined.NotificationsNone, stringResource(R.string.test_alert), null, onClick = ::testAlert)
             RowDivider()
             SettingRow(Icons.Outlined.Pets, stringResource(R.string.onboarding_again), null, onClick = onShowOnboarding)
             RowDivider()
@@ -1663,7 +1876,11 @@ fun SettingsScreen(
     }
 
     val subTitle = when (sub) {
+        SUB_LOOK -> R.string.row_look
         SUB_NOTIFY -> R.string.row_notify
+        SUB_UNANSWERED -> R.string.row_unanswered
+        SUB_TAP -> R.string.section_tap
+        SUB_FRIENDLY -> R.string.friendly_title
         SUB_DND -> R.string.row_dnd
         SUB_CALENDAR -> R.string.row_calendar
         SUB_PERMS -> R.string.row_perms
@@ -1723,7 +1940,11 @@ fun SettingsScreen(
         },
     ) { padding ->
         when (sub) {
+            SUB_LOOK -> LookPage(padding)
             SUB_NOTIFY -> NotifyPage(padding)
+            SUB_UNANSWERED -> UnansweredPage(padding)
+            SUB_TAP -> TapPage(padding)
+            SUB_FRIENDLY -> FriendlyPage(padding)
             SUB_DND -> DndPage(padding)
             SUB_CALENDAR -> CalendarPage(padding)
             SUB_PERMS -> PermsPage(padding)
@@ -2079,7 +2300,11 @@ private const val SCENE_MAX_DP = 200f
 private const val SCENE_MIN_DP = 56f
 private const val TAB_SETTINGS = 2
 private const val TAB_COUNT = 3
+private const val SUB_LOOK = "look"
 private const val SUB_NOTIFY = "notify"
+private const val SUB_UNANSWERED = "unanswered"
+private const val SUB_TAP = "tap"
+private const val SUB_FRIENDLY = "friendly"
 private const val SUB_DND = "dnd"
 private const val SUB_CALENDAR = "calendar"
 private const val SUB_PERMS = "perms"

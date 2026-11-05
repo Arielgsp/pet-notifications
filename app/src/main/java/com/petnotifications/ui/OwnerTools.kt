@@ -9,6 +9,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -26,13 +27,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petnotifications.Bond
+import com.petnotifications.Outfit
 import com.petnotifications.Prefs
 import com.petnotifications.R
 import com.petnotifications.pro.ProBilling
 
 /**
  * Herramientas de dueño, para probar sin pagar ni esperar: forzar Pro o el plan gratis y mover los
- * corazones del vínculo. Solo existe en las versiones de prueba (BuildConfig.OWNER_TOOLS); se abre
+ * corazones del vínculo, y probar el vestidor fuera de temporada. Solo existe en las versiones de prueba (BuildConfig.OWNER_TOOLS); se abre
  * tocando 7 veces la versión en Ajustes.
  */
 @Composable
@@ -43,6 +45,7 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
     var plan by remember { mutableIntStateOf(prefs.ownerPlan) }
     var hearts by remember { mutableIntStateOf(Bond.hearts(ctx)) }
     var trialEnd by remember { mutableStateOf(false) }
+    var allSeasons by remember { mutableStateOf(Outfit.ownerAllSeasons(ctx)) }
     if (trialEnd) TrialEndDialog(prefs, onBuy = { trialEnd = false }, onStayFree = { trialEnd = false })
 
     fun setPlan(p: Int) {
@@ -88,6 +91,16 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                         hearts = Bond.hearts(ctx)
                     }
                 }
+                HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
+                Text(stringResource(R.string.owner_shop), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.owner_all_seasons), fontSize = 13.sp, color = c.ink, modifier = Modifier.weight(1f))
+                    Switch(checked = allSeasons, onCheckedChange = {
+                        allSeasons = it
+                        Outfit.setOwnerAllSeasons(ctx, it)
+                    })
+                }
+                OutlineChip(stringResource(R.string.owner_shop_reset)) { Outfit.ownerClearBought(ctx) }
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
                 OutlineChip(stringResource(R.string.owner_trial_end)) { trialEnd = true }
             }

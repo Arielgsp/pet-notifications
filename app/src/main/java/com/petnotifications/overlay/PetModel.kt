@@ -22,6 +22,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -84,9 +85,10 @@ object PetModel {
      */
     fun draw(
         ds: DrawScope, pet: PetType, theta: Float, face: Face = Face.OPEN, sit: Boolean = false,
-        coat: Int = 0, pose: Map<String, Pose> = emptyMap(), head: Float? = null,
+        coat: Int = 0, pose: Map<String, Pose> = emptyMap(), head: Float? = null, outfit: com.petnotifications.Outfit = com.petnotifications.Outfit.NONE,
     ) {
-        val m = model(pet.name, if (sit) SIT else STAND, coat) ?: return
+        val shape = if (sit) SIT else STAND
+        val m = model(pet.name, shape, coat, covered(pet.name, shape, false, outfit)) ?: return
         paint(ds, drawOps(m.parts, theta.toDouble(), face, pose, head?.toDouble(), null), pet.name)
     }
 
@@ -94,8 +96,8 @@ object PetModel {
      * Solo la cabeza (sentada) girada [theta] grados. Se dibuja encima del cuerpo sentado sin cabeza
      * (PetView.SIT_BODY); ver [hasHead].
      */
-    fun drawHead(ds: DrawScope, pet: PetType, theta: Float, face: Face = Face.OPEN, coat: Int = 0) {
-        val m = model(pet.name, SIT, coat) ?: return
+    fun drawHead(ds: DrawScope, pet: PetType, theta: Float, face: Face = Face.OPEN, coat: Int = 0, outfit: com.petnotifications.Outfit = com.petnotifications.Outfit.NONE) {
+        val m = model(pet.name, SIT, coat, covered(pet.name, SIT, false, outfit)) ?: return
         paint(ds, drawOps(m.parts, 0.0, face, emptyMap(), theta.toDouble(), HEAD), pet.name)
     }
 
@@ -104,22 +106,19 @@ object PetModel {
      * dormida, sentada...) hecho con el modelo: así salen en cualquier pelaje y para las mascotas que no
      * tienen dibujos fijos (el conejo). Ver PetArt.petPainter.
      */
-    fun drawView(ds: DrawScope, pet: PetType, view: PetView, coat: Int = 0) {
-        val ops = viewOps(pet.name, view, coat) ?: return
+    fun drawView(ds: DrawScope, pet: PetType, view: PetView, coat: Int = 0, outfit: com.petnotifications.Outfit = com.petnotifications.Outfit.NONE) {
+        val ops = viewOps(pet.name, view, coat, covered(pet.name, view, outfit)) ?: return
         paint(ds, ops, pet.name)
     }
 
-    internal fun viewOps(pet: String, view: PetView, coat: Int): List<MOp>? {
+    /** Forma, giro del cuerpo y giro de la cabeza (null = el mismo) de cada dibujo. */
+    private class ViewFrame(val shape: Int, val th: Double, val head: Double?)
+
+    private fun viewFrame(pet: String, view: PetView): ViewFrame {
         val shape = when (view) {
             PetView.LIE, PetView.SLEEP -> LIE
             PetView.SIT, PetView.SIT_BLINK, PetView.SIT_HAPPY, PetView.SIT_BODY -> SIT
             else -> STAND
-        }
-        val m = model(pet, shape, coat) ?: return null
-        val face = when (view) {
-            PetView.BLINK, PetView.SLEEP, PetView.SIT_BLINK -> Face.CLOSED
-            PetView.HAPPY, PetView.PAW, PetView.SIT_HAPPY -> Face.HAPPY
-            else -> Face.OPEN
         }
         val side = shape == LIE && pet in PetModelData.lying
         val th = when {
@@ -128,9 +127,21 @@ object PetModel {
             view == PetView.BACK -> 180.0
             else -> 0.0
         }
+        return ViewFrame(shape, th, if (side) LIE_HEAD else null)
+    }
+
+    internal fun viewOps(pet: String, view: PetView, coat: Int, without: Set<String> = emptySet()): List<MOp>? {
+        val vf = viewFrame(pet, view)
+        val shape = vf.shape
+        val m = model(pet, shape, coat, without) ?: return null
+        val face = when (view) {
+            PetView.BLINK, PetView.SLEEP, PetView.SIT_BLINK -> Face.CLOSED
+            PetView.HAPPY, PetView.PAW, PetView.SIT_HAPPY -> Face.HAPPY
+            else -> Face.OPEN
+        }
         val pose = if (view == PetView.PAW) PAW_POSE else emptyMap()
         val layer = if (view == PetView.SIT_BODY) BODY else null
-        return drawOps(m.parts, th, face, pose, if (side) LIE_HEAD else null, layer)
+        return drawOps(m.parts, vf.th, face, pose, vf.head, layer)
     }
 
     /** Pose de una parte con etiqueta (armL/armR, footL/footR, earL/earR): giro desde su base y subida. */
@@ -149,19 +160,20 @@ object PetModel {
 
     private val cache = HashMap<String, Resolved?>()
 
-    internal fun model(pet: String, shape: Int, coat: Int): Resolved? = synchronized(cache) {
-        val key = "$pet/$shape/$coat"
-        if (key !in cache) cache[key] = build(pet, shape, coat)
+    /** [without]: etiquetas de las piezas que no se dibujan (ver [covered]). */
+    internal fun model(pet: String, shape: Int, coat: Int, without: Set<String> = emptySet()): Resolved? = synchronized(cache) {
+        val key = "$pet/$shape/$coat/${without.sorted()}"
+        if (key !in cache) cache[key] = build(pet, shape, coat, without)
         cache[key]
     }
 
-    private fun build(pet: String, shape: Int, coat: Int): Resolved? {
+    private fun build(pet: String, shape: Int, coat: Int, without: Set<String>): Resolved? {
         val pals = PetModelData.palettes[pet] ?: return null
         val pi = if (coat in pals.indices) coat else 0
         val pal = pals[pi]
         val base = PetModelData.parts(pet, shape, pal.lop) ?: return null
         val spots = if (pal.spots) PetModelData.spots(pet, pi, shape) else emptyList()
-        return Resolved((base + spots).map { RPart(it, pal) })
+        return Resolved((base + spots).filter { it.tag !in without }.map { RPart(it, pal) })
     }
     /** Pieza con sus colores resueltos según el pelaje. */
     internal class RPart(val p: ModelPart, pal: ModelPalette) {
@@ -373,14 +385,154 @@ object PetModel {
     private val fit = mapOf("RABBIT" to 0.85f)
     private const val FLOOR_Y = 228f
 
-    private fun paint(ds: DrawScope, ops: List<MOp>, pet: String) {
+    private fun paint(ds: DrawScope, ops: List<MOp>, pet: String) = inFrame(ds, pet) {
+        for (o in ops) paintOp(this, o)
+    }
+
+    /** Coordenadas del modelo (lienzo de 200×240) dentro de un [DrawScope] de proporción 256×240. */
+    private fun inFrame(ds: DrawScope, pet: String, block: DrawScope.() -> Unit) {
         val k = ds.size.width / 256f
         val f = fit[pet] ?: 1f
         ds.scale(k, k, pivot = Offset.Zero) {
             scale(f, f, pivot = Offset(128f, FLOOR_Y)) {
-                translate(left = 28f) {
-                    for (o in ops) paintOp(this, o)
-                }
+                translate(left = 28f, block = block)
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- vestidor (Design: Vestidor)
+
+    /**
+     * Dónde va la ropa: cabeza (centro y radios) y cuerpo, proyectados como los dibuja el motor. En las
+     * aves y la rana la cabeza y el cuerpo son una sola pieza ([merged]). [facing]: cuánto mira de
+     * frente el cuerpo (1 de frente, 0 de perfil, −1 de espaldas).
+     */
+    private class Anchors(
+        val hx: Double, val hy: Double, val hrx: Double, val hry: Double,
+        val bx: Double, val by: Double, val brx: Double, val bry: Double,
+        val merged: Boolean, val facing: Double, val bodySin: Double, val headCos: Double, val headSin: Double,
+    )
+
+    private fun anchors(pet: String, shape: Int, th: Double, head: Double?): Anchors? {
+        val parts = PetModelData.parts(pet, shape, lop = false) ?: return null
+        val hv = parts.firstOrNull { it.kind == ModelPart.VOL && it.layer == HEAD } ?: return null
+        val bv = parts.firstOrNull { it.kind == ModelPart.VOL && it.layer == BODY }
+        val fh = Frame(head ?: th)
+        val fb = Frame(th)
+        val hx = fh.projX(hv.x.at(fh.sa), hv.z.at(fh.sa))
+        val hy = hv.y.at(fh.sa); val hrx = hv.rx.at(fh.sa); val hry = hv.ry.at(fh.sa)
+        return if (bv == null) Anchors(hx, hy, hrx, hry, hx, hy, hrx, hry, merged = true, facing = fb.c, bodySin = fb.s, headCos = fh.c, headSin = fh.s)
+        else Anchors(hx, hy, hrx, hry, fb.projX(bv.x.at(fb.sa), bv.z.at(fb.sa)), bv.y.at(fb.sa), bv.rx.at(fb.sa), bv.ry.at(fb.sa),
+            merged = false, facing = fb.c, bodySin = fb.s, headCos = fh.c, headSin = fh.s)
+    }
+
+    /** Lo que va detrás de la mascota: la camita, cuando está acostada o duerme. */
+    fun drawOutfitBehind(ds: DrawScope, pet: PetType, view: PetView, outfit: com.petnotifications.Outfit) {
+        if (outfit.bed == null) return
+        val vf = viewFrame(pet.name, view)
+        if (vf.shape != LIE) return
+        val a = anchors(pet.name, LIE, vf.th, vf.head) ?: return
+        inFrame(ds, pet.name) { OutfitArt.bed(this, a.bedCx(), a.bedRx()) }
+    }
+
+    /**
+     * Lo que va encima del dibujo [view]: el pañuelo y lo de la cabeza. [fixedArt]: el dibujo es uno de los
+     * fijos, que de perfil tienen la cabeza un poco más adelante que el modelo.
+     */
+    fun drawOutfitFront(ds: DrawScope, pet: PetType, view: PetView, outfit: com.petnotifications.Outfit, fixedArt: Boolean = false) {
+        val vf = viewFrame(pet.name, view)
+        outfitFront(ds, pet.name, vf.shape, vf.th, vf.head, outfit, asleep = view == PetView.SLEEP, fixedSide = fixedArt && view == PetView.SIDE)
+    }
+
+    /** Encima del giro continuo (parada, [theta] grados). */
+    fun drawOutfitTurn(ds: DrawScope, pet: PetType, theta: Float, outfit: com.petnotifications.Outfit) =
+        outfitFront(ds, pet.name, STAND, theta.toDouble(), null, outfit)
+
+    /** Encima de la cabeza que gira sola (sentada, ver [drawHead]): el pañuelo queda en el cuerpo. */
+    fun drawOutfitHead(ds: DrawScope, pet: PetType, theta: Float, outfit: com.petnotifications.Outfit) =
+        outfitFront(ds, pet.name, SIT, 0.0, theta.toDouble(), outfit)
+
+    private fun Anchors.bedCx() = (min(hx - hrx, bx - brx) + max(hx + hrx, bx + brx)) / 2
+    private fun Anchors.bedRx() = (max(hx + hrx, bx + brx) - min(hx - hrx, bx - brx)) / 2 + 12
+
+    /**
+     * La lámina sobre la que Cowork dibujó los accesorios de la especie (docs/referencia-mascotas): cabeza de
+     * frente y de perfil (x, y, radio horizontal) y x del cuerpo de perfil (null: sin cuello, una sola pieza).
+     */
+    private class Sheet(
+        val fy: Double, val frx: Double, val sx: Double, val sy: Double, val srx: Double, val sbx: Double?,
+    )
+
+    private val sheets = mapOf(
+        "DOG" to Sheet(98.0, 68.0, 112.0, 98.0, 62.0, 96.0),
+        "CAT" to Sheet(98.0, 68.0, 112.0, 98.0, 62.0, 96.0),
+        "DUCK" to Sheet(98.0, 66.0, 116.0, 100.0, 58.0, 100.0),
+        "FROG" to Sheet(108.0, 74.0, 116.0, 112.0, 60.0, 96.0),
+        "COW" to Sheet(98.0, 68.0, 112.0, 98.0, 60.0, 96.0),
+        "PIG" to Sheet(98.0, 68.0, 112.0, 98.0, 62.0, 96.0),
+        "CHICK" to Sheet(132.0, 68.0, 100.0, 132.0, 66.0, null),
+        "LION" to Sheet(100.0, 58.0, 120.0, 100.0, 52.0, 96.0),
+        "MONKEY" to Sheet(98.0, 64.0, 112.0, 98.0, 60.0, 96.0),
+        "OWL" to Sheet(130.0, 70.0, 100.0, 130.0, 64.0, null),
+        "RABBIT" to Sheet(104.0, 70.0, 106.0, 104.0, 64.0, 96.0),
+    )
+
+    private const val SHEET_FRONT_X = 100.0
+
+    /** Dormida no se ven la corona, la calabacita ni el casco (LEEME de docs/accesorios-especies). */
+    private fun headVisible(onHead: com.petnotifications.Accessory?, asleep: Boolean) = onHead != null &&
+        !(asleep && (onHead == com.petnotifications.Accessory.CROWN || onHead == com.petnotifications.Accessory.PUMPKIN ||
+            onHead == com.petnotifications.Accessory.PUMPKIN_HELMET))
+
+    /** Acostada, el cuello queda debajo del mentón: el pañuelo no se ve. */
+    private fun scarfVisible(outfit: com.petnotifications.Outfit, shape: Int) =
+        shape != LIE && outfit.neck == com.petnotifications.Accessory.SCARF
+
+    /**
+     * Piezas de la mascota que reemplaza lo que tiene puesto (LEEME de docs/accesorios-especies): lo de la
+     * cabeza a la cáscara del pollito y el pañuelo a la campana de la vaca y al moñito del pato.
+     */
+    private fun covered(pet: String, shape: Int, asleep: Boolean, outfit: com.petnotifications.Outfit): Set<String> {
+        val parts = HashSet<String>(2)
+        if (pet == "CHICK" && headVisible(outfit.head, asleep)) parts += "shell"
+        if ((pet == "COW" || pet == "DUCK") && scarfVisible(outfit, shape)) parts += "neckwear"
+        return parts
+    }
+
+    private fun covered(pet: String, view: PetView, outfit: com.petnotifications.Outfit) =
+        covered(pet, viewFrame(pet, view).shape, view == PetView.SLEEP, outfit)
+
+    /** Si lo que tiene puesto reemplaza una pieza del dibujo [view] (ver PetType.plainArt). */
+    fun coversArt(pet: PetType, view: PetView, outfit: com.petnotifications.Outfit) = covered(pet.name, view, outfit).isNotEmpty()
+
+    private fun outfitFront(
+        ds: DrawScope, pet: String, shape: Int, th: Double, head: Double?, outfit: com.petnotifications.Outfit,
+        asleep: Boolean = false, fixedSide: Boolean = false,
+    ) {
+        if (outfit.isEmpty()) return
+        val sheet = sheets[pet] ?: return
+        val a = anchors(pet, shape, th, head) ?: return
+        inFrame(ds, pet) {
+            if (scarfVisible(outfit, shape)) {
+                // El pañuelo sigue al cuerpo, aunque la cabeza gire sola.
+                val b = anchors(pet, shape, th, null) ?: return@inFrame
+                val side = abs(b.bodySin) > abs(b.facing)
+                val refHead = if (side) sheet.sx else SHEET_FRONT_X
+                val refBody = if (side) sheet.sbx ?: refHead else SHEET_FRONT_X
+                val refX = (refHead + refBody) / 2
+                val refY = if (side) sheet.sy else sheet.fy
+                if (fixedSide) OutfitArt.scarf(this, pet, refX, refY, refX, refY, b.facing, b.bodySin)
+                else OutfitArt.scarf(this, pet, (b.hx + b.bx) / 2, b.hy, refX, refY, b.facing, b.bodySin)
+            }
+            val onHead = outfit.head
+            if (onHead != null && headVisible(onHead, asleep)) {
+                val side = abs(a.headSin) > abs(a.headCos)
+                val refX = if (side) sheet.sx else SHEET_FRONT_X
+                val refY = if (side) sheet.sy else sheet.fy
+                val refRx = if (side) sheet.srx else sheet.frx
+                // El dibujo fijo de perfil es la lámina misma: ni se corre ni se escala.
+                if (fixedSide) OutfitArt.head(this, pet, onHead, refX, refY, refX, refY, 1.0, refY - a.hry, a.headCos, a.headSin)
+                else OutfitArt.head(this, pet, onHead, a.hx, a.hy, refX, refY, a.hrx / refRx, a.hy - a.hry, a.headCos, a.headSin)
             }
         }
     }

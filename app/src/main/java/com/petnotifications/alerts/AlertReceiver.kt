@@ -217,7 +217,8 @@ fun Reminder.toAlert(ctx: Context, now: Long, keySuffix: String? = null): PetAle
     return PetAlert(
         key = "local:$id:$timeMillis" + (keySuffix?.let { ":$it" } ?: ""),
         title = title,
-        body = note.ifBlank { ctx.getString(if (late) R.string.alert_late else R.string.alert_now, time) },
+        // A tiempo y sin nota no lleva texto: la tarjeta ya dice la hora (la notificación pone "Son las...").
+        body = note.ifBlank { if (late) ctx.getString(R.string.alert_late, time) else "" },
         source = PetAlert.Source.LOCAL,
         reminderId = id,
         repeating = repeat != Repeat.NONE.name,

@@ -183,7 +183,7 @@ fun PetContent(state: OverlayState) {
                     squash.snapTo(1f)
                     turnAngle.snapTo(0f)
                     modelTurning = true
-                    turnAngle.animateTo(360f, tween(1_800, easing = FastOutSlowInEasing))
+                    turnAngle.animateTo(360f, tween(2_200, easing = FastOutSlowInEasing))
                 } finally {
                     endModel()
                 }
@@ -542,18 +542,22 @@ fun PetContent(state: OverlayState) {
             }
         if (modelTurning) {
             // Se redibuja en cada cuadro del giro (solo mientras gira).
-            Canvas(petLayer) { PetModel.draw(this, state.pet, turnAngle.value, coat = state.coat) }
+            Canvas(petLayer) {
+                PetModel.draw(this, state.pet, turnAngle.value, coat = state.coat, outfit = state.outfit)
+                PetModel.drawOutfitTurn(this, state.pet, turnAngle.value, state.outfit)
+            }
         } else if (headTurning) {
             // Cuerpo sentado fijo y la cabeza dibujada en el ángulo de cada cuadro.
             Box(petLayer) {
                 Image(petPainter(state.pet, PetView.SIT_BODY, state.coat), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
                 Canvas(Modifier.fillMaxSize()) {
-                    PetModel.drawHead(this, state.pet, headAngle.value, coat = state.coat)
+                    PetModel.drawHead(this, state.pet, headAngle.value, coat = state.coat, outfit = state.outfit)
+                    PetModel.drawOutfitHead(this, state.pet, headAngle.value, state.outfit)
                 }
             }
         } else {
             Image(
-                petPainter(state.pet, view, state.coat),
+                petPainter(state.pet, view, state.coat, state.outfit),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = petLayer,
@@ -642,12 +646,13 @@ private fun FxLayers(
     CompositionLocalProvider(LocalFxSide provides (state.fxSide to state.anchorY)) { Box(modifier.fillMaxWidth()) {
         when (val phase = state.phase) {
             is FxPhase.Sound -> PlacedSticker(callWord(phase.text), phase.id, state, null)
-            is FxPhase.Call -> PlacedSticker(phase.text, phase.id, state, bubble.onTap)
+            is FxPhase.Call -> PlacedSticker(phase.text, phase.id, state, bubble.onTap, phase.lifeMs)
+            is FxPhase.Peek -> PeekNote(phase, state.fxSide, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) })
             is FxPhase.Bubble -> NoteCard(
                 phase, state.who, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) },
-                held = state.held, paw = PetModel.pawColors(state.pet, state.coat),
+                side = state.fxSide, anchorX = state.anchorX, held = state.held, paw = PetModel.pawColors(state.pet, state.coat),
             )
-            is FxPhase.Upcoming -> UpcomingPanel(phase, state.anchorX, below, bubble, onBubbleHeight)
+            is FxPhase.Upcoming -> UpcomingPanel(phase, state.fxSide, state.anchorY, state.anchorX, below, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) })
             FxPhase.None -> if (state.hearts.isNotEmpty() || state.plusOnes.isNotEmpty()) Spacer(Modifier.height(150.dp))
         }
         if (state.hearts.isNotEmpty()) {
@@ -668,7 +673,7 @@ private fun FxLayers(
  * mascota; arriba, con la punta del pico sobre [OverlayState.anchorX].
  */
 @Composable
-private fun PlacedSticker(text: String, id: Long, state: OverlayState, onTap: (() -> Unit)?) {
+private fun PlacedSticker(text: String, id: Long, state: OverlayState, onTap: (() -> Unit)?, lifeMs: Long? = null) {
     val (side, _) = LocalFxSide.current
     BoxWithConstraints(Modifier.fillMaxWidth().height(StickerHeight)) {
         val density = LocalDensity.current
@@ -689,186 +694,13 @@ private fun PlacedSticker(text: String, id: Long, state: OverlayState, onTap: ((
         }.coerceIn(0f, (maxPx - wPx).coerceAtLeast(0f))
         StickerBubble(
             text, state.bubbleStyle, mirrored, id,
-            Modifier.offset { IntOffset(x.roundToInt(), 0) }, onTap,
+            Modifier.offset { IntOffset(x.roundToInt(), 0) }, onTap, lifeMs,
         )
     }
 }
 
 /** Lado del globo respecto de la mascota (1 a la derecha, -1 a la izquierda, 0 arriba/abajo) y altura de la cabeza. */
 private val LocalFxSide = androidx.compose.runtime.compositionLocalOf { 0 to 0f }
-
-/**
- * Marco de historieta (papel, borde de tinta y colita apuntando a la mascota) que comparten el globo
- * de los avisos y el panel de próximos avisos. La colita (18 dp) se superpone 3 dp al borde para
- * "abrirlo": abajo apuntando hacia abajo, o arriba apuntando hacia arriba si va debajo de la mascota.
- */
-@Composable
-private fun BubbleFrame(
-    key: Any,
-    appear: Float,
-    anchorX: Float,
-    below: Boolean,
-    onHeight: (Int) -> Unit,
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
-    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
-) {
-    val (side, anchorY) = LocalFxSide.current
-    if (side != 0) return SideBubbleFrame(key, appear, side, anchorY, onHeight, onTap, onLongPress, content)
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val density = LocalDensity.current
-        val widthPx = with(density) { maxWidth.toPx() }
-        val edge = with(density) { 26.dp.toPx() }
-        val tailX = anchorX.coerceIn(edge, widthPx - edge)
-        val shape = RoundedCornerShape(20.dp)
-        Box(
-            Modifier
-                .onSizeChanged { onHeight(it.height) }
-                .graphicsLayer {
-                    scaleX = appear
-                    scaleY = appear
-                    alpha = appear.coerceIn(0f, 1f)
-                    transformOrigin = TransformOrigin(tailX / widthPx, if (below) 0f else 1f)
-                }
-                .pointerInput(key) {
-                    detectTapGestures(onTap = { onTap() }, onLongPress = { onLongPress() })
-                },
-        ) {
-            Column(
-                Modifier
-                    .padding(top = if (below) 15.dp else 0.dp, bottom = if (below) 0.dp else 15.dp)
-                    .fillMaxWidth()
-                    .background(Paper, shape)
-                    .border(3.dp, Ink, shape)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                content = content,
-            )
-            // Colita del globo apuntando a la mascota.
-            Canvas(
-                Modifier
-                    .align(if (below) Alignment.TopStart else Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .height(18.dp),
-            ) {
-                val half = 11.dp.toPx()
-                val baseY = if (below) size.height else 0f
-                val tip = Offset(tailX - 4.dp.toPx(), if (below) 0f else size.height)
-                val left = Offset(tailX - half, baseY)
-                val right = Offset(tailX + half, baseY)
-                val fill = Path().apply {
-                    moveTo(left.x, left.y); lineTo(tip.x, tip.y); lineTo(right.x, right.y); close()
-                }
-                drawPath(fill, Paper)
-                val stroke = 3.dp.toPx()
-                drawLine(Ink, left, tip, stroke)
-                drawLine(Ink, tip, right, stroke)
-            }
-        }
-    }
-}
-
-/**
- * Globo al costado de la mascota (cuando arriba no entra): la colita sale del borde que da a la
- * mascota ([side] 1: la mascota está a la izquierda del globo) a la altura de su cabeza ([anchorY]).
- */
-@Composable
-private fun SideBubbleFrame(
-    key: Any,
-    appear: Float,
-    side: Int,
-    anchorY: Float,
-    onHeight: (Int) -> Unit,
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
-    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
-) {
-    val shape = RoundedCornerShape(20.dp)
-    var heightPx by remember { mutableIntStateOf(0) }
-    val petOnLeft = side > 0
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .onSizeChanged {
-                heightPx = it.height
-                onHeight(it.height)
-            }
-            .graphicsLayer {
-                scaleX = appear
-                scaleY = appear
-                alpha = appear.coerceIn(0f, 1f)
-                val oy = if (heightPx > 0) (anchorY / heightPx).coerceIn(0f, 1f) else 0f
-                transformOrigin = TransformOrigin(if (petOnLeft) 0f else 1f, oy)
-            }
-            .pointerInput(key) {
-                detectTapGestures(onTap = { onTap() }, onLongPress = { onLongPress() })
-            },
-    ) {
-        Column(
-            Modifier
-                .padding(start = if (petOnLeft) 15.dp else 0.dp, end = if (petOnLeft) 0.dp else 15.dp)
-                .fillMaxWidth()
-                .background(Paper, shape)
-                .border(3.dp, Ink, shape)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            content = content,
-        )
-        // Colita de costado apuntando a la cabeza de la mascota.
-        Canvas(Modifier.matchParentSize()) {
-            val edge = 22.dp.toPx()
-            val y = anchorY.coerceIn(edge, (size.height - edge).coerceAtLeast(edge))
-            val half = 11.dp.toPx()
-            val baseX = if (petOnLeft) 15.dp.toPx() else size.width - 15.dp.toPx()
-            val tip = Offset(if (petOnLeft) 0f else size.width, y + 4.dp.toPx())
-            val top = Offset(baseX, y - half)
-            val bottom = Offset(baseX, y + half)
-            val fill = Path().apply {
-                moveTo(top.x, top.y); lineTo(tip.x, tip.y); lineTo(bottom.x, bottom.y); close()
-            }
-            drawPath(fill, Paper)
-            val stroke = 3.dp.toPx()
-            drawLine(Ink, top, tip, stroke)
-            drawLine(Ink, tip, bottom, stroke)
-        }
-    }
-}
-
-/** Panel "próximos avisos": hasta 6 recordatorios y eventos de los próximos 7 días. Tocarlo lo cierra. */
-@Composable
-private fun UpcomingPanel(
-    phase: FxPhase.Upcoming,
-    anchorX: Float,
-    below: Boolean,
-    actions: BubbleActions,
-    onHeight: (Int) -> Unit,
-) {
-    val appear = remember(phase.id) { Animatable(0f) }
-    LaunchedEffect(phase.id) { appear.animateTo(1f, spring(dampingRatio = 0.5f, stiffness = 320f)) }
-    BubbleFrame(phase.id, appear.value, anchorX, below, onHeight, actions.onTap, actions.onLongPress) {
-        Text(
-            stringResource(R.string.upcoming_title),
-            fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
-        )
-        if (phase.items.isEmpty()) {
-            Text(
-                stringResource(R.string.upcoming_empty),
-                fontSize = 14.sp, color = Ink, modifier = Modifier.padding(top = 4.dp),
-            )
-        }
-        phase.items.forEach { item ->
-            Row(Modifier.padding(top = 5.dp)) {
-                Text(if (item.calendar) "📅" else "⏰", fontSize = 13.sp)
-                Column(Modifier.padding(start = 6.dp)) {
-                    Text(
-                        item.title,
-                        fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Ink,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(com.petnotifications.ui.formatWhen(item.at), fontSize = 12.sp, color = InkMuted)
-                }
-            }
-        }
-    }
-}
 
 /** Botón del globo: el principal (Listo) en rosa suave con borde cacao; el otro, papel con borde suave. */
 @Composable

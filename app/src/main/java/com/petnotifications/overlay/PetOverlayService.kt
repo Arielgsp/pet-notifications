@@ -43,6 +43,7 @@ import com.petnotifications.R
 import com.petnotifications.Repeat
 import kotlinx.coroutines.withContext
 import com.petnotifications.Bond
+import com.petnotifications.Outfit
 import com.petnotifications.calendar.CalendarSource
 import com.petnotifications.TapAction
 import com.petnotifications.alerts.AlertNotifier
@@ -265,8 +266,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             else -> when {
                 key?.startsWith(Prefs.KEY_PET_NAME) == true -> updateNotification()
                 key?.startsWith(Prefs.KEY_COAT) == true -> applyShownPet()
+                key == Outfit.KEY -> state.outfit = Outfit.current(this)
                 // Sumó corazones (por un "Listo" desde la notificación o la app): quizás hay que festejar.
-                key?.startsWith(Bond.KEY_PREFIX) == true -> scheduleCelebrate()
+                key?.startsWith(Bond.KEY_PREFIX) == true -> {
+                    state.outfit = Outfit.current(this)
+                    scheduleCelebrate()
+                }
             }
         }
     }
@@ -283,6 +288,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val (pet, coat) = prefs.shownPet()
         state.pet = pet
         state.coat = coat
+        state.outfit = Outfit.current(this)
         tryJob?.cancel()
         val left = prefs.tryUntil - System.currentTimeMillis()
         if (prefs.trying() != null) tryJob = scope.launch {
@@ -394,12 +400,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         // La onomatopeya de un aviso que llega: sale de la boca (como el sonido) pero se puede tocar.
         val call = state.phase as? FxPhase.Call
         val card = state.phase is FxPhase.Bubble
+        // El globito con el mensaje: la ventana mide lo que él (ya medido), para no tapar los toques a la app de abajo.
+        val peek = state.phase as? FxPhase.Peek
+        fxParams.height = if (peek != null) bubbleHeightPx.takeIf { it > 0 } ?: dp(PEEK_WINDOW_DP) else dp(FX_HEIGHT_DP)
         // Arriba: el globo apunta a la coronilla (el dibujo de cuerpo entero deja ~15 % arriba de la
         // cabeza) y el sonido sale de la boca. Abajo: todo sale de los pies. Medido desde abajo.
-        val anchorAbove = if (bubble) petParams.y + (height * 0.85f).roundToInt()
+        val anchorAbove = if (bubble || peek != null) petParams.y + (height * 0.85f).roundToInt()
         else petParams.y + ((1f - pet.mouthY) * height).roundToInt()
         val anchorBelow = petParams.y + (height * 0.05f).roundToInt()
         val needed = when {
+            peek != null -> dp(PEEK_WINDOW_DP)
             bubble -> bubbleHeightPx.takeIf { it > 0 } ?: dp(BUBBLE_GUESS_DP)
             call != null || state.phase is FxPhase.Sound -> dp(StickerHeight.value.toInt())
             else -> dp(HEARTS_HEIGHT_DP)
@@ -414,6 +424,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         // El aviso (la onomatopeya y después la tarjeta) sale por el costado si hay lugar.
         val sideMin = when {
             call != null -> dp(CALL_SIDE_MIN_DP)
+            peek != null -> dp(PEEK_SIDE_MIN_DP)
             card -> dp(CARD_SIDE_MIN_DP)
             else -> null
         }
@@ -449,6 +460,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // La onomatopeya ocupa solo lo que mide el globo: no tapa la app de al lado más de lo necesario.
             if (call != null) fxParams.width = minOf(fxParams.width, dp(stickerWidth(call.text).value.toInt() + 4))
             fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
+            // El globito con el mensaje mide lo que su texto, y arranca pegado a la cara.
+            if (peek != null) {
+                fxParams.width = minOf(fxParams.width, dp(minOf(PEEK_MAX_DP, peekWidthDp(peek.alert))))
+                fxParams.x = if (side > 0) petParams.x + ((pet.mouthX + PEEK_FACE) * size).roundToInt()
+                else petParams.x + ((pet.mouthX - PEEK_FACE) * size).roundToInt() - fxParams.width
+            }
             // La punta del pico, en la mejilla (el dibujo tiene aire a los costados): se mete sobre la mascota.
             if (call != null) {
                 val inset = dp(StickerTipInset.value.toInt())
@@ -456,12 +473,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 else petParams.x + ((pet.mouthX - FACE_HALF) * size).roundToInt() - fxParams.width + inset
             }
             val petTop = petParams.y + height // medido desde abajo
-            val text = bubble || state.phase is FxPhase.Sound || call != null
+            val text = bubble || state.phase is FxPhase.Sound || call != null || peek != null
             state.fxBelow = text // el texto se apoya arriba de la ventana, a la altura de la cabeza
             val top = when {
                 // La punta del pico (cerca del borde de abajo del globo) a la altura de la boca.
                 call != null -> minOf(
                     petTop + dp(StickerTipY.value.toInt()) - (pet.mouthY * height).roundToInt(),
+                    sh - statusBarHeight(),
+                )
+                peek != null -> minOf(
+                    petTop + dp(PEEK_CENTER_DP) - (pet.mouthY * height).roundToInt(),
                     sh - statusBarHeight(),
                 )
                 // La tarjeta arranca a la altura de la cabeza, pero siempre entera arriba de la barra de abajo.
@@ -479,12 +500,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             val below = needed > spaceAbove && spaceBelow > spaceAbove
             state.fxBelow = below
             fxParams.y = if (below) anchorBelow - fxParams.height else anchorAbove
-            val anchor = if (bubble) petParams.x + size / 2f else petParams.x + pet.mouthX * size
+            val anchor = if (bubble || peek != null) petParams.x + size / 2f else petParams.x + pet.mouthX * size
             state.anchorX = anchor - fxParams.x
         }
         // Solo el globo y la onomatopeya reciben toques; el resto deja pasar los toques a la app de abajo.
         // (La onomatopeya tiene que ser tocable: Android deja al 80 % las ventanas flotantes que no lo son.)
-        fxParams.flags = (if (bubble || call != null) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
+        fxParams.flags = (if (bubble || call != null || peek != null) FX_FLAGS else FX_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE)
         // Sin nada que mostrar, la ventana queda oculta: Android 12+ bloquea los toques que pasan
         // a través de una ventana flotante visible aunque esté vacía y sea transparente.
         val empty = state.phase is FxPhase.None && state.hearts.isEmpty() && state.plusOnes.isEmpty()
@@ -501,9 +522,11 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val v = lettersView ?: return
         val (sw, _) = screenSize()
         val w = lettersParams.width
-        val overlap = dp(LETTERS_OVERLAP_DP)
+        // El aire del dibujo crece con la mascota; la carta se apoya siempre lo mismo sobre el cuerpo, de los dos lados.
+        val overlap = (petParams.width * LETTERS_AIR).roundToInt() + dp(LETTERS_ON_BODY_DP)
         val right = petParams.x + petParams.width - overlap
-        lettersParams.x = if (right + w <= sw) right else (petParams.x - w + overlap).coerceAtLeast(0)
+        state.lettersLeft = right + w > sw
+        lettersParams.x = if (state.lettersLeft) (petParams.x - w + overlap).coerceAtLeast(0) else right
         lettersParams.y = petParams.y
         // En modo fantasma los toques atraviesan también las cartas.
         lettersParams.flags = if (prefs.ghostMode) BASE_FLAGS or LayoutParams.FLAG_NOT_TOUCHABLE else BASE_FLAGS
@@ -556,6 +579,14 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             }
         }
         clampPet()
+    }
+
+    private fun savePosition() {
+        val (sw, sh) = screenSize()
+        prefs.petX = petParams.x
+        prefs.petY = petParams.y
+        prefs.petScreenW = sw
+        prefs.petScreenH = sh
     }
 
     private fun maxPetX(screenW: Int) = (screenW - petParams.width).coerceAtLeast(1)
@@ -777,6 +808,10 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private var curY = 0f
         /** Recién empezó el arrastre después de un movimiento rápido: la mascota alcanza al dedo de a poco. */
         private var catchingUp = false
+        /** El dedo arrancó después de una pausa con la mascota apretada: es un arrastre, a cualquier velocidad. */
+        private var movedLate = false
+        /** Rápido y largo: es un scroll que empezó sobre la mascota, no la mueve ni dispara ningún tirón. */
+        private var scrolled = false
         private var settle: android.animation.ValueAnimator? = null
         private var view: View? = null
 
@@ -840,6 +875,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                     dragging = false
                     moved = false
                     catchingUp = false
+                    movedLate = false
+                    scrolled = false
                     longFired = false
                     velocity?.clear()
                     track(e)
@@ -851,15 +888,19 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                     val dy = e.rawY - downY
                     if (!moved && hypot(dx, dy) > slop) {
                         moved = true
+                        movedLate = e.eventTime - e.downTime >= FLICK_MAX_MS
                         main.removeCallbacks(longPress)
                     }
                     if (moved && !dragging) {
                         val elapsed = e.eventTime - e.downTime
-                        val slow = elapsed >= DRAG_DECIDE_MS && speedDp() < FLICK_MIN_SPEED_DP
-                        if (slow || elapsed >= FLICK_MAX_MS) {
+                        // Velocidad promedio desde que apoyó el dedo: la instantánea baila y confunde un scroll con un arrastre.
+                        val average = hypot(dx, dy) / resources.displayMetrics.density / elapsed.coerceAtLeast(1L) * 1000f
+                        val slow = elapsed >= DRAG_DECIDE_MS && average < FLICK_MIN_SPEED_DP
+                        if (!scrolled && (slow || movedLate)) {
                             dragging = true
                             catchingUp = true
                         } else {
+                            if (elapsed >= FLICK_MAX_MS) scrolled = true
                             // Todavía puede ser un tirón: solo se inclina un poquito hacia ese lado.
                             val max = dp(FLICK_LEAN_MAX_DP).toFloat()
                             place((dx * FLICK_LEAN).coerceIn(-max, max), (dy * FLICK_LEAN).coerceIn(-max, max))
@@ -885,16 +926,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                     if (moved && !dragging) {
                         // Tirón: se reconoce por la velocidad, no por el recorrido, así funciona también
                         // con la mascota pegada al borde (el dedo tiene poco lugar hacia ese lado).
-                        val flick = speedDp() >= FLICK_MIN_SPEED_DP && hypot(dx, dy) >= dp(FLICK_MIN_DP)
+                        val flick = !scrolled && speedDp() >= FLICK_MIN_SPEED_DP && hypot(dx, dy) >= dp(FLICK_MIN_DP)
                         settleBack()
                         if (flick) onFlick(dx, dy)
                     } else if (dragging) {
                         wake()
-                        val (sw, sh) = screenSize()
-                        prefs.petX = petParams.x
-                        prefs.petY = petParams.y
-                        prefs.petScreenW = sw
-                        prefs.petScreenH = sh
+                        savePosition()
                     } else if (!longFired) {
                         // Dormida, el primer toque solo la despierta.
                         // Con un aviso o el panel en pantalla, tocar la mascota los cierra.
@@ -906,7 +943,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 MotionEvent.ACTION_CANCEL -> {
                     main.removeCallbacks(longPress)
                     velocity?.clear()
-                    if (!dragging) settleBack()
+                    // Si el sistema corta un arrastre, la mascota se queda donde iba: se guarda para que no salte después.
+                    if (dragging) savePosition() else settleBack()
                     touching = false
                 }
                 // Toque en cualquier otro lado de la pantalla: el usuario está usando el celular, así
@@ -1321,19 +1359,17 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 state.sleeping = false
                 delay(WAKE_MS)
             }
-            // 1) Onomatopeya en su globo, al costado de la boca: un aviso corto antes de la tarjeta.
-            state.talking = true
+            // 1) Onomatopeya en su globo, al costado de la boca; la mascota se queda quieta.
             state.who = state.pet.subject(this@PetOverlayService)
-            state.phase = FxPhase.Call(alert, callWord(state.pet.sound(this@PetOverlayService)), SystemClock.uptimeMillis())
+            state.phase = FxPhase.Call(alert, callWord(state.pet.sound(this@PetOverlayService)), SystemClock.uptimeMillis(), CALL_MS)
             layoutFx()
             speak(state.pet)
             delay(CALL_MS)
-            state.talking = false
-            // 2) Sola, sin tocar nada: la tarjeta con el aviso, que la mascota sostiene con las patitas.
-            val autoHideMs = autoHideMs()
-            state.phase = FxPhase.Bubble(alert, autoHideMs, hint())
+            // 2) Solo el mensaje, en un globito al costado; la tarjeta completa se abre al tocarlo.
+            state.phase = FxPhase.Peek(alert, SystemClock.uptimeMillis())
+            bubbleHeightPx = 0 // Se mide de nuevo en la ventana alta: este texto puede ocupar más líneas.
             layoutFx()
-            autoHideMs?.let {
+            autoHideMs()?.let {
                 delay(it)
                 leaveUnattended(alert)
             }
@@ -1342,7 +1378,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     private fun autoHideMs(): Long? = if (prefs.autoHide) prefs.autoHideSeconds * 1000L else null
 
-    /** Se abre la tarjeta con el aviso (también si se tocó la onomatopeya antes de que pase sola). */
+    /** Se abre la tarjeta con el aviso: se tocó el globito con el mensaje o la onomatopeya. */
     private fun openCard(alert: PetAlert) {
         showJob?.cancel()
         state.talking = false
@@ -1545,6 +1581,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val phase = state.phase
         if (phase is FxPhase.Upcoming) return closeUpcoming()
         if (phase is FxPhase.Call) return openCard(phase.alert)
+        if (phase is FxPhase.Peek) return openCard(phase.alert)
         val alert = current ?: return
         val letter = (phase as? FxPhase.Bubble)?.letter
         // Carta de una frase amigable o de un aviso de prueba: tocarla es darla por leída.
@@ -1714,7 +1751,15 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val CALL_SIDE_MIN_DP = 90
         private const val CARD_SIDE_MIN_DP = 200
         /** Cuánto dura la onomatopeya antes de que aparezca la tarjeta. */
-        private const val CALL_MS = 1_100L
+        private const val CALL_MS = 2_100L
+        /** Globito con el mensaje: lugar mínimo al costado, ancho máximo y alto de su ventana. */
+        private const val PEEK_SIDE_MIN_DP = 110
+        private const val PEEK_MAX_DP = 176
+        private const val PEEK_WINDOW_DP = 84
+        /** Del borde de arriba de su ventana al centro del globito de una línea (va a la altura de la boca). */
+        private const val PEEK_CENTER_DP = 23
+        /** Dónde empieza el globito, en fracción del ancho de la ventana de la mascota desde la boca. */
+        private const val PEEK_FACE = 0.3f
         /** Media cara de la mascota, en fracción del ancho de su ventana (la punta del pico va ahí). */
         private const val FACE_HALF = 0.2f
         /** La tarjeta sostenida tapa las patas: su borde de arriba sube esta fracción del alto de la mascota. */
@@ -1722,7 +1767,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         /** Lugar arriba de la tarjeta sostenida para las patitas (el relleno de arriba de NoteCard). */
         private const val HOLD_PAW_ROOM_DP = 16
         /** Cuánto se meten las cartas sobre el dibujo de la mascota (que tiene aire a los costados). */
-        private const val LETTERS_OVERLAP_DP = 30
+        private const val LETTERS_AIR = 0.2f
+        private const val LETTERS_ON_BODY_DP = 16
         private const val BASE_FLAGS = LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL
         /**
          * Ventana de efectos: puede salirse de la pantalla. Si Android la "empujara" para que entre,
@@ -1751,7 +1797,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
          */
         private const val FLICK_MAX_MS = 200L
         /** Pasado este tiempo, un movimiento lento ya se toma como arrastre. */
-        private const val DRAG_DECIDE_MS = 60L
+        private const val DRAG_DECIDE_MS = 120L
         /** Cuánto se inclina la mascota durante un posible tirón (parte del recorrido del dedo, con tope). */
         private const val FLICK_LEAN = 0.25f
         private const val FLICK_LEAN_MAX_DP = 10

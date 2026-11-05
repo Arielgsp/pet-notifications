@@ -153,3 +153,46 @@ fun PetType.art(view: PetView): Int? = when (this) {
     }
     else -> null
 }
+
+/** Dibujo fijo sin la pieza que reemplaza lo que tiene puesto (ver PetModel.coversArt); null si no hay. */
+fun PetType.plainArt(view: PetView): Int? = when (this) {
+    PetType.CHICK -> when (view) {
+        PetView.FRONT -> R.drawable.pet_chick_front_plain
+        PetView.BLINK -> R.drawable.pet_chick_blink_plain
+        PetView.HAPPY -> R.drawable.pet_chick_happy_plain
+        PetView.SIDE -> R.drawable.pet_chick_side_plain
+        PetView.BACK -> R.drawable.pet_chick_back_plain
+        PetView.PAW -> R.drawable.pet_chick_paw_plain
+        PetView.SIT -> R.drawable.pet_chick_sit_plain
+        PetView.SIT_BLINK -> R.drawable.pet_chick_sit_blink_plain
+        PetView.SIT_HAPPY -> R.drawable.pet_chick_sit_happy_plain
+        PetView.LIE -> R.drawable.pet_chick_lie_plain
+        PetView.SLEEP -> R.drawable.pet_chick_sleep_plain
+        else -> null
+    }
+    PetType.COW -> when (view) {
+        PetView.FRONT -> R.drawable.pet_cow_front_plain
+        PetView.BLINK -> R.drawable.pet_cow_blink_plain
+        PetView.HAPPY -> R.drawable.pet_cow_happy_plain
+        PetView.SIDE -> R.drawable.pet_cow_side_plain
+        PetView.BACK -> R.drawable.pet_cow_back_plain
+        PetView.PAW -> R.drawable.pet_cow_paw_plain
+        PetView.SIT -> R.drawable.pet_cow_sit_plain
+        PetView.SIT_BLINK -> R.drawable.pet_cow_sit_blink_plain
+        PetView.SIT_HAPPY -> R.drawable.pet_cow_sit_happy_plain
+        else -> null
+    }
+    PetType.DUCK -> when (view) {
+        PetView.FRONT -> R.drawable.pet_duck_front_plain
+        PetView.BLINK -> R.drawable.pet_duck_blink_plain
+        PetView.HAPPY -> R.drawable.pet_duck_happy_plain
+        PetView.SIDE -> R.drawable.pet_duck_side_plain
+        PetView.BACK -> R.drawable.pet_duck_back_plain
+        PetView.PAW -> R.drawable.pet_duck_paw_plain
+        PetView.SIT -> R.drawable.pet_duck_sit_plain
+        PetView.SIT_BLINK -> R.drawable.pet_duck_sit_blink_plain
+        PetView.SIT_HAPPY -> R.drawable.pet_duck_sit_happy_plain
+        else -> null
+    }
+    else -> null
+}

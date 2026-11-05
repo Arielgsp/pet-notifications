@@ -42,10 +42,12 @@ sealed interface FxPhase {
     /** La onomatopeya saliendo de la boca. */
     data class Sound(val text: String, val id: Long) : FxPhase
     /**
-     * Llega un aviso: la onomatopeya ("guau") en un globo al costado de la mascota. Queda ahí hasta que
-     * se toca (abre la tarjeta del aviso) o se toca la mascota (queda una carta pendiente a sus pies).
+     * Llega un aviso: la onomatopeya ("guau") en un globo al costado de la mascota, durante [lifeMs].
+     * Tocarla abre la tarjeta; tocar la mascota deja una carta pendiente a sus pies.
      */
-    data class Call(val alert: PetAlert, val text: String, val id: Long) : FxPhase
+    data class Call(val alert: PetAlert, val text: String, val id: Long, val lifeMs: Long) : FxPhase
+    /** Después de la onomatopeya: solo el mensaje, en un globito al costado. Tocarlo abre la tarjeta. */
+    data class Peek(val alert: PetAlert, val id: Long) : FxPhase
     /** La tarjeta con el aviso; [letter]: se abrió desde una carta (cerrarla no la saca de sus pies). */
     data class Bubble(val alert: PetAlert, val autoHideMs: Long?, val hint: String, val letter: Letter? = null) : FxPhase
     /** Panel con los próximos avisos (tirón hacia la izquierda sobre la mascota). */
@@ -60,6 +62,8 @@ class OverlayState {
     var pet by mutableStateOf(PetType.DOG)
     /** Pelaje de la mascota (Prefs.coat; 0 = el original). */
     var coat by mutableIntStateOf(0)
+    /** Lo que tiene puesto (vestidor). */
+    var outfit by mutableStateOf(com.petnotifications.Outfit.NONE)
     /** Cada incremento: se da una vuelta despacito (frente → perfil → espalda → perfil → frente). */
     var spinTick by mutableIntStateOf(0)
     var bounceTick by mutableIntStateOf(0)
@@ -79,6 +83,9 @@ class OverlayState {
      * derecha de la mascota, -1 = a la izquierda, 0 = arriba o abajo (ver [fxBelow]).
      */
     var fxSide by mutableIntStateOf(0)
+
+    /** Las cartas van del lado izquierdo de la mascota (la pila se dibuja en espejo). */
+    var lettersLeft by mutableStateOf(false)
 
     /**
      * La tarjeta del aviso va debajo de la mascota y ella la sostiene con las patitas: centro de las

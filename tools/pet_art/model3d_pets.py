@@ -161,9 +161,9 @@ def cow(c=None):
     p.append(vol(HEAD, 0, 98, hz, (68, 62), (60, 58), main))
     p.append(path(HEAD, flat_pts([(114, 54), (128, 48), (142, 58), (140, 70), (136, 82), (120, 78), (116, 70), (112, 64), (110, 58)], cz=6),
                   "M{0} C{1} {2} {3} C{4} {5} {6} C{7} {8} {0} Z", fill=spot, width=0, hide=0.0))
-    p.append(path(HEAD, flat_pts([(72, 144), (100, 158), (128, 144)], cz=6, lift=6), "M{0} Q{1} {2}", color="#E86A6A", width=7, hide=-0.2))
+    p.append(path(HEAD, flat_pts([(72, 144), (100, 158), (128, 144)], cz=6, lift=6), "M{0} Q{1} {2}", color="#E86A6A", width=7, hide=-0.2, tag="neckwear"))
     p.append(path(HEAD, flat_pts([(90, 152), (100, 146), (110, 152), (112, 166), (100, 172), (88, 166)], cz=6, lift=10),
-                  "M{0} Q{1} {2} L{3} Q{4} {5} Z", fill="#FFD166", width=4, hide=-0.1))
+                  "M{0} Q{1} {2} L{3} Q{4} {5} Z", fill="#FFD166", width=4, hide=-0.1, tag="neckwear"))
     p += eyes2(28, 94, 6)
     p += blush2(50, 110, 6)
     p.append(part(HEAD, 0, 126, 56, (34, 30), 20, muzzle, behind=-0.1))
@@ -273,9 +273,9 @@ def duck(c=None):
     tp = [(98, 42), (90, 26), (98, 16), (106, 22), (104, 28), (110, 30), (114, 26), (116, 36), (108, 42), (104, 44)]
     p.append(path(HEAD, fixed_pts(tp, 6), "M{0} C{1} {2} {3} C{4} {5} {6} C{7} {8} {9} Z", fill=tuft, behind=2, bb=(4, 6)))
     p.append(vol(HEAD, 0, 98, (0, 6), (66, 62), (60, 58), main))
-    p.append(path(HEAD, flat_pts([(100, 156), (78, 146), (80, 168)], cz=6, lift=14), "M{0} L{1} L{2} Z", fill=scarf, hide=-0.2))
-    p.append(path(HEAD, flat_pts([(100, 156), (122, 146), (120, 168)], cz=6, lift=14), "M{0} L{1} L{2} Z", fill=scarf, hide=-0.2))
-    p.append(part(HEAD, 0, 156, 42, 6, 6, scarf, behind=-0.2, hide=-0.2))
+    p.append(path(HEAD, flat_pts([(100, 156), (78, 146), (80, 168)], cz=6, lift=14), "M{0} L{1} L{2} Z", fill=scarf, hide=-0.2, tag="neckwear"))
+    p.append(path(HEAD, flat_pts([(100, 156), (122, 146), (120, 168)], cz=6, lift=14), "M{0} L{1} L{2} Z", fill=scarf, hide=-0.2, tag="neckwear"))
+    p.append(part(HEAD, 0, 156, 42, 6, 6, scarf, behind=-0.2, hide=-0.2, tag="neckwear"))
     p += eyes2(28, 98, 6)
     p += blush2(46, 120, 6)
     p.append(part(HEAD, 0, 124, 64, (24, 22), 11, bill, behind=-0.1))
@@ -301,7 +301,7 @@ def chick(c=None):
     shell = [(64, 64), (62, 24), (100, 20), (138, 24), (136, 64), (127, 55), (118, 65), (109, 55), (100, 65), (91, 55), (82, 65), (73, 55)]
     a = math.radians(-10)
     shell = [(100 + (X - 100) * math.cos(a) - (Y - 44) * math.sin(a), 44 + (X - 100) * math.sin(a) + (Y - 44) * math.cos(a)) for X, Y in shell]
-    p.append(path(HEAD, fixed_pts(shell, 18), "M{0} Q{1} {2} Q{3} {4} L{5} L{6} L{7} L{8} L{9} L{10} L{11} Z", fill="#FFFDF5", behind=-2, bb=(0, 4)))
+    p.append(path(HEAD, fixed_pts(shell, 18), "M{0} Q{1} {2} Q{3} {4} L{5} L{6} L{7} L{8} L{9} L{10} L{11} Z", fill="#FFFDF5", behind=-2, bb=(0, 4), tag="shell"))
     p += [eye(sx * 24, 110, on_head(sx * 24, 110, cy=132, rx=68, ry=80, r=66)) for sx in (-1, 1)]
     p += [part(HEAD, sx * 44, 132, on_head(sx * 44, 132, cy=132, rx=68, ry=80, r=66), 11, 6.5, BLUSH, flat=True, hide=0.05, stroke=False,
                opacity=0.65) for sx in (-1, 1)]

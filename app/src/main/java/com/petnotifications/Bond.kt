@@ -30,13 +30,13 @@ object Bond {
         val ready: Boolean,
     ) {
         WAG(R.string.bond_r_wag, R.string.bond_learned_wag, R.string.bond_how_wag, true),
-        SCARF(R.string.bond_r_scarf, R.string.bond_learned_scarf, R.string.bond_how_scarf, false),
+        SCARF(R.string.bond_r_scarf, R.string.bond_learned_scarf, R.string.bond_how_scarf, true),
         PAW(R.string.bond_r_paw, R.string.bond_learned_paw, R.string.bond_how_paw, true),
         MORNING(R.string.bond_r_morning, R.string.bond_learned_morning, R.string.bond_how_morning, true),
-        BED(R.string.bond_r_bed, R.string.bond_learned_bed, R.string.bond_how_bed, false),
-        HAT(R.string.bond_r_hat, R.string.bond_learned_hat, R.string.bond_how_hat, false),
+        BED(R.string.bond_r_bed, R.string.bond_learned_bed, R.string.bond_how_bed, true),
+        HAT(R.string.bond_r_hat, R.string.bond_learned_hat, R.string.bond_how_hat, true),
         DANCE(R.string.bond_r_dance, R.string.bond_learned_dance, R.string.bond_how_dance, true),
-        CROWN(R.string.bond_r_crown, R.string.bond_learned_crown, R.string.bond_how_crown, false),
+        CROWN(R.string.bond_r_crown, R.string.bond_learned_crown, R.string.bond_how_crown, true),
     }
 
     class Level(val number: Int, val from: Int, @StringRes val name: Int, @StringRes val title: Int, val reward: Reward)
@@ -220,6 +220,13 @@ object Bond {
                 is Celebration.Arrived -> putStringSet(KEY_GOT, got + c.level.reward.name)
             }
         }
+        // Un accesorio recién ganado se lo pone enseguida (se cambia en el Vestidor).
+        val won = when (c) {
+            is Celebration.LevelUp -> c.level.reward
+            is Celebration.Arrived -> c.level.reward
+            is Celebration.Welcome -> null
+        }
+        won?.let(Accessory::of)?.let { Outfit.wear(ctx, it) }
     }
 
     // ---------------------------------------------------------------- trucos

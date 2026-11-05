@@ -54,8 +54,13 @@ object AlertNotifier {
         val n = NotificationCompat.Builder(ctx, if (loud) CHANNEL_LOUD else CHANNEL_QUIET)
             .setSmallIcon(R.drawable.ic_stat_paw)
             .setContentTitle(alert.title)
-            .setContentText(alert.body)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(alert.body))
+            .apply {
+                // Sin texto, solo el mensaje: la hora ya la pone Android, chiquita, en el encabezado.
+                if (alert.body.isNotBlank()) {
+                    setContentText(alert.body)
+                    setStyle(NotificationCompat.BigTextStyle().bigText(alert.body))
+                }
+            }
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             // En la pantalla de bloqueo se ve completa salvo que el usuario oculte el contenido
             // sensible; en ese caso aparece esta versión sin el texto del recordatorio.

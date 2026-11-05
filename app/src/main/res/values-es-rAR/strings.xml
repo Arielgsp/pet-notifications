@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Voseo para Argentina: solo lo que cambia respecto de values-es. Generado por tools/i18n/gen_xml.py. -->
+<resources>
+    <string name="notif_pet_text">Tocá para configurar</string>
+    <string name="hint_close">Tocá para cerrar</string>
+    <string name="hint_action">Tocá: %1$s · Mantené: cerrar</string>
+    <string name="gestures_help">Arrastrala para moverla · 1 toque: salta y tira corazones · 2 toques: da una vuelta · tirones rápidos: ← próximos avisos, ↓ recordatorio rápido, ↑ esconderla 1 hora, → avisos en silencio · mantené apretado: abrir la app</string>
+    <string name="section_pet">Elegí tu mascota</string>
+    <string name="ghost_help">La mascota se ve semitransparente y los toques la atraviesan, para usar lo que está debajo. Los avisos siguen funcionando. También se activa desde la notificación de la mascota o desde los ajustes rápidos (la cortina de arriba).</string>
+    <string name="hide_fullscreen_help">Cuando mirás un video o jugás a pantalla completa, la mascota se esconde y vuelve al salir. Los avisos llegan igual por notificación.</string>
+    <string name="sleep_help">La mascota se acuesta a dormir si pasan 10 minutos sin que uses el celular, y se levanta cuando prendés la pantalla, la tocás o creás un recordatorio. En tu horario de No molestar duerme siempre: solo se despierta para avisarte y enseguida vuelve a dormir.</string>
+    <string name="hold_closes">Mantener apretado el globo siempre lo cierra.</string>
+    <string name="insist_title">Insistir si no respondés</string>
+    <string name="insist_help">Si no tocás Listo ni Aplazar (ni cerrás el aviso), la mascota vuelve a avisarte.</string>
+    <string name="unlock_repeat_help">Si un aviso sonó con la pantalla apagada y no lo atendiste, la mascota lo repite cuando desbloqueás el celular.</string>
+    <string name="cal_help">Usa los calendarios sincronizados en el teléfono. Si tu cuenta de Gmail está agregada en Ajustes › Cuentas con el calendario activado, sus eventos aparecen acá.</string>
+    <string name="no_reminders">Todavía no hay recordatorios. Tocá “Recordatorio” para crear uno.</string>
+    <string name="permission_exact">Alarmas exactas (avisos a horario)</string>
+    <string name="battery_steps_samsung">1. Tocá “Abrir ajustes de la app” › Batería › elegí “Sin restricciones”.\n2. En Ajustes › Cuidado del dispositivo (o Mantenimiento) › Batería › Límites de uso en segundo plano: sacá esta app de “Apps en suspensión” y “Apps en suspensión profunda”, y agregala a “Apps que nunca se suspenden”.</string>
+    <string name="battery_steps_motorola">1. Tocá “Abrir ajustes de la app” › Batería › elegí “Sin restricciones” (en algunos modelos: “Optimización de batería” › “No optimizar”).\n2. Si igual desaparece, revisá en Ajustes › Batería que el ahorro de energía no esté siempre activado.</string>
+    <string name="battery_steps_xiaomi">1. Tocá “Abrir ajustes de la app” y activá “Inicio automático”.\n2. En “Ahorro de batería”, elegí “Sin restricciones”.\n3. En “Otros permisos”, activá “Mostrar ventanas emergentes mientras se ejecuta en segundo plano” y “Mostrar en pantalla de bloqueo”.\n4. En la vista de apps recientes, mantené apretada esta app y tocá el candado para que no se cierre.</string>
+    <string name="battery_steps_other">Tocá “Abrir ajustes de la app” › Batería y elegí “Sin restricciones” o “No optimizar”. Cada marca lo llama distinto: la guía web tiene los pasos para la tuya.</string>
+    <string name="ob_welcome_body">Voy a vivir en tu pantalla y avisarte de tus recordatorios y eventos. Antes, te explico los permisos que necesito, uno por uno. La app no tiene acceso a internet: tus datos nunca llegan a nosotros. Si querés, elegí otra mascota:</string>
+    <string name="ob_skip">Saltear la configuración</string>
+    <string name="ob_overlay_body">Necesito el permiso “Mostrar sobre otras apps” para aparecer encima de lo que estés usando. Solo me dibujo a mí y a mis globos: no leo lo que hay en tu pantalla ni toco otras apps. En la pantalla que se abre, buscame en la lista y activá el permiso.</string>
+    <string name="ob_overlay_no">Si decís que no: no me vas a ver, pero te aviso igual con notificaciones comunes.</string>
+    <string name="ob_notif_no">Si decís que no: solo te aviso cuando estoy en pantalla y la tenés prendida.</string>
+    <string name="ob_exact_title">Para avisarte justo a horario</string>
+    <string name="ob_exact_body">Con “Alarmas y recordatorios” suenan a la hora exacta, aunque el celular esté en reposo. En la pantalla que se abre, activá el permiso.</string>
+    <string name="ob_exact_no">Si decís que no: los avisos pueden llegar unos minutos tarde.</string>
+    <string name="ob_calendar_no">Si decís que no: solo te aviso de los recordatorios que cargues en la app. Lo podés activar después en Ajustes.</string>
+    <string name="ob_battery_body">Algunos celulares cierran las apps para ahorrar batería y yo desaparezco. Seguí estos pasos para que no me cierren:</string>
+    <string name="ob_battery_no">Si decís que no: puede que a veces desaparezca de la pantalla. Los avisos siguen llegando por notificación.</string>
+    <string name="ob_done_body">Ya estoy en tu pantalla. Tocame, arrastrame o tocá “Probar un aviso” para ver cómo te aviso.</string>
+    <string name="ob_done_body_no_overlay">Te voy a avisar con notificaciones. Si más adelante querés verme en pantalla, activá el permiso desde Ajustes › Permisos.</string>
+    <string name="pro_status_owned">Tenés Pro. ¡Gracias por apoyar la app!</string>
+    <string name="pro_row_insist">Insistir si no respondés</string>
+    <string name="pro_unavailable">No se pudo conectar con Google Play. Revisá que la app Play Store esté instalada y con tu cuenta, y probá de nuevo.</string>
+    <string name="pro_locked">Función Pro: tocá para ver los planes</string>
+    <string name="pro_trial_intro">Tenés %1$d días de prueba con todo Pro, gratis.</string>
+    <string name="free_pets_title">Elegí tu mascota gratis</string>
+    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tenés 1 mascota: elegila (la podés cambiar una sola vez). Con Pro tenés las 11.</string>
+    <string name="feedback_body">Se abre tu app de correo con este resumen técnico, para ayudarnos a encontrar problemas. No incluye tus recordatorios ni tus eventos. Podés borrar lo que quieras antes de mandarlo.</string>
+    <string name="feedback_greeting">Escribí tu comentario acá:</string>
+    <string name="diag_intro">Estos números se calculan en tu celular y no se mandan a ningún lado. Sirven para ver si los avisos llegan a horario.</string>
+    <string name="diag_send">Mandar por mail</string>
+    <string name="delete_repeat_title">¿Qué querés borrar?</string>
+    <string name="delete_repeat_body">Este recordatorio se repite. Podés saltear solo el próximo aviso o borrar todos.</string>
+    <string name="delete_skip_next">Saltear solo el próximo (%1$s)</string>
+    <string name="toast_series_kept">Listo, cerrado. Este recordatorio se repite: para borrarlo, abrilo en la app.</string>
+    <string name="trial_notice_body">Mañana termina la prueba de Pro. Yo me quedo con vos igual. Si te gustó cómo estamos, podés quedarte con Pro.</string>
+    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) podés usar las 11; después, la podés cambiar una sola vez.</string>
+    <string name="free_pets_change_title">Cambiá tu mascota gratis</string>
+    <string name="free_pets_change_body">La podés cambiar una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
+    <string name="missed_tap_to_see">Tocá para ver la lista.</string>
+    <string name="upcoming_empty">No tenés avisos en los próximos 7 días.</string>
+    <string name="upcoming_hint">Tocá para cerrar</string>
+    <string name="quick_past">Elegí un día y una hora que todavía no pasaron.</string>
+    <string name="ob_notice_body">Mientras estoy en pantalla, Android deja fija una notificación que dice que me muestro sobre otras apps. La pone Android, no yo. Si te molesta, la podés ocultar: en la pantalla que se abre, apagá esa notificación (solo la mía).</string>
+    <string name="ob_notice_no">Si decís que no: la notificación queda en la cortina. No cambia nada de cómo te aviso.</string>
+    <string name="notice_row_help">Lo pone Android mientras la mascota está en pantalla. Podés ocultarlo solo para esta app.</string>
+    <string name="name_body">Ponele el nombre que quieras. Lo podés cambiar cuando quieras.</string>
+    <string name="home_alert_trial_body">Después seguís con el plan gratis: tus recordatorios y tu mascota.</string>
+    <string name="home_turn_on">Prenderla</string>
+    <string name="shop_remove">Sacar</string>
+    <string name="pet_preview_body">Probalo 5 minutos en tu pantalla</string>
+    <string name="home_today_empty_title">Hoy no tenés nada pendiente</string>
+    <string name="home_today_empty_body">Empezá con uno de estos; se repiten solos</string>
+    <string name="home_empty_body">Contame algo y yo te aviso a tiempo.</string>
+    <string name="tip_1">Si me tirás hacia arriba, me escondo una hora.</string>
+    <string name="tip_2">Con un tirón hacia abajo anotás un recordatorio rápido, sin abrir la app.</string>
+    <string name="tip_5">Si me tocás una vez salto y te tiro corazones, y si me tocás dos doy una vuelta.</string>
+    <string name="tip_6">Si estoy dormida y me tocás, me despierto.</string>
+    <string name="tip_7">Si me mantenés apretada, abrís la app.</string>
+    <string name="plan_pro_title">Tenés Pro</string>
+    <string name="pet_state_on">Prendida</string>
+    <string name="row_unanswered">Si no respondés</string>
+    <string name="tut_taps_title">Tocame</string>
+    <string name="tut_move_title">Llevame a donde quieras</string>
+    <string name="tut_move_body">Arrastrame para cambiarme de lugar en la pantalla. Si me mantenés apretada, se abre la app.</string>
+    <string name="tut_flick_down">Anotás un recordatorio rápido</string>
+    <string name="tut_alert_body">Aparezco con mi sonido y un globito con el mensaje. Tocalo para abrirlo: ahí elegís Listo si ya está, o Aplazar para que te lo recuerde más tarde. Si no me respondés, insisto un rato.</string>
+    <string name="tut_sleep_body">Si pasan 10 minutos sin usarme me acuesto a dormir, y en tu horario de No molestar duermo siempre. Tocame o prendé la pantalla y me despierto. Igual me levanto si tengo que avisarte algo.</string>
+    <string name="tut_look_title">Cambiá cómo me veo</string>
+    <string name="tut_look_body">En Ajustes, en “Cómo se ve la mascota”, podés cambiarme el tamaño y la transparencia (Pro). El modo fantasma me deja semitransparente y tus toques me atraviesan, para usar lo que hay debajo.</string>
+    <string name="tut_try_title">Probalo vos</string>
+    <string name="tut_try_body">Tocame o haceme un tirón en la pantalla. Mientras estés acá no pasa nada de verdad: solo te digo qué gesto hiciste.</string>
+    <string name="tut_try_all">¡Los hiciste todos! Ya sabés usarme.</string>
+    <string name="notif_public_title">%1$s tiene un aviso para vos</string>
+    <string name="notif_public_text">Desbloqueá el celular para verlo.</string>
+    <string name="bond_t1">Recién nos conocemos</string>
+    <string name="bond_learned_morning">¡Aprendí a saludarte a la mañana!</string>
+    <string name="bond_how_wag">Cuando desbloqueás el celular, muevo la cola.</string>
+    <string name="bond_how_paw">Tocame 2 veces: una vez doy la vuelta y la otra te doy la patita.</string>
+    <string name="bond_how_morning">La primera vez que desbloqueás el celular a la mañana, te digo buen día.</string>
+    <string name="bond_how_dance">A veces bailo cuando marcás “Listo”.</string>
+    <string name="bond_how_scarf">Ya me lo puse. Lo cambiás en el Vestidor.</string>
+    <string name="bond_how_bed">Ahora duermo en ella. La cambiás en el Vestidor.</string>
+    <string name="bond_how_hat">Ya me lo puse. Lo cambiás en el Vestidor.</string>
+    <string name="bond_how_crown">Ya me la puse. La cambiás en el Vestidor.</string>
+    <string name="bond_show_me">Mostrame</string>
+    <string name="bond_morning_none">¡Buen día! Hoy no tenemos nada pendiente.</string>
+    <string name="bond_morning_one">¡Buen día! Hoy tenemos 1 cosa.</string>
+    <string name="bond_morning_some">¡Buen día! Hoy tenemos %1$d cosas.</string>
+    <string name="bond_path_intro">Cada vez que me decís “Listo”, nos conocemos un poco más. Nunca se pierde lo ganado.</string>
+    <string name="tut_bond_body">Cada vez que marcás “Listo”, sumo un corazón. Con los corazones subo de nivel y aprendo trucos nuevos. Lo ves en la pestaña Mascota.</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un globito a su costado. Tocalo para abrir el aviso completo. Tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
+    <string name="friendly_help">De vez en cuando tu mascota te deja una carta con una hojita y un mensajito (“tomá agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.</string>
+    <string name="letters_help_body">Campanita: un aviso pendiente, que cerraste tocando la mascota sin Listo ni Aplazar. Luna: un aviso sin interrumpir. Hojita: un mensajito de tu mascota. Tocá las cartas para abrir la de arriba.</string>
+    <string name="trial_notice_body_back">Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, podés quedarte con Pro.</string>
+    <string name="trial_end_body">Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue con vos.</string>
+    <string-array name="friendly_morning">
+        <item>Buen día. Hoy va a salir lindo</item>
+        <item>Arrancamos de a poquito</item>
+        <item>¿Ya desayunaste?</item>
+        <item>Un paso a la vez, así se llega</item>
+        <item>Éxito en tu jornada</item>
+        <item>Hoy también estoy con vos</item>
+        <item>Lo que hoy no salga, sale mañana</item>
+        <item>Te guardé un poco de buena onda</item>
+        <item>Lo difícil primero, después un mimo</item>
+        <item>Hoy es un buen día para ser amable con vos</item>
+    </string-array>
+    <string-array name="friendly_afternoon">
+        <item>No te olvides de tomar agua</item>
+        <item>¿Una pausa de un minuto?</item>
+        <item>Estirá un poquito la espalda</item>
+        <item>Respirá hondo. Yo también</item>
+        <item>Vas muy bien, en serio</item>
+        <item>Mirá un ratito por la ventana</item>
+        <item>Ya pasó la mitad del día</item>
+        <item>Un vasito de agua y seguimos</item>
+        <item>Lo difícil también se termina</item>
+        <item>Me gusta acompañarte</item>
+        <item>Aflojá los hombros un poquito</item>
+        <item>¿Estiramos las piernas un minuto?</item>
+        <item>Acordate de comer algo rico</item>
+        <item>Tomate un recreo de cinco minutos</item>
+        <item>Parpadeá despacio: descansan los ojos</item>
+        <item>Aflojá la mandíbula. ¿Viste? Estaba apretada</item>
+        <item>¿Hace cuánto no estirás los brazos?</item>
+    </string-array>
+    <string-array name="friendly_night">
+        <item>Hoy hiciste un montón</item>
+        <item>Ya casi es hora de descansar</item>
+        <item>Lo que falta, mañana lo vemos</item>
+        <item>Gracias por un día más juntos</item>
+        <item>¿Dejamos el celular un ratito?</item>
+        <item>Que descanses lindo</item>
+        <item>Mañana te espero acá</item>
+        <item>Fue un buen día, ¿no?</item>
+    </string-array>
+    <string-array name="friendly_any">
+        <item>Acá estoy, por si acaso</item>
+        <item>Te quiero mucho</item>
+        <item>Sos importante para mí</item>
+        <item>Hacer las cosas a tu ritmo está bien</item>
+        <item>Un mimo, por las dudas</item>
+        <item>No hace falta hacerlo perfecto</item>
+        <item>¿Y si te reís un poco?</item>
+        <item>Me alegra verte</item>
+        <item>Lo estás haciendo bien</item>
+        <item>Una cosa por vez</item>
+        <item>Gracias por cuidarme</item>
+        <item>Acá te dejo un corazoncito</item>
+        <item>Si necesitás parar, está bien</item>
+        <item>Contá conmigo</item>
+        <item>Hoy también cuenta, aunque sea poquito</item>
+        <item>Si te equivocaste, no pasa nada. Seguimos</item>
+        <item>Te mando un abrazo peludo</item>
+        <item>Mandale un mensajito lindo a alguien</item>
+        <item>Ordená una sola cosita y listo</item>
+        <item>Vas mejor de lo que pensás</item>
+        <item>Descansar un ratito también es avanzar</item>
+        <item>Agua, aire y un ratito de sol</item>
+    </string-array>
+</resources>

@@ -89,7 +89,7 @@ object CalendarSource {
                 val whenText = when {
                     // Aviso atrasado (teléfono apagado o dormido): decir la verdad sobre la hora.
                     begin < now - 60_000 -> ctx.getString(R.string.cal_started, at)
-                    leadMinutes == 0 || begin <= now + 60_000 -> ctx.getString(R.string.cal_now, at)
+                    leadMinutes == 0 || begin <= now + 60_000 -> ctx.getString(R.string.cal_now)
                     else -> ctx.getString(R.string.cal_in, at, ((begin - now + 30_000) / 60_000).toInt())
                 }
                 out += PetAlert(

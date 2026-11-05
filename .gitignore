@@ -17,6 +17,8 @@
 
 # APKs generados para probar en el celular (se pueden volver a armar).
 *.apk
+# Copia de la web en un solo archivo, para mirarla (se puede volver a armar).
+/MimuPet-vista-previa.html
 # Registros de errores de Java/Gradle.
 *.log
 hs_err_pid*

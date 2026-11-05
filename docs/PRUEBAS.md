@@ -732,9 +732,236 @@ Reemplaza la 49.1 a 49.3 y la 49.5 y 49.6 (la 49.4, Ajustes, sigue igual).
 | 50.10 | Con 1 o 2 recordatorios que se repiten. | Debajo de la lista de Hoy, una fila "Ideas:" con las plantillas que todavía no usaste. Con 3 o más que se repiten, desaparece. | |
 | 50.11 | Mirá los puntitos de la semana. | Un recordatorio de todos los días pone punto en los 7 días; uno semanal, solo en su día. | |
 | 50.12 | Tocá otro día de la semana. | Queda con borde marrón y la lista muestra ese día ("Martes 3"), o "Nada para ese día". Tocá hoy para volver. Con hoy elegido, abajo aparecen también Mañana y Más adelante (lo que pasa de la semana). | |
-| 50.13 | Más abajo. | La **frase del día** (fondo verde, hojita, "Frase del día · Tu león"): la misma todo el día. Con las frases en "Nunca" no aparece. | |
-| 50.14 | Debajo de la frase. | El **vínculo en una línea**: "Nivel 1 · Recién llegada", "Faltan N «Listo» para el nivel 2" y una barrita rosa. Tocarlo abre Mascota. Después, "Ya avisados hoy (N)" plegado. | |
+| 50.13 | (1.0.43) Más abajo, después de Mañana y Más adelante. | **No** hay frase del día ni línea del vínculo (se sacaron para que Avisos no quede cargada; la frase es de la mascota flotante y el nivel está en el Vestidor). Sigue "Ya avisados hoy (N)" plegado y el consejo. | |
 | 50.15 | Con el reloj del teléfono en 12 horas. | La hora "6:40 p. m." entra en una sola línea. | |
+
+## 51. El Vestidor (versión 1.0.41)
+
+Para probar sin esperar: Herramientas de dueño (7 toques en la versión, en Ajustes) → **+10 corazones**. Nivel 2 = 10, nivel 5 = 100, nivel 6 = 150, nivel 8 = 300.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 51.1 | Pestaña **Mascota**. | Arriba, la mascota grande en un círculo rosa; debajo su nombre y el chip "Nivel N" (tocarlo abre Nuestro camino); los lugares **Cabeza · Cuello · Camita** ("Vacío"); el selector **Accesorios \| Mascotas**. | |
+| 51.2 | En Accesorios, en nivel 1. | 4 fichas: Pañuelo (nivel 2), Camita (5), Gorrito de lana (6), Corona de flores (8), atenuadas con candado. Tocar una dice en qué nivel se gana. No hay nada a la venta. | |
+| 51.3 | Subí al nivel 2. | Festejo "¡Gané un pañuelo para el cuello!" con "Ya me lo puse. Lo cambiás en el Vestidor." Al cerrarlo, **la mascota de la pantalla y la del Vestidor tienen el pañuelo puesto**. | |
+| 51.4 | Tocá el Pañuelo. | Se lo saca (sin borde ni tilde, dice "Ganado"; Cuello "Vacío"). Tocalo de nuevo y se lo pone. También cambia en la mascota de la pantalla. | |
+| 51.5 | Subí al nivel 8 y probá el **Gorrito** y la **Corona**. | Van en la cabeza: poner uno saca el otro. Probalo con varias mascotas (Mascotas → otra): el gorrito y la corona quedan en la cabeza de cada una, el pañuelo en el cuello (en pollito, pato, búho y rana, como baberito). | |
+| 51.6 | Poné la **Camita**. | El escenario muestra la mascota durmiendo en la camita un par de segundos. Camita dice "Al dormir". Cuando la mascota de la pantalla se acuesta o duerme, está sobre la camita. | |
+| 51.7 | Tocá 2 veces la mascota de la pantalla (vuelta 360°). | Gira con todo puesto: de espaldas se ve la banda del pañuelo, sin la punta. | |
+| 51.8 | Avisos. | La mascota de la escena (grande y chiquita al bajar) tiene lo puesto. Tocar "Vestir" abre el Vestidor. | |
+| 51.9 | Mascotas (el selector). | Lo de antes: especies, pelajes, tamaño, transparencia, fantasma, vida propia, tutorial y Probar un aviso; arriba, "León · dice …" con **Ponerle nombre**. | |
+| 51.10 | Herramientas de dueño → **Reiniciar vínculo**. | Se saca todo lo que tenía (vuelve a nivel 1). | |
+
+## 52. Probador y compra de accesorios (versión 1.0.42)
+
+Los de temporada solo aparecen en su fecha: **Calabacita** del 15/10 al 2/11 y **Gorro navideño** del 1/12 al 6/1. En esta versión de prueba, si Play no tiene cargado el producto, el precio dice "$ 2 (prueba)" y Comprar es de mentira. Para ver el Gorro fuera de fecha: Herramientas de dueño → Vestidor → **Mostrar todas las temporadas**.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 52.1 | Mascota → Accesorios (hasta el 2/11). | Está la **Calabacita** con el precio en marrón debajo del nombre. El Gorro navideño **no** aparece. | |
+| 52.2 | Tocá la Calabacita. | La mascota grande se la pone; arriba "Probando: Calabacita" punteado; la ficha con borde punteado; Cabeza dice Calabacita. Abajo la barra "¿Te gusta cómo me queda?", "Solo se ve acá hasta que lo compres · a la venta hasta el 2 de noviembre", **Sacar** y **Comprar · precio**. La mascota de la pantalla **no** la tiene. | |
+| 52.3 | Tocá **Sacar** (o la ficha de nuevo, o andá a Avisos y volvé). | Se la saca y vuelve lo que tenía puesto. | |
+| 52.4 | Probala y tocá **Comprar**. | (Prueba) "¡Ya es tuyo! Me lo dejo puesto."; la ficha pasa a "Puesto" con tilde, y la mascota de la pantalla también la tiene. Tocarla la saca ("Comprado") y la vuelve a poner. | |
+| 52.5 | Herramientas de dueño → **Mostrar todas las temporadas**. | Aparece el Gorro navideño; al probarlo dice "a la venta hasta el 6 de enero". Probalo con varias mascotas (Mascotas → otra): queda en la cabeza de cada una. | |
+| 52.6 | Herramientas de dueño → **Borrar compras de prueba**. | La Calabacita vuelve a mostrar el precio y se le saca a la mascota. | |
+| 52.7 | (Con los productos cargados en Play Console, X13) Comprá con una cuenta de testers de licencias. | El botón dice el precio de Play en tu moneda; se abre la pantalla de pago de Google; al terminar, se lo pone solo. En otro celular con la misma cuenta aparece comprado. | |
+
+## 53. Accesorios con el arte de Cowork (versión 1.0.44)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 53.1 | Vestidor: poné a la mascota el gorrito de lana, la corona, el pañuelo y (en fecha o con "Mostrar todas las temporadas") la calabacita y el gorro navideño. | Se ven con el dibujo nuevo, con el borde del mismo grosor que la mascota. Nada queda cortado arriba (el pompón y la hoja de la calabacita). | |
+| 53.2 | Probá con **rana, león y conejo**. | Rana: el gorro va arriba de los ojos y no se los tapa. León: sobre la melena. Conejo: entre las orejas. | |
+| 53.3 | Probá con **pollito y búho** el pañuelo. | Queda justo debajo de la cara. | |
+| 53.4 | Mirá a la mascota flotante cuando camina de costado, hacia los dos lados. | Usa el dibujo de perfil, centrado en la cabeza, y mira para el mismo lado que la mascota. El gorro navideño cae hacia atrás. | |
+| 53.5 | Mirala cuando gira y cuando queda de espaldas. | Los gorros se ven como de frente; del pañuelo solo se ve el nudo. Al girar, el dibujo cambia de frente a perfil sin saltos raros. | |
+| 53.6 | Con camita puesta, dejala echarse y dormirse. | La camita queda detrás, sin borde delante de las patas. Echada se ve lo de la cabeza; dormida se ven los gorros, pero no la corona ni la calabacita. | |
+| 53.7 | Usá la app un rato con la mascota vestida. | Se mueve fluida y no aparece "MimuPet no responde". | |
+
+## 54. Accesorios por especie (versión 1.0.45)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 54.1 | Mirá de cerca a la mascota vestida, en el Vestidor y en la pantalla. | El borde de los accesorios y de las orejas del conejo se ve liso, no serruchado. En el emulador se ve serruchado: hay que confirmarlo en el teléfono. | |
+| 54.2 | Vaca y pato: poné y sacá el pañuelo, parados y caminando de costado. | Con pañuelo no se ven la campana ni el moñito; sin pañuelo vuelven. La vaca conserva las manchas. | |
+| 54.3 | Vaca y pato con pañuelo: dejalos echarse. | Acostados el pañuelo no se ve, y vuelven la campana y el moñito. | |
+| 54.4 | Pollito: poné cada cosa de la cabeza, parado, de costado y de espaldas. | Sin cáscara mientras tenga algo en la cabeza. Con solo el pañuelo, la cáscara sigue. Dormido con corona o calabacita, que no se ven, vuelve la cáscara. | |
+| 54.5 | Rana de costado con cada cosa de la cabeza. | El gorro va chico e inclinado, detrás del ojo. | |
+| 54.6 | León con gorrito de lana y calabacita. | Sobre la melena, sin cortarse arriba. Quedan un poco achatados (al 74 %) para entrar en el lienzo: decidir si gusta. | |
+| 54.7 | Elegí un pelaje que no sea el original y hacela girar con pañuelo y gorro. | Los accesorios siguen a la mascota sin saltos raros, y de espaldas se ve el nudo a la altura del cuello. | |
+| 54.8 | Vaca sentada girando solo la cabeza, con gorro y pañuelo. | El gorro gira con la cabeza, el pañuelo queda quieto y no aparece la campana. | |
+
+## 55. Pañuelo coral (versión 1.0.46)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 55.1 | Poné el pañuelo a varias mascotas, sobre todo rana, chancho y pollito. | El pañuelo es coral con lunares crema, se distingue bien y combina con la mascota. | |
+| 55.2 | Mirá el pañuelo de costado y de espaldas, y su cuadradito en el Vestidor. | Coral en todos lados, también el nudo y el ícono. | |
+| 55.3 | Mirá la calabacita, la corona y la camita. | Siguen con sus hojas y su tela en verde. | |
+
+## 56. Aviso en dos pasos (versión 1.0.47)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 56.1 | Esperá un recordatorio con la mascota parada. | El "guau" dura unos 2 segundos, aparece y se va suave, y la mascota no se menea. | |
+| 56.2 | Seguí mirando después del "guau". | Sale un globito crema al costado, solo con el mensaje. Se puede seguir usando la app de abajo, incluso justo arriba y abajo del globito. | |
+| 56.3 | Tocá el globito. | Se abre la tarjeta completa en crema, con "Listo" y "Aplazar" más chicos. | |
+| 56.4 | Mirá la tarjeta de un recordatorio sin nota que llegó a tiempo. | La hora aparece una sola vez, al lado de "te avisa". La notificación de la barra muestra solo el mensaje (ver 58.1). | |
+| 56.5 | Mirá un aviso atrasado o un evento que empieza en unos minutos. | Sigue el texto "Era para las..." o "Empieza a las... (en N min)", porque es otra hora. | |
+| 56.6 | No toques el globito (con "Cuánto dura el globo" en un tiempo fijo). | Al terminar el tiempo se va y queda una carta pendiente a sus pies. | |
+| 56.7 | Con el globito a la vista, tocá la mascota o mantené apretado el globito. | Se cierra y queda la carta pendiente. | |
+| 56.8 | Mové la mascota a la izquierda, a la derecha y al medio, y probá un aviso. | El globito sale siempre del lado con lugar y entero en la pantalla. | |
+| 56.9 | Con la mascota sentada, abrí un aviso. | Se queda sentada y las patitas siguen sobre la tarjeta sin verse raras. | |
+
+## 57. Tarjeta compacta (versión 1.0.48)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 57.1 | Abrí un aviso de texto corto, como "Tomar agua". | La tarjeta es angosta, con letra más chica y sin espacio vacío a la derecha. | |
+| 57.2 | Abrí un aviso de título y texto largos. | La tarjeta se ensancha hasta su máximo y el texto entra en menos líneas que antes. | |
+| 57.3 | Con la mascota a la derecha, a la izquierda y al medio, abrí un aviso corto. | Las patitas quedan apoyadas sobre la tarjeta y la tarjeta entra entera en la pantalla. | |
+| 57.4 | Abrí una carta pendiente y una de frase. | Se ven bien, con su sello y su color. | |
+
+## 58. Notificación de la barra sin "Son las..." (versión 1.0.49)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 58.1 | Con la mascota oculta, esperá un recordatorio sin nota que llegue a tiempo y mirá la barra de notificaciones. | Se ve solo el mensaje, sin "Son las...". La hora queda chiquita en el encabezado, y están "Aplazar" y "Listo". | |
+| 58.2 | Mirá la notificación de un recordatorio con nota. | Se ven el mensaje y la nota. | |
+| 58.3 | Mirá la de un aviso atrasado y la de un evento que empieza en unos minutos. | Siguen "Era para las..." y "Empieza a las... (en N min)", porque es otra hora. | |
+
+## 59. Carta pegada a la mascota y botones de la prueba (versión 1.0.50)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 59.1 | Con una carta pendiente, poné la mascota a la izquierda y después contra el borde derecho. | La carta queda igual de pegada de los dos lados, apoyada sobre el cuerpo. | |
+| 59.2 | Repetí con la mascota en su tamaño mínimo y máximo. | La carta sigue igual de cerca y se puede tocar. | |
+| 59.3 | Dejá tres cartas o más con la mascota contra el borde derecho. | La pila se abre hacia afuera, sin tapar la cara, y se ve el "+N" si hay más de tres. | |
+| 59.4 | Probá una mascota Pro y mirá su tarjeta. | "Probar un aviso" se lee entero, y abajo están "Volver a la mía" y "Ver planes". | |
+
+## 60. La mascota no se mueve con un scroll (versión 1.0.51)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 60.1 | Hacé un scroll normal en una página empezando con el dedo sobre la mascota. | Se inclina apenas y vuelve a su lugar. No abre nada ni se esconde. | |
+| 60.2 | Arrastrala arrancando despacio. | Sigue al dedo y queda donde la soltás. | |
+| 60.3 | Agarrala y movela rápido de entrada. | Vuelve a su lugar. Anotá si esto molesta: es el costo de este cambio. | |
+| 60.4 | Mantenela apretada un momento, sin llegar a abrir la app, y movela rápido. | La arrastra. | |
+| 60.5 | Hacé los cuatro tirones cortos. | Hacen lo mismo de siempre. | |
+| 60.6 | Mantenela apretada sin moverla. | Abre la app. | |
+
+## 61. Giro más lento y casco de calabaza (versión 1.0.52)
+
+Para ver el casco fuera de temporada: Ajustes, 7 toques en la versión, "Mostrar todas las temporadas".
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 61.1 | Tocá dos veces la mascota. | Da la vuelta apenas más lento que antes (2,2 s en vez de 1,8 s), sin saltos. | |
+| 61.2 | Abrí el Vestidor y mirá la calabaza nueva. | Aparece "Casco de calabaza" junto a la "Calabacita", con su ícono y su precio. | |
+| 61.3 | Probate el casco. | Se ven los ojos y la boca por los agujeros, y parpadea normalmente. | |
+| 61.4 | Con el casco, tocá dos veces la mascota. | De perfil tiene un solo ojo y de espaldas la calabaza está entera, sin agujeros. | |
+| 61.5 | Con el casco, sentala y hacela dormir. | Sentada se ve bien; dormida el casco no aparece. | |
+| 61.6 | Mirá el casco en cada una de las 11 especies. | Queda centrado y entero, sin cortarse en los bordes. | |
+
+## 62. Casco de calabaza más angosto (versión 1.0.53)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 62.1 | Mirá el casco de frente en las 11 especies. | Se ve más angosto (86 %; perro y león 90 %), con los ojos y la boca en los agujeros. | |
+| 62.2 | Tocá dos veces la mascota con el casco. | De perfil el ojo sigue en su agujero y el agujero queda dentro de la calabaza. | |
+| 62.3 | Mirá el perro y el león de cerca. | Casi no asoman los costados de la cabeza ni la melena. | |
+
+## 63. Pantalla Mascota en una sola pantalla (versión 1.0.54)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 63.1 | Abrí la pestaña Mascota. | No hay pestañas internas. Arriba está la mascota con Cabeza, Cuello y Camita a la derecha; después nombre, nivel y 10 corazones, "Lo próximo" y la tira de Mascotas. | |
+| 63.2 | Tocá la línea del nombre. | Se abre Nuestro camino. | |
+| 63.3 | Tocá Cabeza, Cuello y Camita. | Se abre la hoja Vestir en ese lugar y la mascota se sigue viendo arriba. Con los chips cambiás de lugar sin cerrarla. | |
+| 63.4 | En la hoja, poné y sacá un accesorio, y usá "Sin nada". | El escenario y la mascota de la pantalla cambian. | |
+| 63.5 | En temporada (o con "Mostrar todas las temporadas"), tocá uno a la venta. | Se lo prueba y abajo aparecen Sacar y Comprar. Cerrar la hoja o tocar otro lo saca. | |
+| 63.6 | Tocá un accesorio bloqueado. | Explica: "Lo gano en el nivel N, con X corazones. Faltan N «Listo»." | |
+| 63.7 | Con plan gratis, tocá una mascota Pro. | Tu mascota no cambia. El escenario muestra "Vista previa" y aparece la tarjeta con Probar 5 min y Ver Pro. Tocar la tuya vuelve. | |
+| 63.8 | Tocá Probar 5 min. | Empieza la prueba en la pantalla, con su cuenta regresiva y los puntitos de pelaje. | |
+| 63.9 | Con Pro o en la prueba de Pro, tocá una mascota y un puntito de pelaje. | Sin candados: cambia la mascota y su pelaje. | |
+| 63.10 | En Ajustes, abrí "Cómo se ve la mascota". | Están el nombre, tamaño y transparencia (grises con PRO en plan gratis, abren los planes), modo fantasma y qué tan inquieta es. | |
+| 63.11 | En Ayuda, tocá "Probar un aviso". | Llega un aviso de prueba. | |
+| 63.12 | En Avisos, tocá Vestir. | Se abre la pestaña Mascota con la hoja Vestir. | |
+
+## 64. Pantalla Mascota como la maqueta (versión 1.0.55)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 64.1 | Abrí la pestaña Mascota. | La mascota va sobre un panel rosa, sin círculo, con tres fichas cuadradas adentro a la derecha. | |
+| 64.2 | Mirá las mascotas. | Son chicas y juntas, en filas una debajo de la otra, sin deslizar. | |
+| 64.3 | Abrí la hoja Vestir en Cuello y en Camita. | "Sin nada" mide lo mismo que la otra ficha. La ficha del lugar abierto tiene borde cocoa. | |
+| 64.4 | Tocá un accesorio a la venta. | Abajo aparecen Sacar y Comprar, uno al lado del otro. | |
+| 64.5 | Con pocos corazones en el nivel actual, mirá la línea del nombre. | Hay al menos un corazón lleno. | |
+| 64.6 | Tocá una mascota Pro. | Se ve con "Vista previa" arriba a la izquierda, con los botones Probar 5 min y Ver Pro. | |
+
+## 65. Vista previa compacta (versión 1.0.56)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 65.1 | En plan gratis, tocá una mascota Pro y después la tuya. | Las mascotas de abajo no se mueven: la tarjeta ocupa lo mismo que el nivel y "Lo próximo". | |
+| 65.2 | Mirá la tarjeta. | Se leen el nombre, PRO, el texto y los botones Probar 5 min y Ver Pro, sin cortes. | |
+| 65.3 | Tocá Probar 5 min y Ver Pro. | Empieza la prueba y se abren los planes, respectivamente. | |
+
+## 66. Vestir una mascota Pro y prueba compacta (versión 1.0.57)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 66.1 | En plan gratis, tocá una mascota Pro y abrí Cabeza. | Se abre la hoja Vestir sobre la vista previa. | |
+| 66.2 | Tocá un accesorio a la venta. | Se lo ves puesto a la mascota Pro, con Sacar y Comprar. | |
+| 66.3 | Poné y sacá uno que ya tengas y usá "Sin nada". | Cambia solo en el escenario: tu mascota real y la de la pantalla siguen vestidas igual. | |
+| 66.4 | Volvé a tu mascota. | Tiene puesto lo de siempre. | |
+| 66.5 | Tocá Probar 5 min. | La tarjeta ocupa lo mismo que el nivel y "Lo próximo", con la cuenta regresiva, Volver a la mía y Ver planes. | |
+| 66.6 | Durante la prueba, vestila desde la hoja. | Se ve en el escenario y lo que ya tenés también en la mascota de la pantalla. | |
+| 66.7 | Con una prueba activa, mirá Avisos. | La tarjeta se ve bien, sin cortes. | |
+
+## 67. Pelajes a la vista en plan gratis (versión 1.0.58)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 67.1 | En plan gratis, mirá debajo de las mascotas. | Aparece "Pelaje" con la etiqueta PRO y puntitos de color; todos menos el primero con candado. | |
+| 67.2 | Tocá un puntito con candado. | Tu mascota se ve con ese pelaje en "Vista previa", con Probar 5 min y Ver Pro. Las filas no se mueven. | |
+| 67.3 | Tocá el primer puntito o tu mascota. | Vuelve a como estaba. | |
+| 67.4 | Tocá una mascota Pro y uno de sus puntitos. | Se ve con ese pelaje. | |
+| 67.5 | Tocá Probar 5 min con un pelaje elegido. | La prueba empieza con ese pelaje. | |
+| 67.6 | Con Pro, mirá los puntitos. | No tienen candado ni etiqueta PRO, y tocarlos cambia el pelaje. | |
+
+## 68. Nubecita, próximos avisos y Ajustes ordenados (versión 1.0.59)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 68.1 | Con una instalación nueva o sin haber elegido globo, recibí un aviso. | La onomatopeya sale en la Nubecita. | |
+| 68.2 | Si ya habías elegido Caramelo, actualizá la app. | Sigue en Caramelo: tu elección se respeta. | |
+| 68.3 | Con la mascota en el medio de la pantalla, hacé un tirón a la izquierda. | "Próximos avisos" sale como la tarjeta del aviso: crema, borde suave, letra de la app, íconos en vez de emojis. | |
+| 68.4 | Hacelo con la mascota arriba de todo, a la izquierda y a la derecha. | El panel va al costado, con la colita hacia la mascota, y entra entero. | |
+| 68.5 | Probalo sin avisos en los próximos 7 días. | Dice que no tenés avisos y mide lo justo. | |
+| 68.6 | Tocá el panel. | Se cierra. | |
+| 68.7 | Abrí Ajustes. | Primero el plan, después Avisos, Mascota y General. | |
+| 68.8 | Entrá a Cómo te aviso. | Globo, Avisos sin interrumpir y voz, sin tener que bajar. | |
+| 68.9 | Entrá a Si no respondés. | Insistir, cuánto dura el globo y repetir al desbloquear. Lo que cambies se ve en el resumen de la fila. | |
+| 68.10 | Entrá a Al tocar el globo y a Frases amigables. | Mantienen sus opciones y los cambios quedan guardados. | |
+
+## 69. Español neutro y voseo (versión 1.0.60)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 69.1 | Con el celular en Español (Argentina) o (Uruguay), recorré la app. | Todo sigue en voseo: "Tocá", "querés". | |
+| 69.2 | Con el celular en Español (México) u otro país, recorré la app. | Aparece tuteo: "Toca", "quieres", "Si no respondes". | |
+| 69.3 | En ese idioma, recorré la guía inicial, el tutorial, Ajustes y la pantalla Pro. | Ningún texto queda cortado ni mezcla voseo y tuteo. | |
+| 69.4 | Con el celular en inglés. | Todo sigue en inglés. | |
+| 69.5 | En Android 13 o más, abrí Ajustes del sistema › Apps › MimuPet › Idioma. | Ofrece Español, Español (Argentina) y Español (Uruguay), además de inglés. | |
+
+## 70. Permisos que faltan, arriba (versión 1.0.61)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 70.1 | Con todos los permisos, abrí Ajustes. | "Permisos y batería" está en General y dice "Todo en orden". | |
+| 70.2 | Quitale a la app un permiso, por ejemplo Mostrar sobre otras apps, y volvé a Ajustes. | "Permisos y batería" pasa a ser lo primero de Avisos, en amarillo, y ya no está en General. | |
+| 70.3 | Devolvele el permiso y volvé. | Regresa a General. | |
 
 ---
 

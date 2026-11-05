@@ -1,6 +1,7 @@
 package com.petnotifications.overlay
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.LinearEasing
@@ -15,7 +16,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,12 +26,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -49,6 +60,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,6 +71,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.petnotifications.Prefs
@@ -68,6 +81,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
+import kotlin.math.roundToInt
 
 // Colores de Design (tokens.json) que usan el globo y las cartas.
 private val FurTone = Color(0xFFC98A55) // fur
@@ -76,6 +90,7 @@ private val Sage = Color(0xFF7FA88B) // sage
 private val Honey = Color(0xFFEBB854) // honey
 
 private val Cream = Color(0xFFF7E6CC) // cream (card-quiet)
+private val NoteCream = Color(0xFFFFF1DC) // fondo del aviso
 private val SageSoft = Color(0xFFE4F0E6) // sage-soft
 
 /**
@@ -106,6 +121,10 @@ private const val STICKER_PAD_TOP = 10f
 /** El globo se dibuja con las medidas de Design y se achica a este tamaño (el de Design tapaba demasiado). */
 private const val STICKER_SCALE = 0.68f
 
+/** Cuánto tarda en aparecer y en desvanecerse. */
+private const val STICKER_IN_MS = 450
+private const val STICKER_FADE_MS = 300L
+
 /** Ancho del cuerpo del globo según la palabra ("guau" → 96, "pío pío" más ancho). */
 private fun bodyWidth(text: String) = maxOf(96f, 30f + text.length * 17f)
 
@@ -125,14 +144,21 @@ private val StickerHeightRaw: Dp = (STICKER_H + STICKER_PAD_TOP + 4f).dp
  * Onomatopeya del aviso en un globo tipo sticker (Design, Anuncio): C · Caramelo (borde festoneado
  * rosa, sombra pelaje) o B · Nubecita (bordes de nube, sombra salvia). Minúsculas, sin signos, letras
  * que saltan una por una, un corazoncito y dos destellos. El pico sale abajo a la derecha (la mascota
- * a la derecha); [mirrored]: la mascota está a la izquierda.
+ * a la derecha); [mirrored]: la mascota está a la izquierda. Aparece sin rebote y, con [lifeMs], se
+ * desvanece al terminar ese tiempo.
  */
 @Composable
-fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifier: Modifier = Modifier, onTap: (() -> Unit)? = null) {
+fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifier: Modifier = Modifier, onTap: (() -> Unit)? = null, lifeMs: Long? = null) {
     val appear = remember(id) { Animatable(0f) }
     val hops = remember(id, text) { text.map { Animatable(0f) } }
     LaunchedEffect(id) {
-        appear.animateTo(1f, spring(dampingRatio = 0.55f, stiffness = 420f))
+        lifeMs?.let {
+            launch {
+                delay(it - STICKER_FADE_MS)
+                appear.animateTo(0f, tween(STICKER_FADE_MS.toInt(), easing = FastOutSlowInEasing))
+            }
+        }
+        appear.animateTo(1f, tween(STICKER_IN_MS, easing = FastOutSlowInEasing))
         // Las letras saltan una por una; después, cada tanto, de nuevo (sin vibrar nunca).
         while (true) {
             hops.forEachIndexed { i, a ->
@@ -155,8 +181,8 @@ fun StickerBubble(text: String, style: Int, mirrored: Boolean, id: Long, modifie
         modifier
             .size(stickerWidth(text), StickerHeight)
             .graphicsLayer {
-                scaleX = appear.value
-                scaleY = appear.value
+                scaleX = 0.85f + 0.15f * appear.value
+                scaleY = 0.85f + 0.15f * appear.value
                 alpha = appear.value.coerceIn(0f, 1f)
                 // Crece desde la punta del pico (la boca de la mascota).
                 transformOrigin = TransformOrigin(if (mirrored) 0.08f else 0.92f, 0.95f)
@@ -297,12 +323,173 @@ private fun DrawScope.drawSparkle() {
 fun callWord(sound: String): String =
     sound.filter { it.isLetter() || it == ' ' }.trim().lowercase()
 
-// ---------------------------------------------------------------- tarjeta del aviso
+// ---------------------------------------------------------------- globito con el mensaje
+
+/** Lo que dice el globito: el título o, si no tiene, el texto. */
+private fun PetAlert.peekText() = title.ifBlank { body }
+
+/** Ancho aproximado del globito, para que su ventana no tape más de lo necesario. */
+fun peekWidthDp(alert: PetAlert): Int = maxOf(70, 48 + (alert.peekText().length * 7.6f).toInt())
 
 /**
- * La tarjeta del aviso (Design, Asomado): papel claro, borde suave, esquinas redondeadas, línea de
+ * Primer paso del aviso, nada invasivo: solo el mensaje, en un globito que se desliza desde el costado
+ * de la mascota ([side]: 1 ella a la izquierda, -1 a la derecha, 0 arriba o abajo). Tocarlo abre la tarjeta.
+ */
+@Composable
+fun PeekNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, modifier: Modifier = Modifier) {
+    val appear = remember(phase.id) { Animatable(0f) }
+    LaunchedEffect(phase.id) { appear.animateTo(1f, tween(320, easing = FastOutSlowInEasing)) }
+    val shape = RoundedCornerShape(16.dp)
+    Box(modifier.fillMaxWidth().padding(6.dp)) {
+        Text(
+            phase.alert.peekText(),
+            fontFamily = Nunito, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Ink,
+            maxLines = 2, overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .align(if (side > 0) Alignment.TopStart else if (side < 0) Alignment.TopEnd else Alignment.TopCenter)
+                .padding(start = if (side > 0) 6.dp else 0.dp, end = if (side < 0) 6.dp else 0.dp)
+                .graphicsLayer {
+                    alpha = appear.value
+                    translationX = (appear.value - 1f) * side * 12.dp.toPx()
+                }
+                // La colita, hacia la mascota (antes de la sombra, que recorta lo que sale de la forma).
+                .drawWithContent {
+                    drawContent()
+                    if (side != 0) {
+                        val base = if (side > 0) 1.dp.toPx() else size.width - 1.dp.toPx()
+                        val tip = base - side * 7.dp.toPx()
+                        val half = 6.dp.toPx()
+                        val y = size.height / 2f
+                        drawPath(
+                            Path().apply { moveTo(base, y - half); lineTo(tip, y); lineTo(base, y + half); close() },
+                            NoteCream,
+                        )
+                    }
+                }
+                .shadow(4.dp, shape, ambientColor = Ink, spotColor = Ink)
+                .background(NoteCream, shape)
+                .border(1.dp, Line, shape)
+                .pointerInput(phase.id) {
+                    detectTapGestures(onTap = { actions.onTap() }, onLongPress = { actions.onLongPress() })
+                }
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+        )
+    }
+}
+
+// ---------------------------------------------------------------- próximos avisos
+
+/**
+ * Panel "próximos avisos" (tirón a la izquierda): hasta 6 recordatorios y eventos de los próximos 7 días.
+ * Mismo papel que la tarjeta del aviso (crema, borde suave, sombra, Nunito), mide lo que su contenido y
+ * lleva una colita hacia la mascota. Tocarlo lo cierra.
+ */
+@Composable
+fun UpcomingPanel(
+    phase: FxPhase.Upcoming,
+    side: Int,
+    anchorY: Float,
+    anchorX: Float,
+    below: Boolean,
+    actions: BubbleActions,
+    modifier: Modifier = Modifier,
+) {
+    val appear = remember(phase.id) { Animatable(0f) }
+    LaunchedEffect(phase.id) { appear.animateTo(1f, tween(280, easing = FastOutSlowInEasing)) }
+    val shape = RoundedCornerShape(18.dp)
+    val text = TextStyle(fontFamily = Nunito)
+    var panelWidth by remember { mutableIntStateOf(0) }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val room = constraints.maxWidth
+        val panelX = when {
+            side > 0 -> 0
+            side < 0 -> room - panelWidth
+            else -> (anchorX - panelWidth / 2f).roundToInt().coerceIn(0, (room - panelWidth).coerceAtLeast(0))
+        }
+        Column(
+            modifier
+                .offset { IntOffset(panelX, 0) }
+                .onSizeChanged { panelWidth = it.width }
+                .widthIn(min = NOTE_MIN_WIDTH)
+                .width(IntrinsicSize.Max)
+                .padding(12.dp)
+                .graphicsLayer {
+                    alpha = appear.value.coerceIn(0f, 1f)
+                    translationX = (appear.value - 1f) * side * 12.dp.toPx()
+                    if (side == 0) translationY = (1f - appear.value) * (if (below) -12.dp.toPx() else 12.dp.toPx())
+                }
+                // La colita, hacia la mascota (antes de la sombra, que recorta lo que sale de la forma).
+                .drawWithContent {
+                    drawContent()
+                    val half = 7.dp.toPx()
+                    val tail = Path()
+                    if (side != 0) {
+                        val base = if (side > 0) 1.dp.toPx() else size.width - 1.dp.toPx()
+                        val tip = base - side * 8.dp.toPx()
+                        val margin = 18.dp.toPx()
+                        val y = (anchorY - 12.dp.toPx()).coerceIn(margin, (size.height - margin).coerceAtLeast(margin))
+                        tail.moveTo(base, y - half); tail.lineTo(tip, y); tail.lineTo(base, y + half)
+                    } else {
+                        val margin = 22.dp.toPx()
+                        val x = (anchorX - panelX - 12.dp.toPx()).coerceIn(margin, (size.width - margin).coerceAtLeast(margin))
+                        val base = if (below) 1.dp.toPx() else size.height - 1.dp.toPx()
+                        val tip = if (below) base - 8.dp.toPx() else base + 8.dp.toPx()
+                        tail.moveTo(x - half, base); tail.lineTo(x, tip); tail.lineTo(x + half, base)
+                    }
+                    tail.close()
+                    drawPath(tail, NoteCream)
+                }
+                .shadow(5.dp, shape, ambientColor = Ink, spotColor = Ink)
+                .background(NoteCream, shape)
+                .border(1.5.dp, Line, shape)
+                .pointerInput(phase.id) {
+                    detectTapGestures(onTap = { actions.onTap() }, onLongPress = { actions.onLongPress() })
+                }
+                .padding(horizontal = 14.dp, vertical = 11.dp),
+        ) {
+            Text(
+                stringResource(R.string.upcoming_title), style = text,
+                fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
+            )
+            if (phase.items.isEmpty()) {
+                Text(
+                    stringResource(R.string.upcoming_empty), style = text,
+                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = InkMuted, modifier = Modifier.padding(top = 3.dp),
+                )
+            }
+            phase.items.forEach { item ->
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 7.dp)) {
+                    Icon(
+                        if (item.calendar) Icons.Outlined.CalendarMonth else Icons.Outlined.NotificationsNone,
+                        contentDescription = null, tint = Cocoa, modifier = Modifier.size(17.dp),
+                    )
+                    Column(Modifier.padding(start = 8.dp)) {
+                        Text(
+                            item.title, style = text,
+                            fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Ink,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            com.petnotifications.ui.formatWhen(item.at), style = text,
+                            fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = InkMuted,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------- tarjeta del aviso
+
+/** Ancho mínimo de la tarjeta (con sus márgenes): que entren "Listo" y "Aplazar" y las patitas de la mascota. */
+private val NOTE_MIN_WIDTH = 170.dp
+
+/**
+ * La tarjeta del aviso (Design, Asomado): papel crema, borde suave, esquinas redondeadas, línea de
  * arriba "Luna te avisa · 16:00", título, texto y "Listo" / "Aplazar" en pastillas. Si se abrió desde
- * una carta, toma su color y va apenas inclinada, como un papelito.
+ * una carta, toma su color y va apenas inclinada, como un papelito. Mide lo que su contenido, sin pasar
+ * del ancho de la ventana: al costado ([side]) va pegada al borde que da a la mascota; si no, centrada en [anchorX].
  */
 @Composable
 fun NoteCard(
@@ -310,6 +497,8 @@ fun NoteCard(
     who: String,
     actions: BubbleActions,
     modifier: Modifier = Modifier,
+    side: Int = 0,
+    anchorX: Float = 0f,
     held: Pair<Float, Float>? = null,
     paw: Pair<Long, Long> = 0xFFFFFFFF to 0xFF3A2E27,
 ) {
@@ -318,7 +507,7 @@ fun NoteCard(
     val letter = phase.letter
     val tone = letter?.kind?.tone()
     val appear = remember(alert.key, letter?.id) { Animatable(0f) }
-    LaunchedEffect(alert.key, letter?.id) { appear.animateTo(1f, spring(dampingRatio = 0.75f, stiffness = 380f)) }
+    LaunchedEffect(alert.key, letter?.id) { appear.animateTo(1f, tween(280, easing = FastOutSlowInEasing)) }
     val countdown = remember(alert.key) { Animatable(1f) }
     LaunchedEffect(alert.key, phase.autoHideMs) {
         phase.autoHideMs?.let { countdown.animateTo(0f, tween(it.toInt(), easing = LinearEasing)) }
@@ -333,11 +522,22 @@ fun NoteCard(
             else -> ctx.getString(R.string.note_from, who, time)
         }
     }
-    val shape = RoundedCornerShape(22.dp)
+    val shape = RoundedCornerShape(18.dp)
     val text = TextStyle(fontFamily = Nunito)
+    var cardWidth by remember { mutableIntStateOf(0) }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    val room = constraints.maxWidth
+    val cardX = when {
+        side > 0 -> 0
+        side < 0 -> room - cardWidth
+        else -> (anchorX - cardWidth / 2f).roundToInt().coerceIn(0, (room - cardWidth).coerceAtLeast(0))
+    }
     Column(
         modifier
-            .fillMaxWidth()
+            .offset { IntOffset(cardX, 0) }
+            .onSizeChanged { cardWidth = it.width }
+            .widthIn(min = NOTE_MIN_WIDTH)
+            .width(IntrinsicSize.Max)
             .padding(start = 6.dp, end = 6.dp, bottom = 6.dp, top = if (held != null) 16.dp else 6.dp)
             .graphicsLayer {
                 alpha = appear.value.coerceIn(0f, 1f)
@@ -347,19 +547,19 @@ fun NoteCard(
             // Las patitas de la mascota, apoyadas sobre el borde de arriba (por delante de la tarjeta).
             .drawWithContent {
                 drawContent()
-                held?.let { (x, petW) -> drawPaws(x - 6.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
+                held?.let { (x, petW) -> drawPaws(x - cardX - 6.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
             }
             .shadow(8.dp, shape, ambientColor = Ink, spotColor = Ink)
-            .background(tone?.card ?: SurfaceRaised, shape)
+            .background(tone?.card ?: NoteCream, shape)
             .border(1.5.dp, tone?.cardLine ?: Line, shape)
             .pointerInput(alert.key, letter?.id) {
                 detectTapGestures(onTap = { actions.onTap() }, onLongPress = { actions.onLongPress() })
             }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 13.dp, vertical = 10.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                meta, style = text, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = InkMuted,
+                meta, style = text, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = InkMuted,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
             // El sello de la carta (con su ícono), para que no dependa solo del color.
@@ -368,22 +568,22 @@ fun NoteCard(
         if (alert.title.isNotBlank()) {
             Text(
                 alert.title, style = text,
-                fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
-                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp),
+                fontSize = 15.sp, lineHeight = 19.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
+                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
             )
         }
         if (alert.body.isNotBlank()) {
             Text(
                 alert.body, style = text,
-                fontSize = 15.sp, color = Ink,
+                fontSize = 13.sp, lineHeight = 17.sp, color = Ink,
                 maxLines = if (alert.source == PetAlert.Source.APP) 6 else 4,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(top = 2.dp),
             )
         }
         val actionable = alert.source == PetAlert.Source.LOCAL || alert.source == PetAlert.Source.CALENDAR
         if (actionable || letter?.kind == LetterKind.PHRASE) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 8.dp)) {
                 if (actionable) {
                     Pill(stringResource(R.string.action_done), main = true, onClick = actions.onDone)
                     Pill(stringResource(R.string.action_snooze), main = false, onClick = actions.onSnooze)
@@ -395,12 +595,13 @@ fun NoteCard(
         if (phase.autoHideMs != null) {
             Box(
                 Modifier
-                    .padding(top = 10.dp)
+                    .padding(top = 8.dp)
                     .fillMaxWidth(countdown.value)
                     .height(3.dp)
                     .background(Blush, RoundedCornerShape(2.dp)),
             )
         }
+    }
     }
 }
 
@@ -424,20 +625,20 @@ private fun DrawScope.drawPaws(cx: Float, petW: Float, fill: Color, line: Color)
     }
 }
 
-/** Botón en pastilla (Design: el principal en rosa suave, el otro con borde). */
+/** Botón en pastilla, chico para no ser invasivo (Design: el principal en rosa suave, el otro con borde). */
 @Composable
 private fun Pill(text: String, main: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(50)
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .height(40.dp)
+            .height(32.dp)
             .background(if (main) BlushSoft else Color.Transparent, shape)
-            .then(if (main) Modifier else Modifier.border(1.5.dp, Line, shape))
+            .then(if (main) Modifier else Modifier.border(1.dp, InkMuted.copy(alpha = 0.35f), shape))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 18.dp),
+            .padding(horizontal = 14.dp),
     ) {
-        Text(text, fontFamily = Nunito, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
+        Text(text, fontFamily = Nunito, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
     }
 }
 
@@ -458,6 +659,7 @@ fun LettersContent(state: OverlayState, onOpen: () -> Unit) {
     if (letters.isEmpty()) return
     val shown = letters.takeLast(3)
     val newest = letters.last().id
+    val mirror = if (state.lettersLeft) -1 else 1
     val drop = remember(newest) { Animatable(0f) }
     LaunchedEffect(newest) {
         drop.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 300f))
@@ -473,11 +675,11 @@ fun LettersContent(state: OverlayState, onOpen: () -> Unit) {
             val top = i == shown.lastIndex
             Canvas(
                 Modifier
-                    .align(Alignment.BottomStart)
-                    .offset((4 + i * 7).dp, (-2 - i * 3).dp)
+                    .align(if (state.lettersLeft) Alignment.BottomEnd else Alignment.BottomStart)
+                    .offset((mirror * (4 + i * 7)).dp, (-2 - i * 3).dp)
                     .size(38.dp, 27.dp)
                     .graphicsLayer {
-                        rotationZ = if (i % 2 == 0) -6f else 4f
+                        rotationZ = mirror * if (i % 2 == 0) -6f else 4f
                         if (top) {
                             val d = drop.value
                             scaleX = d.coerceAtLeast(0f)
@@ -492,7 +694,7 @@ fun LettersContent(state: OverlayState, onOpen: () -> Unit) {
                 "+${letters.size - 3}",
                 fontFamily = Nunito, fontSize = 10.sp, fontWeight = FontWeight.Black, color = Ink,
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .align(if (state.lettersLeft) Alignment.TopStart else Alignment.TopEnd)
                     .background(SurfaceRaised, RoundedCornerShape(50))
                     .border(1.dp, Line, RoundedCornerShape(50))
                     .padding(horizontal = 5.dp),

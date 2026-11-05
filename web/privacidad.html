@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacidad de MimuPet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900;1000&display=swap" rel="stylesheet">
+<style>
+:root { --surface:#fbf6ee; --raised:#fffdf9; --line:#e8dccd; --ink:#3a2e27; --muted:#6e5e52; --cocoa:#8a5536; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--ink); font: 600 17px/1.55 "Nunito", ui-rounded, system-ui, sans-serif; }
+main { width: min(760px, 100%); margin: 0 auto; padding: 28px 20px 64px; }
+.top { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 1000; letter-spacing: -.03em; }
+.top a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.top img { width: 40px; }
+.top .other { margin-left: auto; font-size: 15px; font-weight: 800; letter-spacing: 0; color: var(--cocoa); }
+h1 { font-size: clamp(34px, 7vw, 52px); font-weight: 1000; letter-spacing: -.03em; line-height: 1.04; margin: 30px 0 6px; }
+h2 { font-size: 23px; font-weight: 900; letter-spacing: -.02em; line-height: 1.2; margin: 32px 0 6px; }
+p, ul { margin: 8px 0; }
+li { margin: 5px 0; }
+a { color: var(--cocoa); }
+.date { color: var(--muted); font-size: 15px; }
+.box { background: var(--raised); border: 1px solid var(--line); border-radius: 22px; padding: 16px 20px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<main>
+<div class="top"><a href="index.html?lang=es"><img src="pets/dog_front.svg" alt="">MimuPet</a><a class="other" href="privacy.html">English</a></div>
+<h1>Política de privacidad</h1>
+<p class="date">Última actualización: 5 de noviembre de 2026</p>
+<div class="box"><b>En resumen:</b> MimuPet no tiene permiso para usar internet. No tiene cuentas, anuncios ni analíticas, y tus recordatorios se quedan en tu celular: no los recibimos ni los vemos.</div>
+
+<h2>Lo que se guarda en tu celular</h2>
+<p>Estos datos se guardan solo en tu dispositivo, para que la app funcione:</p>
+<ul>
+<li>Tus recordatorios y sus notas.</li>
+<li>La mascota elegida, su nombre, su ropa y su nivel de vínculo.</li>
+<li>Tus ajustes.</li>
+<li>Un registro técnico de los avisos de los últimos 30 días, para la pantalla Diagnóstico.</li>
+</ul>
+
+<h2>Permisos y para qué se usan</h2>
+<ul>
+<li><b>Mostrar sobre otras apps:</b> para que la mascota aparezca en tu pantalla. No lee lo que hay en ella.</li>
+<li><b>Notificaciones:</b> para avisarte cuando la mascota no está visible.</li>
+<li><b>Alarmas exactas:</b> para que los avisos lleguen a la hora indicada.</li>
+<li><b>Calendario (opcional, Pro):</b> para avisarte de tus eventos. Solo lee los calendarios del celular y nunca los cambia. Esos datos no salen del dispositivo.</li>
+<li><b>Inicio del dispositivo y servicio en primer plano:</b> para que la mascota y los avisos sigan funcionando después de reiniciar.</li>
+<li><b>Facturación de Google Play:</b> para las compras dentro de la app.</li>
+</ul>
+
+<h2>Compras</h2>
+<p>Las compras las procesa Google Play con tu cuenta de Google. No vemos ni recibimos tus datos de pago. Se aplica la <a href="https://policies.google.com/privacy">política de privacidad de Google</a>.</p>
+
+<h2>Copia de seguridad de Android</h2>
+<p>Si tienes activada la copia de seguridad de Android, el sistema puede guardar los datos de la app en tu propia cuenta de Google. Lo controla Android, y puedes desactivarlo en los ajustes del celular. Nosotros no tenemos acceso a esa copia.</p>
+
+<h2>Voz de la mascota</h2>
+<p>Si activas la voz, el motor de voz de tu celular lee solo el sonido de la mascota, como «Guau». No lee tus recordatorios.</p>
+
+<h2>Si nos escribes</h2>
+<p>«Enviar comentarios» abre tu app de correo con un resumen técnico: versión de la app y de Android, modelo del celular, idioma, plan, estado de los permisos, y cantidad y demora de los avisos. No incluye tus recordatorios ni tus eventos, y puedes borrar lo que quieras antes de enviarlo. Solo recibimos ese correo si lo envías, y lo usamos para responderte y mejorar la app.</p>
+
+<h2>Cómo borrar tus datos</h2>
+<p>Como están en tu celular, puedes borrarlos desinstalando la app o desde Ajustes › Apps › MimuPet › Almacenamiento › Borrar datos. Para borrar un correo que nos hayas enviado, pídenoslo.</p>
+
+<h2>Niños y niñas</h2>
+<p>No recopilamos datos personales de nadie, tampoco de menores.</p>
+
+<h2>Esta página web</h2>
+<p>No usa cookies ni seguimiento. Recuerda en tu navegador el idioma y si silenciaste la voz. Las fuentes se cargan desde Google Fonts, que recibe tu dirección IP como en cualquier descarga. La voz de las mascotas la genera tu navegador, y algunos usan voces en línea. Los enlaces a Google Play y a redes sociales llevan a sitios con sus propias políticas.</p>
+
+<h2>Cambios</h2>
+<p>Si cambiamos esta política, publicaremos aquí la nueva versión con su fecha.</p>
+
+<h2>Contacto</h2>
+<p><span id="contact">Escríbenos al correo de contacto que figura en la ficha de MimuPet en Google Play.</span></p>
+</main>
+<script src="datos.js"></script>
+<script>
+(function () {
+  var mail = window.MIMUPET && window.MIMUPET.contacto, slot = document.getElementById("contact");
+  if (!mail || !slot) return;
+  var a = document.createElement("a");
+  a.href = "mailto:" + mail;
+  a.textContent = mail;
+  slot.textContent = "";
+  slot.appendChild(a);
+})();
+</script>
+</body>
+</html>
