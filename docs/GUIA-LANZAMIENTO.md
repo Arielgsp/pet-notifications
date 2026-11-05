@@ -60,5 +60,6 @@ Cada producto se crea una sola vez en **Monetizar › Productos › Productos in
 | `acc_xmas_hat` | Gorro navideño | ≈ USD 2 en Latinoamérica, ≈ USD 4 en EE. UU. y Europa |
 | `acc_pumpkin` | Calabacita | igual que el anterior |
 | `acc_pumpkin_helmet` | Casco de calabaza | igual que el anterior |
+| `coats_dog`, `coats_cat`, `coats_duck`, `coats_cow`, `coats_pig`, `coats_chick`, `coats_rabbit` | Pack de pelajes de cada mascota (7 productos) | USD 0,99, por país |
 
 Después de crear cada uno, tocá **Activar**. Los de temporada quedan activos todo el año, porque la app decide cuándo mostrarlos. El pack Amigos salvajes se crea más adelante, cuando salga.

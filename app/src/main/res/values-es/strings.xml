@@ -227,7 +227,7 @@
     <string name="coat_title">Pelaje</string>
     <string name="coat_n">Pelaje %1$d</string>
     <string name="pro_row_coats_free">El original</string>
-    <string name="pro_row_coats_pro">Todos</string>
+    <string name="pro_row_coats_pro">En packs</string>
     <string name="pro_yes">Sí</string>
     <string name="pro_no">No</string>
     <string name="pro_buy">Comprar Pro · %1$s</string>
@@ -407,7 +407,9 @@
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tocar para ver</string>
     <string name="pet_soon">Pronto</string>
-    <string name="pet_soon_toast">%1$s: llega pronto, con el pack Amigos salvajes.</string>
+    <string name="pet_soon_toast">Pronto vas a poder jugar con nuevos amigos.</string>
+    <string name="coat_pack_body">Pack con todos los pelajes de %1$s</string>
+    <string name="coat_pack_bought">¡Listo! Ya tienes todos mis pelajes.</string>
     <string name="bond_line_a11y">%1$s, nivel %2$d. Tocar para ver nuestro camino</string>
     <string name="acc_locked_one">Lo gano en el nivel %1$d, con %2$d corazones. Falta 1 «Listo».</string>
     <string name="row_look">Cómo se ve la mascota</string>
@@ -651,7 +653,7 @@
     <string name="trial_end_body">Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue contigo.</string>
     <string name="trial_end_goes">Lo que se va con Pro:</string>
     <string name="trial_end_pets">las 7 mascotas</string>
-    <string name="trial_end_coats">los pelajes</string>
+    <string name="trial_end_coats">los pelajes (se venden en packs aparte)</string>
     <string name="trial_end_calendar">los avisos del calendario</string>
     <string name="trial_end_voice">la voz en voz alta</string>
     <string name="trial_end_dnd">el horario de No molestar</string>
@@ -662,7 +664,7 @@
     <string name="trial_end_buy">Comprar Pro</string>
     <string name="trial_end_free">Seguir gratis</string>
     <string name="diag_tries">Prueba de mascotas Pro</string>
-    <string name="diag_tries_count">Veces que probó una mascota o pelaje Pro: %1$d</string>
+    <string name="diag_tries_count">Veces que probó una mascota Pro o un pelaje: %1$d</string>
     <string name="diag_tries_bought">Compró Pro después de %1$d pruebas</string>
     <string name="diag_tries_not_bought">Todavía no compró Pro</string>
     <string-array name="friendly_morning">

@@ -970,9 +970,21 @@ Para ver el casco fuera de temporada: Ajustes, 7 toques en la versión, "Mostrar
 | 71.1 | Mirá el ícono de la app en la pantalla de inicio del celular y en la lista de apps. | Es el perrito contento con los ojos cerrados, sobre fondo crema rosado, sin cortarse en los bordes. | |
 | 71.2 | Si tu celular usa íconos temáticos (Android 13 o más), activalos. | El perrito aparece en líneas, del color del tema. | |
 | 71.3 | Abrí la pestaña Mascota. | Arriba van las 7 (perro, gato, pato, vaca, chancho, pollito y conejo). Al final están león, mono, rana y búho como sombras grises con "Pronto". | |
-| 71.4 | Tocá una de las sombras. | Aparece "León: llega pronto, con el pack Amigos salvajes" y no cambia nada más. | |
+| 71.4 | Tocá una de las sombras. | Aparece "Pronto vas a poder jugar con nuevos amigos" y no cambia nada más. | |
 | 71.5 | Si estabas usando león, mono, rana o búho, actualizá a esta versión. | La mascota flotante pasa a ser la gratis que habías elegido o, si no habías elegido ninguna, el perro. Si tu mascota gratis era una de esas cuatro, la app te pide elegir otra entre las 7. | |
 | 71.6 | Con el celular en Español (México), mirá el nombre del chancho. | Dice "Cerdito". En Español (Argentina) sigue "Chancho". | |
+
+## 72. Pelajes en packs (versión 1.0.63)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 72.1 | Durante la prueba de Pro, cambiá el pelaje de tu mascota. | Se cambia en el momento, sin candados. | |
+| 72.2 | Herramientas de dueño → Plan gratis. Mirá los pelajes. | Todos menos el original tienen candado; ya no hay etiqueta PRO al lado de "Pelaje". | |
+| 72.3 | Con Plan gratis, tocá un pelaje con candado de tu mascota. | La tarjeta dice "Pack con todos los pelajes de perro" con "Probar 5 min" y "Comprar · $ 2 (prueba)", sin PRO. | |
+| 72.4 | Tocá Comprar. | Se pone ese pelaje, aparece "¡Listo! Ya tenés todos mis pelajes." y los candados de esa mascota desaparecen. Las otras mascotas siguen con candado. | |
+| 72.5 | Herramientas de dueño → Borrar compras de prueba. | Esa mascota vuelve al pelaje original, con candados. | |
+| 72.6 | Tocá una mascota Pro (sin Pro). | Igual que antes: PRO, "Probar 5 min" y "Ver Pro". | |
+| 72.7 | Abrí Ver Pro. | En "Pelajes" dice Gratis: El original, Pro: En packs. | |
 
 ---
 

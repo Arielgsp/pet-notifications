@@ -42,7 +42,8 @@ T = {
     'pro_locked': 'Función Pro: toca para ver los planes',
     'pro_trial_intro': 'Tienes %1$d días de prueba con todo Pro, gratis.',
     'free_pets_title': 'Elige tu mascota gratis',
-    'pet_pig': 'Cerdito',  # en Argentina y Uruguay sigue siendo Chancho
+    'pet_pig': 'Cerdito',
+    'coat_pack_bought': '¡Listo! Ya tienes todos mis pelajes.',  # en Argentina y Uruguay sigue siendo Chancho
     'free_pets_body': 'Terminó la prueba de Pro. En el plan gratis tienes 1 mascota: elígela (la puedes cambiar una sola vez). Con Pro tienes las 7.',
     'feedback_body': 'Se abre tu app de correo con este resumen técnico, para ayudarnos a encontrar problemas. No incluye tus recordatorios ni tus eventos. Puedes borrar lo que quieras antes de enviarlo.',
     'feedback_greeting': 'Escribe tu comentario aquí:',

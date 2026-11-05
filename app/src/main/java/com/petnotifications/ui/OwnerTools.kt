@@ -100,7 +100,10 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                         Outfit.setOwnerAllSeasons(ctx, it)
                     })
                 }
-                OutlineChip(stringResource(R.string.owner_shop_reset)) { Outfit.ownerClearBought(ctx) }
+                OutlineChip(stringResource(R.string.owner_shop_reset)) {
+                    Outfit.ownerClearBought(ctx)
+                    com.petnotifications.Prefs(ctx).ownerClearCoatPacks()
+                }
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
                 OutlineChip(stringResource(R.string.owner_trial_end)) { trialEnd = true }
             }

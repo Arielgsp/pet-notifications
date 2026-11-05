@@ -23,3 +23,12 @@ Versión de la app: **1.0.62**. Lo que se hizo y lo que falta está también en 
 - **Web (`web/`):** muestra solo las 7, sin precios, en neutro e inglés, y tiene política de privacidad. Los dibujos con ropa ahora son perro, cerdito, conejo y gato. Se va a alojar en Cloudflare Pages.
 - **Videos de `redes/`:** la web tiene un lugar para videos. Cuando estén subidos a TikTok, Instagram o YouTube, se pegan los enlaces en `web/datos.js`. ¿Las tarjetas de la web tienen que coincidir con estos videos (perro, gato, conejo, granja, simulación y ronda de 7)? Si es así, pásenme el texto de cada una.
 - **Archivos pesados:** los .mp4, .zip y .png de esta carpeta no van a GitHub, para que el repositorio no crezca. Siguen acá, en la carpeta.
+
+## Actualización (1.0.63, mismo día)
+
+Ariel respondió:
+
+- **Pelajes fuera de Pro:** hecho. Hay un pack por mascota (`coats_dog`, `coats_cat`, …), a USD 0,99. Durante la prueba de Pro se pueden usar todos. En la app, sin el pack, se ven con candado: al tocarlos aparecen «Probar 5 min» y «Comprar · precio». La tabla de planes y la web ya dicen que van en packs aparte.
+- **Pack Amigos salvajes:** la prueba de Pro lo incluye, pero el pack se vende aparte de Pro. Saqué de la web la promesa del regalo a quien ya tiene Pro, hasta que Ariel lo confirme.
+- **Siluetas:** al tocarlas solo aparece «Pronto vas a poder jugar con nuevos amigos», sin nombres.
+- **Textos de tienda y prensa:** conviene revisar los que digan «Pro con todos los pelajes».

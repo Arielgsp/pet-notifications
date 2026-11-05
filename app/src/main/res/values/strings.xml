@@ -228,7 +228,7 @@
     <string name="coat_title">Coat</string>
     <string name="coat_n">Coat %1$d</string>
     <string name="pro_row_coats_free">The original</string>
-    <string name="pro_row_coats_pro">All</string>
+    <string name="pro_row_coats_pro">In packs</string>
     <string name="pro_yes">Yes</string>
     <string name="pro_no">No</string>
     <string name="pro_buy">Buy Pro · %1$s</string>
@@ -408,7 +408,9 @@
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tap to view</string>
     <string name="pet_soon">Soon</string>
-    <string name="pet_soon_toast">%1$s: coming soon in the Wild Friends pack.</string>
+    <string name="pet_soon_toast">Soon you’ll be able to play with new friends.</string>
+    <string name="coat_pack_body">Pack with every coat for the %1$s</string>
+    <string name="coat_pack_bought">Done! All my coats are yours now.</string>
     <string name="bond_line_a11y">%1$s, level %2$d. Tap to see our path</string>
     <string name="acc_locked_one">I earn it at level %1$d, with %2$d hearts. 1 more “Done” to go.</string>
     <string name="row_look">How your pet looks</string>
@@ -652,7 +654,7 @@
     <string name="trial_end_body">Thanks for these days. From today we’re on the free plan, and %1$s is still with you.</string>
     <string name="trial_end_goes">What goes away with Pro:</string>
     <string name="trial_end_pets">all 7 pets</string>
-    <string name="trial_end_coats">coats</string>
+    <string name="trial_end_coats">coats (sold in separate packs)</string>
     <string name="trial_end_calendar">calendar alerts</string>
     <string name="trial_end_voice">the spoken voice</string>
     <string name="trial_end_dnd">Do not disturb hours</string>
@@ -663,7 +665,7 @@
     <string name="trial_end_buy">Buy Pro</string>
     <string name="trial_end_free">Stay free</string>
     <string name="diag_tries">Pro pet tries</string>
-    <string name="diag_tries_count">Times a Pro pet or coat was tried: %1$d</string>
+    <string name="diag_tries_count">Times a Pro pet or a coat was tried: %1$d</string>
     <string name="diag_tries_bought">Bought Pro after %1$d tries</string>
     <string name="diag_tries_not_bought">Hasn’t bought Pro yet</string>
     <string-array name="friendly_morning">

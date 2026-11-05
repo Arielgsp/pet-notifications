@@ -280,7 +280,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       <p class="lead" data-t="pets_lead">Toca una para escucharla. Después se queda en la esquina de esta página, como en tu celular: arrástrala, tócala, déjala dormir.</p>
       <div class="pets-grid" id="pets"></div>
       <div class="soon">
-        <div><b data-t="soon_h">Muy pronto: Amigos salvajes</b><p data-t="soon_p">León, mono, rana y búho llegan después del lanzamiento, en un pack aparte. Si ya tienes Pro cuando salga, te lo regalamos.</p></div>
+        <div><b data-t="soon_h">Muy pronto: Amigos salvajes</b><p data-t="soon_p">León, mono, rana y búho llegan después del lanzamiento, en un pack aparte.</p></div>
         <div class="shadows" id="shadows" aria-hidden="true"></div>
       </div>
     </div>
@@ -342,7 +342,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
           <h3>Pro</h3>
           <p class="once" data-t="pro_sub">Pago único, sin suscripción</p>
           <ul>
-            <li data-t="p1">Las 7 mascotas, con todos sus pelajes</li>
+            <li data-t="p1">Las 7 mascotas</li>
             <li data-t="p2">Avisos de Google Calendar</li>
             <li data-t="p3">Su sonido en voz alta</li>
             <li data-t="p4">Horario de No molestar</li>
@@ -351,7 +351,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
           </ul>
         </article>
       </div>
-      <p class="fine" data-t="fine">El precio lo ves en la app antes de comprar. La compra la hace Google Play. Los accesorios de temporada se compran aparte.</p>
+      <p class="fine" data-t="fine">El precio lo ves en la app antes de comprar. La compra la hace Google Play. Los pelajes (un pack por mascota) y los accesorios de temporada se compran aparte.</p>
     </div>
   </section>
 
@@ -411,7 +411,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       phone: "Example of a MimuPet alert", day: "Appointment time", touch_dog: "Touch the puppy",
       note_who: "Puppy is alerting you · 9:41", note_title: "Dentist appointment", done: "Done", later: "Snooze",
       pets_h: "Seven friends.<br>Each with its own voice.",
-      soon_h: "Coming soon: Wild Friends", soon_p: "Lion, monkey, frog and owl arrive after launch, in a separate pack. If you already have Pro when it comes out, it’s on us.",
+      soon_h: "Coming soon: Wild Friends", soon_p: "Lion, monkey, frog and owl arrive after launch, in a separate pack.",
       pets_lead: "Tap one to hear it. Then it stays in the corner of this page, just like on your phone: drag it, tap it, let it sleep.",
       does_h: "A pet with a life of its own.",
       c1h: "It alerts you and doesn’t forget", c1: "One-time, daily or weekly reminders. If you don’t answer, it reminds you again.",
@@ -429,8 +429,8 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       f1: "1 pet of your choice", f2: "One-time, daily and weekly reminders", f3: "Bubble, cuddles, notes and sleep", f4: "Bond with levels and tricks",
       f5: "Insists every 10 minutes, up to 3 times", f6: "Ghost mode: your taps pass through it",
       pro_sub: "One payment, no subscription",
-      p1: "All 7 pets, with all their coats", p2: "Google Calendar alerts", p3: "Its sound out loud", p4: "Do Not Disturb hours", p5: "Size and transparency your way", p6: "How much it insists, your way",
-      fine: "You’ll see the price in the app before buying. Google Play handles the purchase. Seasonal accessories are sold separately.",
+      p1: "All 7 pets", p2: "Google Calendar alerts", p3: "Its sound out loud", p4: "Do Not Disturb hours", p5: "Size and transparency your way", p6: "How much it insists, your way",
+      fine: "You’ll see the price in the app before buying. Google Play handles the purchase. Coats (one pack per pet) and seasonal accessories are sold separately.",
       private_h: "Your things stay on your phone.",
       private_lead: "The app has no internet access. No accounts, no ads, no tracking. Every permission is explained before it’s requested.",
       privacy_more: "Read the privacy policy", privacy: "Privacy",
@@ -654,7 +654,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   WILD.forEach(function (id) { shadows.appendChild(pic(id, "front")); });
   var more = el("div", "pet-more");
   more.appendChild(el("strong", "", tr("Gratis eliges una.", "Free: pick one.")));
-  more.appendChild(el("span", "", tr("Con Pro, las 7 y todos sus pelajes.", "With Pro: all 7 and all their coats.")));
+  more.appendChild(el("span", "", tr("Con Pro, las 7. Sus pelajes, en packs aparte.", "With Pro: all 7. Their coats come in separate packs.")));
   pets.appendChild(more);
   cards.dog.classList.add("on");
 

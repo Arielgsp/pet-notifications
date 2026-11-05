@@ -26,8 +26,35 @@ class Prefs(context: Context) {
         }
         set(v) = sp.edit { putString(KEY_PET, v.name) }
 
-    /** Pelaje de cada mascota (Pro; 0 = el original, el único sin Pro). Ver PetModel.coats. */
-    fun coat(p: PetType): Int = if (isPro) sp.getInt(KEY_COAT + p.name, 0) else 0
+    /** Pelaje de cada mascota (0 = el original, el único sin su pack). Ver PetModel.coats. */
+    fun coat(p: PetType): Int = if (hasCoats(p)) sp.getInt(KEY_COAT + p.name, 0) else 0
+
+    /**
+     * Los pelajes no son parte de Pro: se venden en un pack por mascota ([coatPackId]). Durante la prueba
+     * de Pro se pueden usar todos.
+     */
+    fun hasCoats(p: PetType): Boolean = when {
+        BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_PRO -> true
+        BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_FREE -> p in coatPacks()
+        else -> trialActive() || p in coatPacks()
+    }
+
+    /** Packs de pelajes comprados: los que dice Google Play y, en versiones de prueba, los de mentira. */
+    fun coatPacks(): Set<PetType> {
+        val ids = sp.getStringSet(KEY_COAT_PACKS, emptySet()).orEmpty() +
+            if (BuildConfig.OWNER_TOOLS) sp.getStringSet(KEY_COAT_PACKS_OWNER, emptySet()).orEmpty() else emptySet()
+        return ids.mapNotNull(::coatPackPet).toSet()
+    }
+
+    /** Lo que dice Play (ProBilling lo reemplaza entero en cada consulta). */
+    fun setCoatPacks(pets: Set<PetType>) = sp.edit { putStringSet(KEY_COAT_PACKS, pets.map(::coatPackId).toSet()) }
+
+    /** Herramientas de dueño: compra de mentira, aparte, para que Play no la borre. */
+    fun ownerBuyCoats(p: PetType) = sp.edit {
+        putStringSet(KEY_COAT_PACKS_OWNER, sp.getStringSet(KEY_COAT_PACKS_OWNER, emptySet()).orEmpty() + coatPackId(p))
+    }
+
+    fun ownerClearCoatPacks() = sp.edit { remove(KEY_COAT_PACKS_OWNER) }
 
     fun setCoat(p: PetType, coat: Int) = sp.edit { putInt(KEY_COAT + p.name, coat) }
 
@@ -36,9 +63,13 @@ class Prefs(context: Context) {
      * [TRY_MS] y después vuelve sola a la del usuario. null si no hay una prueba en curso.
      */
     fun trying(now: Long = System.currentTimeMillis()): Pair<PetType, Int>? {
-        if (isPro || now >= tryUntil) return null
+        if (now >= tryUntil) return null
         val p = PetType.from(sp.getString(KEY_TRY_PET, null) ?: return null)
-        return if (p.available) p to sp.getInt(KEY_TRY_COAT, 0) else null
+        if (!p.available) return null
+        val coat = sp.getInt(KEY_TRY_COAT, 0)
+        // Ya la tiene (por Pro o por ser la gratis) y también el pelaje: no hay nada que probar.
+        val ownsPet = isPro || p in freePets
+        return if (ownsPet && (coat == 0 || hasCoats(p))) null else p to coat
     }
 
     val tryUntil: Long get() = sp.getLong(KEY_TRY_UNTIL, 0L)
@@ -317,7 +348,7 @@ class Prefs(context: Context) {
     val chosenPet: PetType get() = PetType.from(sp.getString(KEY_PET, null))
 
     /** Usó algún pelaje de Pro, el calendario o la voz (aunque ahora, sin Pro, no se apliquen). */
-    fun usedCoats() = PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 }
+    fun usedCoats() = coatPacks().let { packs -> PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 && it !in packs } }
     fun usedCalendar() = sp.getBoolean(KEY_CAL_ENABLED, false)
     fun usedVoice() = sp.getBoolean(KEY_VOICE, false)
     fun usedBedtime() = sp.getBoolean(KEY_BEDTIME, false)
@@ -436,6 +467,13 @@ class Prefs(context: Context) {
         const val KEY_TIP_DAY = "tip_dismissed_day"
         const val KEY_PET_NAME = "pet_name_"
         const val KEY_COAT = "coat_"
+        /** Empiezan con [KEY_COAT]: la mascota flotante ya vuelve a dibujarse cuando cambian. */
+        const val KEY_COAT_PACKS = "coat_packs"
+        const val KEY_COAT_PACKS_OWNER = "coat_packs_owner"
+
+        /** Producto de Play con todos los pelajes de [p] ("coats_dog"). */
+        fun coatPackId(p: PetType) = "coats_" + p.name.lowercase()
+        fun coatPackPet(id: String): PetType? = PetType.entries.firstOrNull { coatPackId(it) == id }
         const val KEY_THEME = "theme"
         const val KEY_BUBBLE_STYLE = "bubble_style"
         const val BUBBLE_CARAMEL = 0

@@ -52,7 +52,8 @@ class PetModelTest {
     @Test
     fun sameDrawingAsPythonPreview() {
         val text = javaClass.classLoader!!.getResourceAsStream("pet_model_golden.txt")!!.bufferedReader().readText()
-        val cases = text.trim().split("\n").fold(mutableListOf<MutableList<String>>()) { acc, l ->
+        // lines() acepta \n y \r\n: git en Windows puede dejar el archivo con CRLF.
+        val cases = text.trim().lines().fold(mutableListOf<MutableList<String>>()) { acc, l ->
             if (l.startsWith("CASE ")) acc += mutableListOf(l) else acc.last() += l
             acc
         }

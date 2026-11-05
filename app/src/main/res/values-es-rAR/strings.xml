@@ -65,6 +65,7 @@
     <string name="home_turn_on">Prenderla</string>
     <string name="shop_remove">Sacar</string>
     <string name="pet_preview_body">Probalo 5 minutos en tu pantalla</string>
+    <string name="coat_pack_bought">¡Listo! Ya tenés todos mis pelajes.</string>
     <string name="home_today_empty_title">Hoy no tenés nada pendiente</string>
     <string name="home_today_empty_body">Empezá con uno de estos; se repiten solos</string>
     <string name="home_empty_body">Contame algo y yo te aviso a tiempo.</string>

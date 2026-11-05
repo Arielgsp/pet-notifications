@@ -223,6 +223,8 @@ fun SettingsScreen(
     /** Pelaje de cada mascota (Prefs.coat), para mostrarlas como se ven. */
     var coats by remember { mutableStateOf(PetType.entries.associateWith { prefs.coat(it) }) }
     fun coatOf(p: PetType) = coats[p] ?: 0
+    /** Cambia al comprar un pack de pelajes. */
+    var packsVersion by remember { mutableIntStateOf(0) }
     var size by remember { mutableIntStateOf(prefs.petSizeDp) }
     var tapAction by remember { mutableStateOf(prefs.tapAction) }
     var snooze by remember { mutableIntStateOf(prefs.snoozeMinutes) }
@@ -391,6 +393,10 @@ fun SettingsScreen(
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key?.startsWith(Bond.KEY_PREFIX) == true) bondVersion++
             if (key == Prefs.KEY_TRY_UNTIL) trying = prefs.trying()
+            if (key == Prefs.KEY_COAT_PACKS || key == Prefs.KEY_COAT_PACKS_OWNER) {
+                coats = PetType.entries.associateWith { prefs.coat(it) }
+                packsVersion++
+            }
         }
         prefs.sp.registerOnSharedPreferenceChangeListener(listener)
         onDispose { prefs.sp.unregisterOnSharedPreferenceChangeListener(listener) }
@@ -1074,6 +1080,25 @@ fun SettingsScreen(
         // Precio de Play en la moneda del usuario; con las herramientas de dueño, uno de prueba si Play no lo da.
         val ownerPrice = stringResource(R.string.owner_price)
         fun priceOf(a: Accessory): String? = a.productId?.let { accPrices[it] } ?: ownerPrice.takeIf { BuildConfig.OWNER_TOOLS && a.forSale }
+        /** Mascotas con todos sus pelajes: pack comprado o prueba de Pro. */
+        val coatOwned = remember(packsVersion, isPro) { PetType.entries.filter { prefs.hasCoats(it) }.toSet() }
+        fun packPrice(p: PetType): String? = accPrices[Prefs.coatPackId(p)] ?: ownerPrice.takeIf { BuildConfig.OWNER_TOOLS }
+        fun buyPack(p: PetType) {
+            val id = Prefs.coatPackId(p)
+            if (accPrices[id] != null) (ctx as? Activity)?.let { ProBilling.buy(it, id) }
+            else if (BuildConfig.OWNER_TOOLS) prefs.ownerBuyCoats(p) // sin el producto en Play: compra de mentira
+        }
+        // Compró el pack de la mascota que estaba mirando: se pone ese pelaje.
+        val packBoughtText = stringResource(R.string.coat_pack_bought)
+        LaunchedEffect(coatOwned) {
+            val p = previewPet
+            if (p != null && p == pet && p in coatOwned) {
+                prefs.setCoat(p, previewCoat)
+                coats = coats + (p to previewCoat)
+                previewPet = null
+                snackbar.showSnackbar(packBoughtText)
+            }
+        }
         val tryingAcc = tryOn
         val preview = previewPet
         val triedPet = trying?.first
@@ -1119,6 +1144,9 @@ fun SettingsScreen(
             )
             when {
                 previewing -> preview?.let { p ->
+                    // Mascota Pro (se ofrece Pro) o solo un pelaje de una que ya tiene (se ofrece su pack).
+                    val petLocked = !isPro && p !in prefs.freePets
+                    val packPrice = if (petLocked) null else packPrice(p)
                     SameHeightAsBond {
                         PetCard(Modifier.matchParentSize(), padding = 10.dp) {
                             Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
@@ -1127,11 +1155,15 @@ fun SettingsScreen(
                                         if (previewCoat == 0) stringResource(p.nameRes) else stringResource(R.string.try_coat, stringResource(p.nameRes), previewCoat + 1),
                                         fontSize = 15.sp, lineHeight = 18.sp, fontWeight = FontWeight(800), color = c.ink, maxLines = 1,
                                     )
-                                    Spacer(Modifier.width(6.dp))
-                                    ProTag()
+                                    if (petLocked) {
+                                        Spacer(Modifier.width(6.dp))
+                                        ProTag()
+                                    }
                                 }
                                 Text(
-                                    stringResource(R.string.pet_preview_body), fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight(600), color = c.inkMuted,
+                                    if (petLocked) stringResource(R.string.pet_preview_body)
+                                    else stringResource(R.string.coat_pack_body, stringResource(p.nameRes).lowercase()),
+                                    fontSize = 12.sp, lineHeight = 15.sp, fontWeight = FontWeight(600), color = c.inkMuted,
                                     maxLines = 1, overflow = TextOverflow.Ellipsis,
                                 )
                                 val small = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
@@ -1140,8 +1172,18 @@ fun SettingsScreen(
                                         onClick = { startTry(p, previewCoat) }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small,
                                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = c.cocoa, contentColor = c.surface),
                                     ) { Text(stringResource(R.string.pet_preview_try), fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1) }
-                                    OutlinedButton(onClick = { showPro = true }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small) {
-                                        Text(stringResource(R.string.see_pro), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1)
+                                    when {
+                                        petLocked -> OutlinedButton(onClick = { showPro = true }, modifier = Modifier.weight(1f).height(36.dp), contentPadding = small) {
+                                            Text(stringResource(R.string.see_pro), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1)
+                                        }
+                                        packPrice != null -> OutlinedButton(
+                                            onClick = { buyPack(p) }, enabled = billingStatus != ProBilling.Status.WORKING,
+                                            modifier = Modifier.weight(1f).height(36.dp), contentPadding = small,
+                                        ) {
+                                            Text(stringResource(R.string.shop_buy, packPrice), color = c.cocoa, fontSize = 13.sp, fontWeight = FontWeight(800), maxLines = 1)
+                                        }
+                                        // Sin precio de Play (producto sin cargar o sin Play Store): solo se puede probar.
+                                        else -> Spacer(Modifier.weight(1f))
                                     }
                                 }
                             }
@@ -1169,9 +1211,7 @@ fun SettingsScreen(
                 mine = pet, previewed = preview, isLocked = { p -> freeMode && p !in prefs.freePets }, coatOf = { p -> if (p == pet) coatOf(p) else 0 },
             ) { p ->
                 when {
-                    !p.available -> android.widget.Toast.makeText(
-                        ctx, ctx.getString(R.string.pet_soon_toast, ctx.getString(p.nameRes)), android.widget.Toast.LENGTH_SHORT,
-                    ).show()
+                    !p.available -> android.widget.Toast.makeText(ctx, R.string.pet_soon_toast, android.widget.Toast.LENGTH_SHORT).show()
                     p == pet -> {
                         previewPet = null
                         previewCoat = 0
@@ -1186,15 +1226,9 @@ fun SettingsScreen(
                     }
                 }
             }
-            // Pelajes, debajo de la tira para que ella no se mueva. Sin Pro se ven con candado: tocarlos los muestra en la vista previa.
+            // Pelajes, debajo de la tira para que ella no se mueva. Sin su pack se ven con candado: tocarlos los muestra en la vista previa.
             val coatPet = if (previewing) preview ?: pet else triedPet ?: pet
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.coat_title), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.inkMuted)
-                if (!isPro) {
-                    Spacer(Modifier.width(6.dp))
-                    ProTag()
-                }
-            }
+            Text(stringResource(R.string.coat_title), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.inkMuted)
             CoatDots(
                 coatPet,
                 selected = when {
@@ -1202,12 +1236,13 @@ fun SettingsScreen(
                     triedPet != null -> trying?.second ?: 0
                     else -> coatOf(pet)
                 },
-                locked = !isPro,
+                locked = coatPet !in coatOwned,
             ) { i ->
                 when {
-                    isPro && triedPet == null -> {
+                    triedPet == null && coatPet == pet && pet in coatOwned -> {
                         prefs.setCoat(pet, i)
                         coats = coats + (pet to i)
+                        previewPet = null
                     }
                     previewing || triedPet == null -> {
                         previewCoat = i

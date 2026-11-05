@@ -15,6 +15,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.petnotifications.Accessory
 import com.petnotifications.Outfit
+import com.petnotifications.PetType
 import com.petnotifications.Prefs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +29,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
 
 /**
- * Compras con Google Play: Pro (un producto de pago único, [PRODUCT_ID]) y los accesorios de
- * temporada del vestidor (uno por accesorio, Accessory.productId, también de pago único). La compra la hace la
+ * Compras con Google Play: Pro (un producto de pago único, [PRODUCT_ID]), los accesorios de
+ * temporada del vestidor (uno por accesorio, Accessory.productId) y los packs de pelajes (uno por
+ * mascota, Prefs.coatPackId), todos de pago único. La compra la hace la
  * app Play Store; acá solo se pide, se confirma y se guarda el resultado en [Prefs.proPurchased],
  * así Pro funciona sin conexión (los accesorios, en Outfit.KEY_BOUGHT). Cada vez que se abre la app se vuelve a consultar a Play (eso
  * también es "Restaurar compras": en un celular nuevo aparece la compra hecha con la misma cuenta).
@@ -152,7 +154,7 @@ object ProBilling {
 
     /** Pide a Play Pro y los accesorios juntos; un producto que no está cargado en Play Console no vuelve. */
     private suspend fun loadProduct(c: BillingClient): ProductDetails? {
-        val ids = listOf(PRODUCT_ID) + Accessory.forSale.mapNotNull { it.productId }
+        val ids = listOf(PRODUCT_ID) + Accessory.forSale.mapNotNull { it.productId } + PetType.launch.map(Prefs::coatPackId)
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
                 ids.map {
@@ -209,7 +211,19 @@ object ProBilling {
         // Accesorios: la consulta completa deja exactamente lo que Play dice; una compra nueva lo suma y se lo pone.
         val accs = purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
             .flatMap { it.products }.mapNotNull(Accessory::ofProduct).toSet()
-        if (!fromQuery && purchases.any { p -> p.purchaseState == Purchase.PurchaseState.PENDING && p.products.any { Accessory.ofProduct(it) != null } }) {
+        // Packs de pelajes: igual que los accesorios.
+        val packs = purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+            .flatMap { it.products }.mapNotNull(Prefs::coatPackPet).toSet()
+        val packsBefore = prefs.sp.getStringSet(Prefs.KEY_COAT_PACKS, emptySet()).orEmpty().mapNotNull(Prefs::coatPackPet).toSet()
+        val packsNow = if (fromQuery) packs else packsBefore + packs
+        if (packsNow != packsBefore) {
+            prefs.setCoatPacks(packsNow)
+            _changes.value++
+        }
+        if (!fromQuery && purchases.any { p ->
+                p.purchaseState == Purchase.PurchaseState.PENDING &&
+                    p.products.any { Accessory.ofProduct(it) != null || Prefs.coatPackPet(it) != null }
+            }) {
             _status.value = Status.PENDING
         }
         val before = Prefs(ctx).sp.getStringSet(Outfit.KEY_BOUGHT, emptySet()).orEmpty().mapNotNull(Accessory::ofProduct).toSet()
