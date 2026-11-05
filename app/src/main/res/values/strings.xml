@@ -213,7 +213,7 @@
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Pets</string>
     <string name="pro_row_pets_free">1 of your choice</string>
-    <string name="pro_row_pets_pro">All 11</string>
+    <string name="pro_row_pets_pro">All 7</string>
     <string name="pro_row_reminders">Reminders (once, daily, weekly)</string>
     <string name="pro_row_pet_life">Bubble, cuddles and sleeping when idle</string>
     <string name="pro_row_insist">Insist if you do not answer</string>
@@ -242,7 +242,7 @@
     <string name="pro_locked">Pro feature: tap to see the plans</string>
     <string name="pro_trial_intro">You have a %1$d-day free trial with all of Pro.</string>
     <string name="free_pets_title">Choose your free pet</string>
-    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 1 pet: pick it (you can change it only once). Pro gives you all 11.</string>
+    <string name="free_pets_body">Your Pro trial has ended. The free plan includes 1 pet: pick it (you can change it only once). Pro gives you all 7.</string>
     <string name="free_pets_confirm">Done</string>
     <string name="free_pets_count">%1$d of 1 chosen</string>
     <string name="feedback">Send feedback</string>
@@ -289,9 +289,9 @@
     <string name="trial_notice_body">Your Pro trial ends tomorrow. I’m staying with you either way. If you liked how we’ve been, you can keep Pro.</string>
     <string name="free_pets_change">Change my free pet</string>
     <string name="free_pets_change_sub">1 change left. After that, the others come with Pro.</string>
-    <string name="ob_free_pet_hint">This will be your free pet. During the Pro trial (%1$d days) you can use all 11; afterwards you can change it only once.</string>
+    <string name="ob_free_pet_hint">This will be your free pet. During the Pro trial (%1$d days) you can use all 7; afterwards you can change it only once.</string>
     <string name="free_pets_change_title">Change your free pet</string>
-    <string name="free_pets_change_body">You can change it only once. After that, Pro gives you all 11.</string>
+    <string name="free_pets_change_body">You can change it only once. After that, Pro gives you all 7.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">While your phone was off, 1 event went by</string>
@@ -407,6 +407,8 @@
     <string name="see_pro">See Pro</string>
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tap to view</string>
+    <string name="pet_soon">Soon</string>
+    <string name="pet_soon_toast">%1$s: coming soon in the Wild Friends pack.</string>
     <string name="bond_line_a11y">%1$s, level %2$d. Tap to see our path</string>
     <string name="acc_locked_one">I earn it at level %1$d, with %2$d hearts. 1 more “Done” to go.</string>
     <string name="row_look">How your pet looks</string>
@@ -649,7 +651,7 @@
     <string name="trial_end_title">Your Pro trial has ended</string>
     <string name="trial_end_body">Thanks for these days. From today we’re on the free plan, and %1$s is still with you.</string>
     <string name="trial_end_goes">What goes away with Pro:</string>
-    <string name="trial_end_pets">all 11 pets</string>
+    <string name="trial_end_pets">all 7 pets</string>
     <string name="trial_end_coats">coats</string>
     <string name="trial_end_calendar">calendar alerts</string>
     <string name="trial_end_voice">the spoken voice</string>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Voseo para Uruguay: solo lo que cambia respecto de values-es. Generado por tools/i18n/gen_xml.py. -->
 <resources>
+    <string name="pet_pig">Chancho</string>
     <string name="notif_pet_text">Tocá para configurar</string>
     <string name="hint_close">Tocá para cerrar</string>
     <string name="hint_action">Tocá: %1$s · Mantené: cerrar</string>
@@ -39,7 +40,7 @@
     <string name="pro_locked">Función Pro: tocá para ver los planes</string>
     <string name="pro_trial_intro">Tenés %1$d días de prueba con todo Pro, gratis.</string>
     <string name="free_pets_title">Elegí tu mascota gratis</string>
-    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tenés 1 mascota: elegila (la podés cambiar una sola vez). Con Pro tenés las 11.</string>
+    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tenés 1 mascota: elegila (la podés cambiar una sola vez). Con Pro tenés las 7.</string>
     <string name="feedback_body">Se abre tu app de correo con este resumen técnico, para ayudarnos a encontrar problemas. No incluye tus recordatorios ni tus eventos. Podés borrar lo que quieras antes de mandarlo.</string>
     <string name="feedback_greeting">Escribí tu comentario acá:</string>
     <string name="diag_intro">Estos números se calculan en tu celular y no se mandan a ningún lado. Sirven para ver si los avisos llegan a horario.</string>
@@ -49,9 +50,9 @@
     <string name="delete_skip_next">Saltear solo el próximo (%1$s)</string>
     <string name="toast_series_kept">Listo, cerrado. Este recordatorio se repite: para borrarlo, abrilo en la app.</string>
     <string name="trial_notice_body">Mañana termina la prueba de Pro. Yo me quedo con vos igual. Si te gustó cómo estamos, podés quedarte con Pro.</string>
-    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) podés usar las 11; después, la podés cambiar una sola vez.</string>
+    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) podés usar las 7; después, la podés cambiar una sola vez.</string>
     <string name="free_pets_change_title">Cambiá tu mascota gratis</string>
-    <string name="free_pets_change_body">La podés cambiar una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
+    <string name="free_pets_change_body">La podés cambiar una sola vez. Después, para usar otras, está Pro, que trae las 7.</string>
     <string name="missed_tap_to_see">Tocá para ver la lista.</string>
     <string name="upcoming_empty">No tenés avisos en los próximos 7 días.</string>
     <string name="upcoming_hint">Tocá para cerrar</string>

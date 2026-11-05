@@ -108,6 +108,12 @@ section { padding: 72px 0; }
 .pet.on em { display: block; }
 .pet-more { display: flex; flex-direction: column; justify-content: center; gap: 8px; background: var(--ink); color: #fff; border-radius: 26px; padding: 22px; font-size: 19px; line-height: 1.3; font-weight: 800; }
 .pet-more strong { font-size: 30px; font-weight: 1000; letter-spacing: -.02em; line-height: 1.05; }
+.soon { margin-top: 18px; border: 3px dashed var(--line); border-radius: 26px; padding: 18px 22px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.soon div { flex: 1 1 260px; }
+.soon b { display: block; font-size: 24px; font-weight: 1000; letter-spacing: -.02em; line-height: 1.15; }
+.soon p { color: var(--muted); font-weight: 700; }
+.soon .shadows { display: flex; gap: 6px; flex: 0 1 auto; }
+.soon .shadows img { width: 76px; filter: brightness(0); opacity: .16; }
 
 /* Lo que hace */
 .does { background: var(--honey-soft); }
@@ -119,7 +125,7 @@ section { padding: 72px 0; }
 
 /* Vestidor */
 .dress { background: var(--sage-soft); }
-.dress-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 34px; }
+.dress-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 34px; }
 .dress-row img { width: 100%; transition: transform .18s; }
 .dress-row img:hover { transform: scale(1.08) rotate(2deg); }
 
@@ -248,7 +254,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
         <p class="lead" data-t="hero_lead">Una mascota tierna vive en tu pantalla, encima de cualquier app. Cuando llega la hora, te avisa con su propia voz y te dice qué tienes que hacer.</p>
         <div class="actions">
           <span id="play-slot"></span>
-          <a class="btn line" href="#mascotas" data-t="meet">Conoce a las 11</a>
+          <a class="btn line" href="#mascotas" data-t="meet">Conoce a las 7</a>
         </div>
         <p class="small" data-t="android">Solo para Android. iPhone no permite que una app flote encima de las demás.</p>
       </div>
@@ -270,9 +276,13 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 
   <section id="mascotas">
     <div class="wrap">
-      <h2 data-t="pets_h">Once amigos.<br>Cada uno con su voz.</h2>
+      <h2 data-t="pets_h">Siete amigos.<br>Cada uno con su voz.</h2>
       <p class="lead" data-t="pets_lead">Toca una para escucharla. Después se queda en la esquina de esta página, como en tu celular: arrástrala, tócala, déjala dormir.</p>
       <div class="pets-grid" id="pets"></div>
+      <div class="soon">
+        <div><b data-t="soon_h">Muy pronto: Amigos salvajes</b><p data-t="soon_p">León, mono, rana y búho llegan después del lanzamiento, en un pack aparte. Si ya tienes Pro cuando salga, te lo regalamos.</p></div>
+        <div class="shadows" id="shadows" aria-hidden="true"></div>
+      </div>
     </div>
   </section>
 
@@ -281,11 +291,11 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       <h2 data-t="does_h">Una mascota con vida propia.</h2>
       <div class="does-grid">
         <article class="card"><img src="pets/duck_happy.svg" alt="Pato contento" data-t-alt="a_duck"><h3 data-t="c1h">Te avisa y no se olvida</h3><p data-t="c1">Recordatorios de una vez, diarios o semanales. Si no respondes, vuelve a avisarte.</p></article>
-        <article class="card"><img src="pets/pig_happy.svg" alt="Chancho contento" data-t-alt="a_pig"><h3 data-t="c2h">Le gustan los mimos</h3><p data-t="c2">Tócala y te tira corazones. Con dos toques se da una vuelta.</p></article>
-        <article class="card"><img src="pets/monkey_sleep.svg" alt="Mono dormido" data-t-alt="a_monkey"><h3 data-t="c3h">Se duerme cuando no la usas</h3><p data-t="c3">Se estira, bosteza y se acuesta. Cuando vuelves, se despierta.</p></article>
-        <article class="card"><img src="pets/frog_front.svg" alt="Rana" data-t-alt="a_frog"><h3 data-t="c4h">Cada «Listo» los hace más amigos</h3><p data-t="c4">Suma corazones, sube de nivel y aprende trucos, como dar la patita.</p></article>
+        <article class="card"><img src="pets/pig_happy.svg" alt="Cerdito contento" data-t-alt="a_pig"><h3 data-t="c2h">Le gustan los mimos</h3><p data-t="c2">Tócala y te tira corazones. Con dos toques se da una vuelta.</p></article>
+        <article class="card"><img src="pets/chick_sleep.svg" alt="Pollito dormido" data-t-alt="a_chick"><h3 data-t="c3h">Se duerme cuando no la usas</h3><p data-t="c3">Se estira, bosteza y se acuesta. Cuando vuelves, se despierta.</p></article>
+        <article class="card"><img src="pets/rabbit_happy.svg" alt="Conejo contento" data-t-alt="a_rabbit"><h3 data-t="c4h">Cada «Listo» los hace más amigos</h3><p data-t="c4">Suma corazones, sube de nivel y aprende trucos, como dar la patita.</p></article>
         <article class="card"><img src="pets/cow_front.svg" alt="Vaca" data-t-alt="a_cow"><h3 data-t="c5h">No molesta de más</h3><p data-t="c5">Se esconde en llamadas, videos y juegos. Lo que no urge te lo deja en una carta a sus pies.</p></article>
-        <article class="card"><img src="pets/owl_happy.svg" alt="Búho contento" data-t-alt="a_owl"><h3 data-t="c6h">Te deja una frase bonita</h3><p data-t="c6">«Aquí te dejo un corazoncito». «Un mimo, por si acaso». De vez en cuando, sin insistir.</p></article>
+        <article class="card"><img src="pets/dog_happy.svg" alt="Perro contento" data-t-alt="a_dog"><h3 data-t="c6h">Te deja una frase bonita</h3><p data-t="c6">«Aquí te dejo un corazoncito». «Un mimo, por si acaso». De vez en cuando, sin insistir.</p></article>
       </div>
     </div>
   </section>
@@ -296,11 +306,9 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       <p class="lead" data-t="dress_lead">Pañuelo, gorrito y camita se ganan con el vínculo. Los de temporada, como el gorro navideño y el casco de calabaza, se compran en su fecha y quedan para siempre.</p>
       <div class="dress-row">
         <img src="pets/dog_dressed.svg" alt="Perro con gorro navideño y pañuelo" data-t-alt="d_dog">
-        <img src="pets/lion_dressed.svg" alt="León con casco de calabaza" data-t-alt="d_lion">
+        <img src="pets/pig_dressed.svg" alt="Cerdito con casco de calabaza" data-t-alt="d_pig">
         <img src="pets/rabbit_dressed.svg" alt="Conejo con corona de flores" data-t-alt="d_rabbit">
         <img src="pets/cat_dressed.svg" alt="Gato con gorrito de lana y pañuelo" data-t-alt="d_cat">
-        <img src="pets/frog_dressed.svg" alt="Rana con calabacita" data-t-alt="d_frog">
-        <img src="pets/monkey_dressed.svg" alt="Mono con pañuelo" data-t-alt="d_monkey">
       </div>
     </div>
   </section>
@@ -334,7 +342,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
           <h3>Pro</h3>
           <p class="once" data-t="pro_sub">Pago único, sin suscripción</p>
           <ul>
-            <li data-t="p1">Las 11 mascotas, con todos sus pelajes</li>
+            <li data-t="p1">Las 7 mascotas, con todos sus pelajes</li>
             <li data-t="p2">Avisos de Google Calendar</li>
             <li data-t="p3">Su sonido en voz alta</li>
             <li data-t="p4">Horario de No molestar</li>
@@ -399,10 +407,11 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       voice: "Pet voices", sections: "Sections",
       ask: "Do you ignore notifications?", h1: "You won’t ignore your pet.",
       hero_lead: "A cute pet lives on your screen, on top of any app. When it’s time, it alerts you in its own voice and tells you what to do.",
-      meet: "Meet all 11", android: "Android only. iPhone doesn’t let an app float on top of others.",
+      meet: "Meet all 7", android: "Android only. iPhone doesn’t let an app float on top of others.",
       phone: "Example of a MimuPet alert", day: "Appointment time", touch_dog: "Touch the puppy",
       note_who: "Puppy is alerting you · 9:41", note_title: "Dentist appointment", done: "Done", later: "Snooze",
-      pets_h: "Eleven friends.<br>Each with its own voice.",
+      pets_h: "Seven friends.<br>Each with its own voice.",
+      soon_h: "Coming soon: Wild Friends", soon_p: "Lion, monkey, frog and owl arrive after launch, in a separate pack. If you already have Pro when it comes out, it’s on us.",
       pets_lead: "Tap one to hear it. Then it stays in the corner of this page, just like on your phone: drag it, tap it, let it sleep.",
       does_h: "A pet with a life of its own.",
       c1h: "It alerts you and doesn’t forget", c1: "One-time, daily or weekly reminders. If you don’t answer, it reminds you again.",
@@ -420,16 +429,16 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       f1: "1 pet of your choice", f2: "One-time, daily and weekly reminders", f3: "Bubble, cuddles, notes and sleep", f4: "Bond with levels and tricks",
       f5: "Insists every 10 minutes, up to 3 times", f6: "Ghost mode: your taps pass through it",
       pro_sub: "One payment, no subscription",
-      p1: "All 11 pets, with all their coats", p2: "Google Calendar alerts", p3: "Its sound out loud", p4: "Do Not Disturb hours", p5: "Size and transparency your way", p6: "How much it insists, your way",
+      p1: "All 7 pets, with all their coats", p2: "Google Calendar alerts", p3: "Its sound out loud", p4: "Do Not Disturb hours", p5: "Size and transparency your way", p6: "How much it insists, your way",
       fine: "You’ll see the price in the app before buying. Google Play handles the purchase. Seasonal accessories are sold separately.",
       private_h: "Your things stay on your phone.",
       private_lead: "The app has no internet access. No accounts, no ads, no tracking. Every permission is explained before it’s requested.",
       privacy_more: "Read the privacy policy", privacy: "Privacy",
       social_h: "Follow us.", footer: "MimuPet. A cute pet that reminds you of what matters.",
       tip: "Hi, I’m Dog. Tap me or drag me.", buddy: "The page’s pet: tap it to see hearts",
-      a_duck: "Happy duck", a_pig: "Happy pig", a_monkey: "Sleeping monkey", a_frog: "Frog", a_cow: "Cow", a_owl: "Happy owl", a_cat: "Sleeping cat",
-      d_dog: "Dog with a Christmas hat and scarf", d_lion: "Lion with a pumpkin helmet", d_rabbit: "Rabbit with a flower crown",
-      d_cat: "Cat with a wool hat and scarf", d_frog: "Frog with a little pumpkin", d_monkey: "Monkey with a scarf"
+      a_duck: "Happy duck", a_pig: "Happy pig", a_chick: "Sleeping chick", a_rabbit: "Happy rabbit", a_cow: "Cow", a_dog: "Happy dog", a_cat: "Sleeping cat",
+      d_dog: "Dog with a Christmas hat and scarf", d_pig: "Pig with a pumpkin helmet", d_rabbit: "Rabbit with a flower crown",
+      d_cat: "Cat with a wool hat and scarf"
     };
     document.documentElement.lang = "en";
     document.title = "MimuPet";
@@ -448,10 +457,11 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   };
   var PETS = [
     ["dog", "Perro", "¡Guau!", "#fff1df", 0.9], ["cat", "Gato", "¡Miau!", "#ffebdd", 1.3], ["rabbit", "Conejo", "¡Hop hop!", "#fbe7ee", 1.5],
-    ["duck", "Pato", "¡Cuac!", "#e6f1fa", 1.4], ["frog", "Rana", "¡Croac!", "#eaf6df", 0.7], ["cow", "Vaca", "¡Muuu!", "#f7eef0", 0.6],
-    ["pig", "Chancho", "¡Oink!", "#ffe9ee", 1.1], ["chick", "Pollito", "¡Pío pío!", "#fff6d6", 1.8], ["lion", "León", "¡Roaar!", "#ffefd9", 0.5],
-    ["monkey", "Mono", "¡Uh uh ah ah!", "#f5eadf", 1.2], ["owl", "Búho", "¡Uhuu!", "#f1e9e2", 0.8]
+    ["duck", "Pato", "¡Cuac!", "#e6f1fa", 1.4], ["cow", "Vaca", "¡Muuu!", "#f7eef0", 0.6],
+    ["pig", "Cerdito", "¡Oink!", "#ffe9ee", 1.1], ["chick", "Pollito", "¡Pío pío!", "#fff6d6", 1.8]
   ];
+  /* Pack «Amigos salvajes»: llega después del lanzamiento. En la página, solo sus siluetas. */
+  var WILD = ["lion", "monkey", "frog", "owl"];
   var byId = {};
   PETS.forEach(function (p) {
     if (EN) { p[1] = PETS_EN[p[0]][0]; p[2] = PETS_EN[p[0]][1]; }
@@ -640,9 +650,11 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     c.addEventListener("click", function () { choose(p[0]); });
     cards[p[0]] = c; pets.appendChild(c);
   });
+  var shadows = document.getElementById("shadows");
+  WILD.forEach(function (id) { shadows.appendChild(pic(id, "front")); });
   var more = el("div", "pet-more");
   more.appendChild(el("strong", "", tr("Gratis eliges una.", "Free: pick one.")));
-  more.appendChild(el("span", "", tr("Con Pro, las 11 y todos sus pelajes.", "With Pro: all 11 and all their coats.")));
+  more.appendChild(el("span", "", tr("Con Pro, las 7 y todos sus pelajes.", "With Pro: all 7 and all their coats.")));
   pets.appendChild(more);
   cards.dog.classList.add("on");
 

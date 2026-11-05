@@ -18,7 +18,11 @@ class Prefs(context: Context) {
         get() {
             val p = PetType.from(sp.getString(KEY_PET, null))
             val free = freePets
-            return if (isPro || free.isEmpty() || p in free) p else free.first()
+            return when {
+                !p.available -> free.firstOrNull() ?: PetType.DOG // tenía una del pack de antes del lanzamiento
+                isPro || free.isEmpty() || p in free -> p
+                else -> free.first()
+            }
         }
         set(v) = sp.edit { putString(KEY_PET, v.name) }
 
@@ -33,8 +37,8 @@ class Prefs(context: Context) {
      */
     fun trying(now: Long = System.currentTimeMillis()): Pair<PetType, Int>? {
         if (isPro || now >= tryUntil) return null
-        val p = sp.getString(KEY_TRY_PET, null) ?: return null
-        return PetType.from(p) to sp.getInt(KEY_TRY_COAT, 0)
+        val p = PetType.from(sp.getString(KEY_TRY_PET, null) ?: return null)
+        return if (p.available) p to sp.getInt(KEY_TRY_COAT, 0) else null
     }
 
     val tryUntil: Long get() = sp.getLong(KEY_TRY_UNTIL, 0L)
@@ -344,7 +348,8 @@ class Prefs(context: Context) {
      */
     var freePets: Set<PetType>
         get() {
-            val all = sp.getStringSet(KEY_FREE_PETS, emptySet())!!.mapNotNull { n -> PetType.entries.firstOrNull { it.name == n } }
+            val all = sp.getStringSet(KEY_FREE_PETS, emptySet())!!
+                .mapNotNull { n -> PetType.entries.firstOrNull { it.name == n && it.available } }
             if (all.size <= FREE_PET_COUNT) return all.toSet()
             val current = PetType.entries.firstOrNull { it.name == sp.getString(KEY_PET, null) }
             return setOf(current?.takeIf { it in all } ?: all.first())

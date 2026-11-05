@@ -28,3 +28,8 @@ replay_pid*
 
 # Caché de Python de las herramientas.
 __pycache__/
+
+# Material de Cowork pesado (videos, paquetes e imágenes): queda en la carpeta, no en GitHub
+/docs/mimupet-cowork/**/*.mp4
+/docs/mimupet-cowork/**/*.zip
+/docs/mimupet-cowork/**/*.png

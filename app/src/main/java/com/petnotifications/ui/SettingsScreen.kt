@@ -1169,6 +1169,9 @@ fun SettingsScreen(
                 mine = pet, previewed = preview, isLocked = { p -> freeMode && p !in prefs.freePets }, coatOf = { p -> if (p == pet) coatOf(p) else 0 },
             ) { p ->
                 when {
+                    !p.available -> android.widget.Toast.makeText(
+                        ctx, ctx.getString(R.string.pet_soon_toast, ctx.getString(p.nameRes)), android.widget.Toast.LENGTH_SHORT,
+                    ).show()
                     p == pet -> {
                         previewPet = null
                         previewCoat = 0
@@ -2206,7 +2209,7 @@ internal fun PetPicker(selected: PetType, onSelect: (PetType) -> Unit) = PetPick
 @Composable
 internal fun PetPicker(selected: Set<PetType>, locked: Set<PetType>, onSelect: (PetType) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PetType.entries.forEach { p ->
+        PetType.launch.forEach { p ->
             val isSelected = p in selected
             Box {
             Column(

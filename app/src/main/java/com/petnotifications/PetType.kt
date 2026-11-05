@@ -41,7 +41,25 @@ enum class PetType(
         Prefs(ctx).petName(this) ?: ctx.getString(R.string.pet_your_lower, label(ctx).lowercase())
     fun sound(ctx: Context): String = ctx.getString(soundRes)
 
+    /** León, mono, rana y búho: el pack "Amigos salvajes", que sale después del lanzamiento. */
+    val wild: Boolean get() = this in WILD
+
+    /** Se puede elegir o probar. Las del pack, todavía no: se ven como silueta con "Pronto". */
+    val available: Boolean get() = !wild || WILD_PACK_OUT
+
     companion object {
+        val WILD = setOf(LION, MONKEY, FROG, OWL)
+
+        /**
+         * El pack "Amigos salvajes" ya salió. Al pasarlo a true falta: el producto en Play, que lo
+         * tengan quienes compraron el pack y, de regalo, quienes compraron Pro antes de que saliera
+         * (por la fecha de compra de Pro). Ver docs/PENDIENTES.md.
+         */
+        const val WILD_PACK_OUT = false
+
+        /** Las que se pueden usar hoy, en el orden de siempre. */
+        val launch: List<PetType> get() = entries.filter { it.available }
+
         fun from(name: String?) = entries.firstOrNull { it.name == name } ?: DOG
     }
 }

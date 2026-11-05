@@ -28,12 +28,10 @@ SPIN_STEP = 30
 # (mascota, carpeta de Cowork, accesorios). Sin pato, vaca ni pollito: al vestirse cambian piezas de su dibujo.
 DRESSED = (
     ("DOG", "perro", ("gorro_navideno", "panuelo")),
-    ("LION", "leon", ("casco_calabaza",)),
+    ("PIG", "chancho", ("casco_calabaza",)),
     ("RABBIT", "conejo", ("corona_flores",)),
     ("CAT", "gato", ("gorrito_lana", "panuelo")),
-    ("FROG", "rana", ("calabacita",)),
-    ("MONKEY", "mono", ("panuelo",)),
-)
+)  # Solo mascotas del lanzamiento: león, mono, rana y búho llegan después, en el pack Amigos salvajes.
 # Lienzo de 200×240 de los dibujos, con aire a los costados para las orejas y arriba para las del conejo.
 VIEW = 'viewBox="-20 -24 240 268"'
 

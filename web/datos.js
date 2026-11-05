@@ -17,13 +17,13 @@ window.MIMUPET = {
   },
 
   // Los videos, en orden. Para publicar uno, pegá su enlace en "enlace" y aparece el botón para verlo.
-  // Para sumar otro, copiá una línea entera. "texto_en" es la frase en inglés. "mascota" puede ser: dog, cat, rabbit, duck, frog, cow, pig, chick, lion, monkey, owl.
+  // Para sumar otro, copiá una línea entera. "texto_en" es la frase en inglés. "mascota" puede ser: dog, cat, rabbit, duck, cow, pig, chick (león, mono, rana y búho llegan con el pack).
   videos: [
     { texto: "Cuando ignoras todas las notificaciones menos esta", texto_en: "When you ignore every notification but this one", mascota: "dog", enlace: "" },
     { texto: "¿Cuál sería la tuya?", texto_en: "Which one would be yours?", mascota: "rabbit", enlace: "" },
     { texto: "Mi recordatorio tiene más estilo que yo", texto_en: "My reminder has more style than I do", mascota: "cat", enlace: "" },
-    { texto: "Se duerme cuando no la usas", texto_en: "It falls asleep when you’re not using it", mascota: "owl", enlace: "" },
-    { texto: "Cada cosa que haces, se hace más amiga", texto_en: "Everything you do makes you better friends", mascota: "frog", enlace: "" },
-    { texto: "Sin internet. Sin cuentas. Tus datos no salen del celular", texto_en: "No internet. No accounts. Your data stays on your phone", mascota: "lion", enlace: "" },
+    { texto: "Se duerme cuando no la usas", texto_en: "It falls asleep when you’re not using it", mascota: "chick", enlace: "" },
+    { texto: "Cada cosa que haces, se hace más amiga", texto_en: "Everything you do makes you better friends", mascota: "duck", enlace: "" },
+    { texto: "Sin internet. Sin cuentas. Tus datos no salen del celular", texto_en: "No internet. No accounts. Your data stays on your phone", mascota: "pig", enlace: "" },
   ],
 };

@@ -25,7 +25,7 @@
     <string name="pet_frog_sound">Croac!</string>
     <string name="pet_cow">Vaca</string>
     <string name="pet_cow_sound">Muuu!</string>
-    <string name="pet_pig">Chancho</string>
+    <string name="pet_pig">Cerdito</string>
     <string name="pet_pig_sound">Oink!</string>
     <string name="pet_chick">Pollito</string>
     <string name="pet_chick_sound">Pío pío!</string>
@@ -212,7 +212,7 @@
     <string name="pro_col_pro">Pro</string>
     <string name="pro_row_pets">Mascotas</string>
     <string name="pro_row_pets_free">1 a elección</string>
-    <string name="pro_row_pets_pro">Las 11</string>
+    <string name="pro_row_pets_pro">Las 7</string>
     <string name="pro_row_reminders">Recordatorios (una vez, diarios, semanales)</string>
     <string name="pro_row_pet_life">Globo, mimos y sueño por inactividad</string>
     <string name="pro_row_insist">Insistir si no respondes</string>
@@ -241,7 +241,7 @@
     <string name="pro_locked">Función Pro: toca para ver los planes</string>
     <string name="pro_trial_intro">Tienes %1$d días de prueba con todo Pro, gratis.</string>
     <string name="free_pets_title">Elige tu mascota gratis</string>
-    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tienes 1 mascota: elígela (la puedes cambiar una sola vez). Con Pro tienes las 11.</string>
+    <string name="free_pets_body">Terminó la prueba de Pro. En el plan gratis tienes 1 mascota: elígela (la puedes cambiar una sola vez). Con Pro tienes las 7.</string>
     <string name="free_pets_confirm">Listo</string>
     <string name="free_pets_count">%1$d de 1 elegida</string>
     <string name="feedback">Enviar comentarios</string>
@@ -288,9 +288,9 @@
     <string name="trial_notice_body">Mañana termina la prueba de Pro. Yo me quedo contigo igual. Si te gustó cómo estamos, puedes quedarte con Pro.</string>
     <string name="free_pets_change">Cambiar mi mascota gratis</string>
     <string name="free_pets_change_sub">Te queda 1 cambio. Después, las demás vienen con Pro.</string>
-    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) puedes usar las 11; después, la puedes cambiar una sola vez.</string>
+    <string name="ob_free_pet_hint">Esta va a ser tu mascota gratis. Durante la prueba de Pro (%1$d días) puedes usar las 7; después, la puedes cambiar una sola vez.</string>
     <string name="free_pets_change_title">Cambia tu mascota gratis</string>
-    <string name="free_pets_change_body">La puedes cambiar una sola vez. Después, para usar otras, está Pro, que trae las 11.</string>
+    <string name="free_pets_change_body">La puedes cambiar una sola vez. Después, para usar otras, está Pro, que trae las 7.</string>
 
     <!-- Resumen de lo que se perdió con el celular apagado -->
     <string name="missed_events_one">Mientras el celular estuvo apagado pasó 1 evento</string>
@@ -406,6 +406,8 @@
     <string name="see_pro">Ver Pro</string>
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tocar para ver</string>
+    <string name="pet_soon">Pronto</string>
+    <string name="pet_soon_toast">%1$s: llega pronto, con el pack Amigos salvajes.</string>
     <string name="bond_line_a11y">%1$s, nivel %2$d. Tocar para ver nuestro camino</string>
     <string name="acc_locked_one">Lo gano en el nivel %1$d, con %2$d corazones. Falta 1 «Listo».</string>
     <string name="row_look">Cómo se ve la mascota</string>
@@ -648,7 +650,7 @@
     <string name="trial_end_title">Terminó tu prueba de Pro</string>
     <string name="trial_end_body">Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue contigo.</string>
     <string name="trial_end_goes">Lo que se va con Pro:</string>
-    <string name="trial_end_pets">las 11 mascotas</string>
+    <string name="trial_end_pets">las 7 mascotas</string>
     <string name="trial_end_coats">los pelajes</string>
     <string name="trial_end_calendar">los avisos del calendario</string>
     <string name="trial_end_voice">la voz en voz alta</string>
