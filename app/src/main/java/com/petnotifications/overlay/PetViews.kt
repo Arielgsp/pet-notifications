@@ -647,7 +647,7 @@ private fun FxLayers(
         when (val phase = state.phase) {
             is FxPhase.Sound -> PlacedSticker(callWord(phase.text), phase.id, state, null)
             is FxPhase.Call -> PlacedSticker(phase.text, phase.id, state, bubble.onTap, phase.lifeMs)
-            is FxPhase.Peek -> PeekNote(phase, state.fxSide, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) })
+            is FxPhase.Peek -> SlipNote(phase, state.fxSide, bubble, PetModel.pawColors(state.pet, state.coat), Modifier.onSizeChanged { onBubbleHeight(it.height) })
             is FxPhase.Bubble -> NoteCard(
                 phase, state.who, bubble, Modifier.onSizeChanged { onBubbleHeight(it.height) },
                 side = state.fxSide, anchorX = state.anchorX, held = state.held, paw = PetModel.pawColors(state.pet, state.coat),

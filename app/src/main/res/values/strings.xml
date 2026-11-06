@@ -60,6 +60,7 @@
     <string name="notif_pet_text">Tap to set up</string>
     <string name="action_done">Done</string>
     <string name="action_snooze">Later</string>
+    <string name="note_later">Later</string>
     <string name="action_hide_pet">Hide pet</string>
     <string name="action_pause_pet">Pause 1 hour</string>
     <string name="action_ghost_on">Ghost mode</string>
@@ -315,10 +316,11 @@
     <string name="upcoming_hint">Tap to close</string>
 
     <!-- Recordatorio rápido flotante (tirón hacia abajo) -->
-    <string name="quick_title">Quick reminder</string>
-    <string name="quick_in_30">In 30 min</string>
-    <string name="quick_in_1h">In 1 hour</string>
-    <string name="quick_in_3h">In 3 hours</string>
+    <string name="quick_writes">%1$s takes a note</string>
+    <string name="quick_save">Got it</string>
+    <string name="quick_in_10">10 min</string>
+    <string name="quick_in_30">30 min</string>
+    <string name="quick_in_1h">1 hour</string>
     <string name="quick_tomorrow">Tomorrow 9:00</string>
     <string name="quick_saved">Done: I will remind you at %1$s</string>
 

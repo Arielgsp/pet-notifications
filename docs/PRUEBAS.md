@@ -986,6 +986,21 @@ Para ver el casco fuera de temporada: Ajustes, 7 toques en la versión, "Mostrar
 | 72.6 | Tocá una mascota Pro (sin Pro). | Igual que antes: PRO, "Probar 5 min" y "Ver Pro". | |
 | 72.7 | Abrí Ver Pro. | En "Pelajes" dice Gratis: El original, Pro: En packs. | |
 
+## 73. Papelito, cartita y recordatorio rápido nuevos (versión 1.0.64)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 73.1 | Esperá un recordatorio con la mascota a la derecha de la pantalla. | Primero el globo "guau", como siempre. Después, a la izquierda de la mascota, un papelito crema inclinado con la esquina de arriba doblada: la hora arriba y el aviso abajo, en una línea. La patita de la mascota se apoya en su borde. | |
+| 73.2 | Lo mismo con la mascota a la izquierda. | Todo espejado: el papel a la derecha y la esquina doblada arriba a la derecha. | |
+| 73.3 | Tocá el papelito. | Se despliega en la cartita: "(nombre) te avisa · hora", el título, "Listo" (marrón) y "Más tarde" (con borde). | |
+| 73.4 | Tocá Listo y, en otro aviso, Más tarde. | Funcionan como antes (Más tarde = aplazar). | |
+| 73.5 | En otro aviso, tocá la mascota en vez del papelito. | Se cierra y deja la carta pendiente a sus pies, como antes. Al tocar la carta, la cartita sale debajo de la mascota, sostenida con las patitas. | |
+| 73.6 | Tirón hacia abajo sobre la mascota, con ella arriba de la pantalla. | Aparece la cartita "Tu perro anota" a su lado (o debajo, si no entra), con el teclado abierto. "1 hora" viene elegida; "Anotado" está apagado hasta que escribas. | |
+| 73.7 | Escribí algo, elegí 10 min y tocá Anotado (o el Enter del teclado). | Se guarda y avisa "Listo: te aviso a las…". | |
+| 73.8 | Repetí con la mascota en la mitad de abajo de la pantalla. | La cartita se abre arriba de la mascota, sin que la tape el teclado. | |
+| 73.9 | Tocá el calendario de la cartita. | Aparecen el día (con flechas) y la hora para escribir. | |
+| 73.10 | Tocá afuera de la cartita. | Se cierra sin guardar. | |
+
 ---
 
 ## Si algo falla

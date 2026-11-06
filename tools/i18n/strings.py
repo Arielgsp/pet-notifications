@@ -59,6 +59,7 @@ S = [
 ('notif_pet_text', 'Tocá para configurar', 'Tap to set up'),
 ('action_done', 'Listo', 'Done'),
 ('action_snooze', 'Aplazar', 'Later'),
+('note_later', 'Más tarde', 'Later'),
 ('action_hide_pet', 'Ocultar mascota', 'Hide pet'),
 ('action_pause_pet', 'Pausar 1 hora', 'Pause 1 hour'),
 ('action_ghost_on', 'Modo fantasma', 'Ghost mode'),
@@ -314,10 +315,11 @@ S = [
 ('upcoming_hint', 'Tocá para cerrar', 'Tap to close'),
 
 ("#", 'Recordatorio rápido flotante (tirón hacia abajo)', ""),
-('quick_title', 'Recordatorio rápido', 'Quick reminder'),
-('quick_in_30', 'En 30 min', 'In 30 min'),
-('quick_in_1h', 'En 1 hora', 'In 1 hour'),
-('quick_in_3h', 'En 3 horas', 'In 3 hours'),
+('quick_writes', '%1$s anota', '%1$s takes a note'),
+('quick_save', 'Anotado', 'Got it'),
+('quick_in_10', '10 min', '10 min'),
+('quick_in_30', '30 min', '30 min'),
+('quick_in_1h', '1 hora', '1 hour'),
 ('quick_tomorrow', 'Mañana 9:00', 'Tomorrow 9:00'),
 ('quick_saved', 'Listo: te aviso a las %1$s', 'Done: I will remind you at %1$s'),
 

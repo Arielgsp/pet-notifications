@@ -59,6 +59,7 @@
     <string name="notif_pet_text">Toca para configurar</string>
     <string name="action_done">Listo</string>
     <string name="action_snooze">Aplazar</string>
+    <string name="note_later">Más tarde</string>
     <string name="action_hide_pet">Ocultar mascota</string>
     <string name="action_pause_pet">Pausar 1 hora</string>
     <string name="action_ghost_on">Modo fantasma</string>
@@ -314,10 +315,11 @@
     <string name="upcoming_hint">Toca para cerrar</string>
 
     <!-- Recordatorio rápido flotante (tirón hacia abajo) -->
-    <string name="quick_title">Recordatorio rápido</string>
-    <string name="quick_in_30">En 30 min</string>
-    <string name="quick_in_1h">En 1 hora</string>
-    <string name="quick_in_3h">En 3 horas</string>
+    <string name="quick_writes">%1$s anota</string>
+    <string name="quick_save">Anotado</string>
+    <string name="quick_in_10">10 min</string>
+    <string name="quick_in_30">30 min</string>
+    <string name="quick_in_1h">1 hora</string>
     <string name="quick_tomorrow">Mañana 9:00</string>
     <string name="quick_saved">Listo: te aviso a las %1$s</string>
 

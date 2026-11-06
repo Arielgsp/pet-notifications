@@ -323,57 +323,123 @@ private fun DrawScope.drawSparkle() {
 fun callWord(sound: String): String =
     sound.filter { it.isLetter() || it == ' ' }.trim().lowercase()
 
-// ---------------------------------------------------------------- globito con el mensaje
+// ---------------------------------------------------------------- papel con la esquina doblada
 
-/** Lo que dice el globito: el título o, si no tiene, el texto. */
-private fun PetAlert.peekText() = title.ifBlank { body }
-
-/** Ancho aproximado del globito, para que su ventana no tape más de lo necesario. */
-fun peekWidthDp(alert: PetAlert): Int = maxOf(70, 48 + (alert.peekText().length * 7.6f).toInt())
+/** Doblez de la esquina del papel (Design, pedido de Cowork del 06/11). */
+private val FoldTone = Color(0xFFE9CFA6)
 
 /**
- * Primer paso del aviso, nada invasivo: solo el mensaje, en un globito que se desliza desde el costado
- * de la mascota ([side]: 1 ella a la izquierda, -1 a la derecha, 0 arriba o abajo). Tocarlo abre la tarjeta.
+ * Papel con una esquina de arriba recortada en diagonal ([fold]) y las otras redondeadas ([radius]).
+ * La esquina va arriba a la izquierda o, con [mirrored], arriba a la derecha. Como es una forma, la
+ * sombra sigue el recorte.
+ */
+class FoldedPaperShape(private val fold: Dp, private val radius: Dp, private val mirrored: Boolean) : androidx.compose.ui.graphics.Shape {
+    override fun createOutline(size: Size, layoutDirection: androidx.compose.ui.unit.LayoutDirection, density: Density): androidx.compose.ui.graphics.Outline {
+        val f = with(density) { fold.toPx() }
+        val r = with(density) { radius.toPx() }
+        val w = size.width
+        val h = size.height
+        fun x(v: Float) = if (mirrored) w - v else v
+        val p = Path().apply {
+            moveTo(x(f), 0f)
+            lineTo(x(w - r), 0f)
+            quadraticTo(x(w), 0f, x(w), r)
+            lineTo(x(w), h - r)
+            quadraticTo(x(w), h, x(w - r), h)
+            lineTo(x(r), h)
+            quadraticTo(x(0f), h, x(0f), h - r)
+            lineTo(x(0f), f)
+            close()
+        }
+        return androidx.compose.ui.graphics.Outline.Generic(p)
+    }
+}
+
+/** El doblez: un triángulo sobre la esquina recortada, con la punta redondeada. */
+private fun DrawScope.drawFold(fold: Float, mirrored: Boolean) {
+    val tip = fold * 0.28f
+    fun x(v: Float) = if (mirrored) size.width - v else v
+    val p = Path().apply {
+        moveTo(x(fold), 0f)
+        lineTo(x(fold), fold - tip)
+        quadraticTo(x(fold), fold, x(fold - tip), fold)
+        lineTo(x(0f), fold)
+        close()
+    }
+    drawPath(p, FoldTone)
+}
+
+/**
+ * Una patita de la mascota apoyada sobre el borde del papel que da a ella ([edgeX]), a la altura [y]:
+ * así parece que lo sostiene.
+ */
+private fun DrawScope.drawHoldingPaw(edgeX: Float, y: Float, fill: Color, line: Color) {
+    val w = 15.dp.toPx()
+    val h = w * 0.82f
+    val tl = Offset(edgeX - w / 2f, y - h / 2f)
+    drawOval(fill, tl, Size(w, h))
+    drawOval(line, tl, Size(w, h), style = Stroke(1.4.dp.toPx()))
+    for (t in listOf(-0.17f, 0.17f)) {
+        val ty = y + t * h
+        val x0 = if (edgeX > size.width / 2f) tl.x + w * 0.08f else tl.x + w * 0.62f
+        drawLine(line, Offset(x0, ty), Offset(x0 + w * 0.3f, ty), 1.2.dp.toPx(), StrokeCap.Round)
+    }
+}
+
+/** Curva de Design para que el papel se despliegue: arranca rápido y se asienta suave. */
+private val UnfoldEasing = androidx.compose.animation.core.CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
+
+/** Ancho del papelito y de la cartita (Design). */
+val SlipWidth: Dp = 176.dp
+val NoteWidth: Dp = 262.dp
+
+/** Lo que dice el papelito: el título o, si no tiene, el texto. */
+private fun PetAlert.peekText() = title.ifBlank { body }
+
+/**
+ * Segundo paso del aviso, después del globo de la onomatopeya: un papelito al costado de la mascota,
+ * que lo sostiene con la patita, con la hora arriba y el aviso abajo en una línea. [side]: 1 la mascota
+ * a la izquierda (el papel a su derecha, espejado), -1 a la derecha, 0 arriba. Tocarlo abre la cartita.
  */
 @Composable
-fun PeekNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, modifier: Modifier = Modifier) {
+fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, paw: Pair<Long, Long>, modifier: Modifier = Modifier) {
     val appear = remember(phase.id) { Animatable(0f) }
     LaunchedEffect(phase.id) { appear.animateTo(1f, tween(320, easing = FastOutSlowInEasing)) }
-    val shape = RoundedCornerShape(16.dp)
-    Box(modifier.fillMaxWidth().padding(6.dp)) {
-        Text(
-            phase.alert.peekText(),
-            fontFamily = Nunito, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Ink,
-            maxLines = 2, overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
+    val mirrored = side > 0
+    val shape = remember(mirrored) { FoldedPaperShape(18.dp, 14.dp, mirrored) }
+    val time = remember(phase.id) {
+        DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(phase.alert.eventBegin ?: System.currentTimeMillis()))
+    }
+    val text = TextStyle(fontFamily = Nunito)
+    Box(modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp)) {
+        Column(
+            Modifier
                 .align(if (side > 0) Alignment.TopStart else if (side < 0) Alignment.TopEnd else Alignment.TopCenter)
-                .padding(start = if (side > 0) 6.dp else 0.dp, end = if (side < 0) 6.dp else 0.dp)
+                .width(SlipWidth)
                 .graphicsLayer {
                     alpha = appear.value
                     translationX = (appear.value - 1f) * side * 12.dp.toPx()
+                    rotationZ = if (mirrored) 2f else -2f
                 }
-                // La colita, hacia la mascota (antes de la sombra, que recorta lo que sale de la forma).
                 .drawWithContent {
                     drawContent()
-                    if (side != 0) {
-                        val base = if (side > 0) 1.dp.toPx() else size.width - 1.dp.toPx()
-                        val tip = base - side * 7.dp.toPx()
-                        val half = 6.dp.toPx()
-                        val y = size.height / 2f
-                        drawPath(
-                            Path().apply { moveTo(base, y - half); lineTo(tip, y); lineTo(base, y + half); close() },
-                            NoteCream,
-                        )
-                    }
+                    drawFold(18.dp.toPx(), mirrored)
+                    if (side != 0) drawHoldingPaw(if (side > 0) 0f else size.width, size.height * 0.55f, Color(paw.first), Color(paw.second))
                 }
-                .shadow(4.dp, shape, ambientColor = Ink, spotColor = Ink)
-                .background(NoteCream, shape)
-                .border(1.dp, Line, shape)
+                .shadow(6.dp, shape, ambientColor = Ink, spotColor = Ink)
+                .background(Paper, shape)
                 .pointerInput(phase.id) {
                     detectTapGestures(onTap = { actions.onTap() }, onLongPress = { actions.onLongPress() })
                 }
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-        )
+                .padding(start = if (mirrored) 30.dp else 22.dp, end = if (mirrored) 22.dp else 30.dp, top = 9.dp, bottom = 10.dp),
+        ) {
+            Text(time, style = text, fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
+            Text(
+                phase.alert.peekText(), style = text,
+                fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
+                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
+            )
+        }
     }
 }
 
@@ -506,8 +572,10 @@ fun NoteCard(
     val alert = phase.alert
     val letter = phase.letter
     val tone = letter?.kind?.tone()
+    // Se despliega desde el papelito (o desde la carta): crece del lado de la mascota.
     val appear = remember(alert.key, letter?.id) { Animatable(0f) }
-    LaunchedEffect(alert.key, letter?.id) { appear.animateTo(1f, tween(280, easing = FastOutSlowInEasing)) }
+    LaunchedEffect(alert.key, letter?.id) { appear.animateTo(1f, tween(440, easing = UnfoldEasing)) }
+    val mirrored = side > 0
     val countdown = remember(alert.key) { Animatable(1f) }
     LaunchedEffect(alert.key, phase.autoHideMs) {
         phase.autoHideMs?.let { countdown.animateTo(0f, tween(it.toInt(), easing = LinearEasing)) }
@@ -522,7 +590,7 @@ fun NoteCard(
             else -> ctx.getString(R.string.note_from, who, time)
         }
     }
-    val shape = RoundedCornerShape(18.dp)
+    val shape = remember(mirrored) { FoldedPaperShape(22.dp, 18.dp, mirrored) }
     val text = TextStyle(fontFamily = Nunito)
     var cardWidth by remember { mutableIntStateOf(0) }
     BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -536,30 +604,36 @@ fun NoteCard(
         modifier
             .offset { IntOffset(cardX, 0) }
             .onSizeChanged { cardWidth = it.width }
-            .widthIn(min = NOTE_MIN_WIDTH)
-            .width(IntrinsicSize.Max)
-            .padding(start = 6.dp, end = 6.dp, bottom = 6.dp, top = if (held != null) 16.dp else 6.dp)
+            .widthIn(min = NOTE_MIN_WIDTH, max = NoteWidth + 20.dp)
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, bottom = 8.dp, top = if (held != null) 16.dp else 8.dp)
             .graphicsLayer {
-                alpha = appear.value.coerceIn(0f, 1f)
-                translationY = (1f - appear.value) * 14.dp.toPx()
-                rotationZ = if (letter != null) -1.5f else 0f
+                val a = appear.value
+                alpha = (a * 2f).coerceIn(0f, 1f)
+                scaleX = 0.67f + 0.33f * a
+                scaleY = 0.67f + 0.33f * a
+                transformOrigin = TransformOrigin(if (side > 0) 0f else if (side < 0) 1f else 0.5f, if (held != null) 0f else 0.35f)
+                rotationZ = if (mirrored) 1.5f else -1.5f
             }
-            // Las patitas de la mascota, apoyadas sobre el borde de arriba (por delante de la tarjeta).
             .drawWithContent {
                 drawContent()
-                held?.let { (x, petW) -> drawPaws(x - cardX - 6.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
+                drawFold(22.dp.toPx(), mirrored)
+                // Las patitas de la mascota: sobre el borde de arriba (debajo de ella) o sobre el costado que da a ella.
+                held?.let { (x, petW) -> drawPaws(x - cardX - 10.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
+                if (held == null && side != 0) {
+                    drawHoldingPaw(if (side > 0) 0f else size.width, 34.dp.toPx(), Color(paw.first), Color(paw.second))
+                }
             }
-            .shadow(8.dp, shape, ambientColor = Ink, spotColor = Ink)
-            .background(tone?.card ?: NoteCream, shape)
-            .border(1.5.dp, tone?.cardLine ?: Line, shape)
+            .shadow(6.dp, shape, ambientColor = Ink, spotColor = Ink)
+            .background(tone?.card ?: Paper, shape)
             .pointerInput(alert.key, letter?.id) {
                 detectTapGestures(onTap = { actions.onTap() }, onLongPress = { actions.onLongPress() })
             }
-            .padding(horizontal = 13.dp, vertical = 10.dp),
+            .padding(start = if (mirrored) 16.dp else 24.dp, end = if (mirrored) 24.dp else 16.dp, top = 14.dp, bottom = 12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                meta, style = text, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = InkMuted,
+                meta, style = text, fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.Bold, color = InkMuted,
                 maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
             // El sello de la carta (con su ícono), para que no dependa solo del color.
@@ -568,8 +642,8 @@ fun NoteCard(
         if (alert.title.isNotBlank()) {
             Text(
                 alert.title, style = text,
-                fontSize = 15.sp, lineHeight = 19.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
-                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
+                fontSize = 16.sp, lineHeight = 22.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
+                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp),
             )
         }
         if (alert.body.isNotBlank()) {
@@ -583,10 +657,10 @@ fun NoteCard(
         }
         val actionable = alert.source == PetAlert.Source.LOCAL || alert.source == PetAlert.Source.CALENDAR
         if (actionable || letter?.kind == LetterKind.PHRASE) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 12.dp)) {
                 if (actionable) {
                     Pill(stringResource(R.string.action_done), main = true, onClick = actions.onDone)
-                    Pill(stringResource(R.string.action_snooze), main = false, onClick = actions.onSnooze)
+                    Pill(stringResource(R.string.note_later), main = false, onClick = actions.onSnooze)
                 } else {
                     Pill(stringResource(R.string.action_thanks), main = true, onClick = actions.onDone)
                 }
@@ -625,20 +699,20 @@ private fun DrawScope.drawPaws(cx: Float, petW: Float, fill: Color, line: Color)
     }
 }
 
-/** Botón en pastilla, chico para no ser invasivo (Design: el principal en rosa suave, el otro con borde). */
+/** Botón en pastilla (Design): el principal en cocoa con letra clara; el otro, solo con borde. */
 @Composable
 private fun Pill(text: String, main: Boolean, onClick: () -> Unit) {
     val shape = RoundedCornerShape(50)
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .height(32.dp)
-            .background(if (main) BlushSoft else Color.Transparent, shape)
-            .then(if (main) Modifier else Modifier.border(1.dp, InkMuted.copy(alpha = 0.35f), shape))
+            .height(34.dp)
+            .background(if (main) Cocoa else Color.Transparent, shape)
+            .then(if (main) Modifier else Modifier.border(1.dp, Line, shape))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = if (main) 18.dp else 14.dp),
     ) {
-        Text(text, fontFamily = Nunito, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
+        Text(text, fontFamily = Nunito, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = if (main) SurfaceRaised else Cocoa)
     }
 }
 

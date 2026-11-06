@@ -431,7 +431,9 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         // La tarjeta va debajo de la mascota (ella la sostiene con las patitas) si entra; si no, al costado.
         // Borde de arriba de la tarjeta, medido desde abajo; la ventana empieza un poco más arriba (lugar para las patitas).
         val holdTop = petParams.y + (height * HOLD_OVERLAP).roundToInt()
-        val holdFits = card && needed + dp(HOLD_PAW_ROOM_DP) <= holdTop - dp(NAV_MARGIN_DP)
+        // Solo la carta abierta desde sus pies: el aviso se despliega al costado, desde el papelito.
+        val fromLetter = (state.phase as? FxPhase.Bubble)?.letter != null
+        val holdFits = card && fromLetter && needed + dp(HOLD_PAW_ROOM_DP) <= holdTop - dp(NAV_MARGIN_DP)
         state.held = null
         if (holdFits) {
             state.fxSide = 0
@@ -460,9 +462,11 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // La onomatopeya ocupa solo lo que mide el globo: no tapa la app de al lado más de lo necesario.
             if (call != null) fxParams.width = minOf(fxParams.width, dp(stickerWidth(call.text).value.toInt() + 4))
             fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
-            // El globito con el mensaje mide lo que su texto, y arranca pegado a la cara.
-            if (peek != null) {
-                fxParams.width = minOf(fxParams.width, dp(minOf(PEEK_MAX_DP, peekWidthDp(peek.alert))))
+            // El papelito y la cartita arrancan pegados al cuerpo: la mascota los sostiene con la patita.
+            if (peek != null || card) {
+                val overlap = ((1f - pet.mouthX - PEEK_FACE) * size).roundToInt()
+                fxParams.width = minOf(fullWidth, room + overlap - dp(2))
+                if (peek != null) fxParams.width = minOf(fxParams.width, dp(PEEK_MAX_DP))
                 fxParams.x = if (side > 0) petParams.x + ((pet.mouthX + PEEK_FACE) * size).roundToInt()
                 else petParams.x + ((pet.mouthX - PEEK_FACE) * size).roundToInt() - fxParams.width
             }
@@ -712,12 +716,19 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             LayoutParams.FLAG_LAYOUT_IN_SCREEN, PixelFormat.TRANSLUCENT,
         ).apply {
             softInputMode = LayoutParams.SOFT_INPUT_STATE_VISIBLE or LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-            windowAnimations = android.R.style.Animation_Dialog
+            // La cartita aparece sola (crece desde la mascota); sin la animación de diálogo.
+            windowAnimations = R.style.PetWindowNoAnimation
         }
+        // Dónde está la mascota, medido desde arriba de la pantalla: la cartita va a su lado.
+        val (_, sh) = screenSize()
+        val spot = PetSpot(petParams.x, sh - petParams.y - petParams.height, petParams.width, petParams.height, state.pet.mouthX)
+        val who = state.pet.subject(this)
         val view = ComposeView(this).apply {
             owner.attach(this)
             setContent {
                 QuickNoteCard(
+                    who = who,
+                    pet = spot,
                     onSave = { title, at -> saveQuickNote(title, at) },
                     onCancel = ::closeQuickNote,
                 )
@@ -1738,7 +1749,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val DND_GRACE_MS = 60_000L
         private const val MULTI_TAP_WINDOW_MS = 320L
         private const val LONG_PRESS_MS = 650L
-        private const val FX_WIDTH_DP = 260
+        private const val FX_WIDTH_DP = 284
         /** Lugar mínimo al costado de la mascota para poner ahí el globo, el sonido o los corazones. */
         private const val SIDE_MIN_DP = 150
         private const val FX_HEIGHT_DP = 300
@@ -1752,12 +1763,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val CARD_SIDE_MIN_DP = 200
         /** Cuánto dura la onomatopeya antes de que aparezca la tarjeta. */
         private const val CALL_MS = 2_100L
-        /** Globito con el mensaje: lugar mínimo al costado, ancho máximo y alto de su ventana. */
-        private const val PEEK_SIDE_MIN_DP = 110
-        private const val PEEK_MAX_DP = 176
+        /** Papelito con el mensaje: lugar mínimo al costado, ancho máximo (176 dp + márgenes) y alto de su ventana. */
+        private const val PEEK_SIDE_MIN_DP = 150
+        private const val PEEK_MAX_DP = 200
         private const val PEEK_WINDOW_DP = 84
-        /** Del borde de arriba de su ventana al centro del globito de una línea (va a la altura de la boca). */
-        private const val PEEK_CENTER_DP = 23
+        /** Del borde de arriba de su ventana al centro del papelito (va a la altura de la boca). */
+        private const val PEEK_CENTER_DP = 36
         /** Dónde empieza el globito, en fracción del ancho de la ventana de la mascota desde la boca. */
         private const val PEEK_FACE = 0.3f
         /** Media cara de la mascota, en fracción del ancho de su ventana (la punta del pico va ahí). */
