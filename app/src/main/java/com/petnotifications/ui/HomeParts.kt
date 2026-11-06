@@ -40,12 +40,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -233,18 +231,16 @@ fun PetStrip(
     val c = Pet.colors
     val shape = RoundedCornerShape(14.dp)
     val proWord = stringResource(R.string.pro_word)
-    val soonWord = stringResource(R.string.pet_soon)
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        // Las del pack que todavía no salió van al final, como silueta con "Pronto".
-        (listOf(mine) + (PetType.launch - mine) + PetType.entries.filter { !it.available }).chunked(6).forEach { row ->
+        // Las del pack que todavía no salió no aparecen: llegan de sorpresa.
+        (listOf(mine) + (PetType.launch - mine)).chunked(6).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 row.forEach { p ->
-                    val soon = !p.available
-                    val locked = isLocked(p) && !soon
+                    val locked = isLocked(p)
                     val name = stringResource(p.nameRes)
                     val a11y = stringResource(
                         R.string.pet_strip_a11y,
-                        when { soon -> "$name, $soonWord"; locked -> "$name, $proWord"; else -> name },
+                        if (locked) "$name, $proWord" else name,
                     )
                     Box(
                         contentAlignment = Alignment.Center,
@@ -257,26 +253,14 @@ fun PetStrip(
                                 when {
                                     p == mine -> Modifier.border(2.dp, c.cocoa, shape)
                                     p == previewed -> Modifier.dashedBorder(c.cocoa, 14.dp)
-                                    locked || soon -> Modifier.dashedBorder(c.line, 14.dp)
+                                    locked -> Modifier.dashedBorder(c.line, 14.dp)
                                     else -> Modifier.border(1.dp, c.line, shape)
                                 },
                             )
                             .clickable(role = Role.Button) { onClick(p) }
                             .clearAndSetSemantics { contentDescription = a11y },
                     ) {
-                        if (soon) {
-                            Image(
-                                petPainter(p, PetView.FRONT), contentDescription = null,
-                                colorFilter = ColorFilter.tint(c.inkMuted),
-                                modifier = Modifier.fillMaxSize().padding(start = 7.dp, end = 7.dp, top = 3.dp, bottom = 13.dp).alpha(0.3f),
-                            )
-                            Text(
-                                soonWord, fontSize = 9.sp, lineHeight = 10.sp, fontWeight = FontWeight(800), color = c.inkMuted, maxLines = 1,
-                                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 3.dp),
-                            )
-                        } else {
-                            Image(petPainter(p, PetView.FRONT, coatOf(p)), contentDescription = null, modifier = Modifier.fillMaxSize().padding(5.dp))
-                        }
+                        Image(petPainter(p, PetView.FRONT, coatOf(p)), contentDescription = null, modifier = Modifier.fillMaxSize().padding(5.dp))
                         if (locked) {
                             Icon(
                                 Icons.Outlined.Lock, contentDescription = null, tint = c.inkMuted,

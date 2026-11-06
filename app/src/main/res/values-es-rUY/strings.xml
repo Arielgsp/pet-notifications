@@ -106,7 +106,7 @@
     <string name="bond_morning_some">¡Buen día! Hoy tenemos %1$d cosas.</string>
     <string name="bond_path_intro">Cada vez que me decís “Listo”, nos conocemos un poco más. Nunca se pierde lo ganado.</string>
     <string name="tut_bond_body">Cada vez que marcás “Listo”, sumo un corazón. Con los corazones subo de nivel y aprendo trucos nuevos. Lo ves en la pestaña Mascota.</string>
-    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un globito a su costado. Tocalo para abrir el aviso completo. Tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un papelito a su costado. Tocalo para abrir la cartita. Tocá la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
     <string name="friendly_help">De vez en cuando tu mascota te deja una carta con una hojita y un mensajito (“tomá agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.</string>
     <string name="letters_help_body">Campanita: un aviso pendiente, que cerraste tocando la mascota sin Listo ni Aplazar. Luna: un aviso sin interrumpir. Hojita: un mensajito de tu mascota. Tocá las cartas para abrir la de arriba.</string>
     <string name="trial_notice_body_back">Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, podés quedarte con Pro.</string>

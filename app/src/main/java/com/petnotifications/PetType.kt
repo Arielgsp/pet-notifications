@@ -44,16 +44,16 @@ enum class PetType(
     /** León, mono, rana y búho: el pack "Amigos salvajes", que sale después del lanzamiento. */
     val wild: Boolean get() = this in WILD
 
-    /** Se puede elegir o probar. Las del pack, todavía no: se ven como silueta con "Pronto". */
+    /** Se puede elegir o probar. Las del pack, todavía no: no aparecen en ningún lado (es sorpresa). */
     val available: Boolean get() = !wild || WILD_PACK_OUT
 
     companion object {
         val WILD = setOf(LION, MONKEY, FROG, OWL)
 
         /**
-         * El pack "Amigos salvajes" ya salió. Al pasarlo a true falta: el producto en Play, que lo
-         * tengan quienes compraron el pack y, de regalo, quienes compraron Pro antes de que saliera
-         * (por la fecha de compra de Pro). Ver docs/PENDIENTES.md.
+         * El pack "Amigos salvajes" ya salió. Al pasarlo a true falta: el producto en Play (se vende
+         * aparte de Pro, sin regalo para quien ya tiene Pro) y que lo tengan quienes lo compraron.
+         * Ver docs/PENDIENTES.md.
          */
         const val WILD_PACK_OUT = false
 

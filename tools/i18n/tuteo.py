@@ -109,7 +109,7 @@ T = {
     'bond_morning_some': '¡Buenos días! Hoy tenemos %1$d cosas.',
     'bond_path_intro': 'Cada vez que me dices “Listo”, nos conocemos un poco más. Nunca se pierde lo ganado.',
     'tut_bond_body': 'Cada vez que marcas “Listo”, sumo un corazón. Con los corazones subo de nivel y aprendo trucos nuevos. Lo ves en la pestaña Mascota.',
-    'bubble_help': 'Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un globito a su costado. Tócalo para abrir el aviso completo. Toca la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).',
+    'bubble_help': 'Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un papelito a su costado. Tócalo para abrir la cartita. Toca la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).',
     'friendly_help': 'De vez en cuando tu mascota te deja una carta con una hojita y un mensajito (“toma agua”, “éxito en tu jornada”). Sin sonido, entre las 9 y las 21, nunca en tu horario de No molestar.',
     'letters_help_body': 'Campanita: un aviso pendiente, que cerraste tocando la mascota sin Listo ni Aplazar. Luna: un aviso sin interrumpir. Hojita: un mensajito de tu mascota. Toca las cartas para abrir la de arriba.',
     'trial_notice_body_back': 'Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, puedes quedarte con Pro.',

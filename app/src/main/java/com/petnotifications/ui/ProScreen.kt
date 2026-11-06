@@ -79,6 +79,8 @@ fun ProDialog(onDismiss: () -> Unit) {
                 CompareRow(stringResource(R.string.pro_row_pets), stringResource(R.string.pro_row_pets_free), stringResource(R.string.pro_row_pets_pro))
                 CompareRow(stringResource(R.string.pro_row_reminders), yes, yes)
                 CompareRow(stringResource(R.string.pro_row_pet_life), yes, yes)
+                CompareRow(stringResource(R.string.pro_row_caramel), no, yes)
+                CompareRow(stringResource(R.string.pro_row_bond_skip), no, yes)
                 CompareRow(stringResource(R.string.pro_row_insist), stringResource(R.string.pro_row_insist_free), stringResource(R.string.pro_row_insist_pro))
                 CompareRow(stringResource(R.string.pro_row_calendar), no, yes)
                 CompareRow(stringResource(R.string.pro_row_voice), no, yes)

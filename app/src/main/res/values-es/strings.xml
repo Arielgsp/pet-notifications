@@ -222,6 +222,8 @@
     <string name="pro_row_calendar">Avisos de Google Calendar</string>
     <string name="pro_row_voice">Onomatopeya en voz alta</string>
     <string name="pro_row_bedtime">Horario de No molestar</string>
+    <string name="pro_row_caramel">Globo Caramelo (el rosa)</string>
+    <string name="pro_row_bond_skip">Adelantar el camino de amistad</string>
     <string name="pro_row_ghost">Modo fantasma</string>
     <string name="pro_row_look">Tamaño y transparencia</string>
     <string name="pro_row_coats">Pelajes</string>
@@ -408,8 +410,6 @@
     <string name="see_pro">Ver Pro</string>
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tocar para ver</string>
-    <string name="pet_soon">Pronto</string>
-    <string name="pet_soon_toast">Pronto vas a poder jugar con nuevos amigos.</string>
     <string name="coat_pack_body">Pack con todos los pelajes de %1$s</string>
     <string name="coat_pack_bought">¡Listo! Ya tienes todos mis pelajes.</string>
     <string name="bond_line_a11y">%1$s, nivel %2$d. Tocar para ver nuestro camino</string>
@@ -594,6 +594,11 @@
     <string name="bond_missing_many">Faltan %1$d «Listo» para el nivel %2$d</string>
     <string name="bond_max">Llegamos al último nivel. ¡Gracias por cuidarme!</string>
     <string name="bond_path_title">Nuestro camino</string>
+    <string name="bond_skip_title">Adelantar todo el camino</string>
+    <string name="bond_skip_sub">Todos los trucos y accesorios del camino, ya mismo (nivel %1$d).</string>
+    <string name="bond_skip_confirm_title">¿Adelantar todo el camino?</string>
+    <string name="bond_skip_confirm_body">Tu mascota sube al nivel %1$d y aprende todo de una vez. No se puede deshacer.</string>
+    <string name="bond_skip_ok">Adelantar</string>
     <string name="bond_path_intro">Cada vez que me dices “Listo”, nos conocemos un poco más. Nunca se pierde lo ganado.</string>
     <string name="bond_soon">Muy pronto</string>
     <string name="bond_now">ahora</string>
@@ -636,7 +641,7 @@
     <string name="row_bubble">Globo del aviso</string>
     <string name="bubble_caramel">Caramelo</string>
     <string name="bubble_cloud">Nubecita</string>
-    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un globito a su costado. Tócalo para abrir el aviso completo. Toca la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
+    <string name="bubble_help">Cuando llega un aviso, tu mascota dice su sonido en este globo y después te muestra el mensaje en un papelito a su costado. Tócalo para abrir la cartita. Toca la mascota para dejarlo para después (queda una carta pendiente a sus pies, con una campanita).</string>
     <string name="quiet_title">Avisos sin interrumpir</string>
     <string name="quiet_sub">No aparecen en pantalla ni suenan: tu mascota deja una carta con una luna a sus pies. También se puede elegir en cada recordatorio.</string>
     <string name="friendly_title">Frases amigables</string>

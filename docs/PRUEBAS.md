@@ -1003,6 +1003,22 @@ Para ver el casco fuera de temporada: Ajustes, 7 toques en la versión, "Mostrar
 
 ---
 
+## 74. Pack sorpresa, globo Caramelo y adelantar el camino (versión 1.0.65)
+
+Para probar con y sin Pro: Herramientas de dueño → plan.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 74.1 | Pantalla Mascota, lista de mascotas. | Solo las 7 (perro, gato, pato, vaca, cerdito, pollito, conejo). Ninguna silueta ni "Pronto". | |
+| 74.2 | Sin Pro: Ajustes → Cómo te aviso. | Caramelo apagado con la etiqueta PRO; tocarlo abre los planes. Nubecita elegida. | |
+| 74.3 | Con Pro: elegí Caramelo y esperá un aviso. | El "guau" sale en el globo rosa. | |
+| 74.4 | Con Caramelo elegido, pasá a plan gratis. | El próximo aviso sale en Nubecita, y en Ajustes figura Nubecita. Al volver a Pro, vuelve el Caramelo. | |
+| 74.5 | Sin Pro: Mascota → tocá el nivel → al final de Nuestro camino. | "Adelantar todo el camino" con PRO; tocarlo abre los planes. | |
+| 74.6 | Con Pro: tocá "Adelantar todo el camino". | Pregunta "¿Adelantar todo el camino?". Cancelar no cambia nada. Adelantar: nivel 8, festejo de la corona y el botón desaparece. | |
+| 74.7 | Planes (Ver Pro). | Dos filas nuevas: "Globo Caramelo (el rosa)" y "Adelantar el camino de amistad", solo en Pro. | |
+
+---
+
 ## Si algo falla
 
 Anotá el número de prueba, qué pasó y a qué hora. Si podés, sacá una captura de pantalla.

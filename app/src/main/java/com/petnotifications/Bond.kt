@@ -155,6 +155,16 @@ object Bond {
     private fun readyUpTo(level: Level): Set<String> =
         LEVELS.filter { it.number <= level.number && it.reward.ready }.map { it.reward.name }.toSet()
 
+    // ---------------------------------------------------------------- Pro: adelantar el camino
+
+    /** Con Pro se puede llegar de una vez al último nivel (se festeja como una subida de nivel). */
+    @Synchronized
+    fun skipToEnd(ctx: Context) {
+        val sp = sp(ctx)
+        val top = LEVELS.last().from
+        if (sp.getInt(KEY_HEARTS, 0) < top) sp.edit(commit = true) { putInt(KEY_HEARTS, top) }
+    }
+
     // ---------------------------------------------------------------- herramientas de dueño
 
     /** Suma corazones para probar los niveles (los festejos salen como siempre). */

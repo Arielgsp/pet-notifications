@@ -223,6 +223,8 @@
     <string name="pro_row_calendar">Google Calendar alerts</string>
     <string name="pro_row_voice">Sound said out loud</string>
     <string name="pro_row_bedtime">Do not disturb hours</string>
+    <string name="pro_row_caramel">Caramel bubble (the pink one)</string>
+    <string name="pro_row_bond_skip">Skip ahead on the friendship path</string>
     <string name="pro_row_ghost">Ghost mode</string>
     <string name="pro_row_look">Size and transparency</string>
     <string name="pro_row_coats">Coats</string>
@@ -409,8 +411,6 @@
     <string name="see_pro">See Pro</string>
     <string name="pro_word">Pro</string>
     <string name="pet_strip_a11y">%1$s, tap to view</string>
-    <string name="pet_soon">Soon</string>
-    <string name="pet_soon_toast">Soon you’ll be able to play with new friends.</string>
     <string name="coat_pack_body">Pack with every coat for the %1$s</string>
     <string name="coat_pack_bought">Done! All my coats are yours now.</string>
     <string name="bond_line_a11y">%1$s, level %2$d. Tap to see our path</string>
@@ -595,6 +595,11 @@
     <string name="bond_missing_many">%1$d more “Done” to level %2$d</string>
     <string name="bond_max">We reached the last level. Thanks for taking care of me!</string>
     <string name="bond_path_title">Our path</string>
+    <string name="bond_skip_title">Skip to the end of the path</string>
+    <string name="bond_skip_sub">All the tricks and accessories on the path, right now (level %1$d).</string>
+    <string name="bond_skip_confirm_title">Skip to the end of the path?</string>
+    <string name="bond_skip_confirm_body">Your pet jumps to level %1$d and learns everything at once. This can’t be undone.</string>
+    <string name="bond_skip_ok">Skip ahead</string>
     <string name="bond_path_intro">Every time you tell me “Done”, we get to know each other a little more. What we earn is never lost.</string>
     <string name="bond_soon">Coming soon</string>
     <string name="bond_now">now</string>
@@ -637,7 +642,7 @@
     <string name="row_bubble">Alert bubble</string>
     <string name="bubble_caramel">Caramel</string>
     <string name="bubble_cloud">Little cloud</string>
-    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble and then shows you the message in a small bubble beside it. Tap it to open the full alert. Tap your pet to leave it for later (a pending letter with a little bell stays at its feet).</string>
+    <string name="bubble_help">When an alert arrives, your pet says its sound in this bubble and then shows you the message on a slip of paper beside it. Tap it to open the note. Tap your pet to leave it for later (a pending letter with a little bell stays at its feet).</string>
     <string name="quiet_title">Quiet alerts</string>
     <string name="quiet_sub">They don’t pop up or make a sound: your pet leaves a letter with a moon at its feet. You can also choose it for each reminder.</string>
     <string name="friendly_title">Friendly notes</string>

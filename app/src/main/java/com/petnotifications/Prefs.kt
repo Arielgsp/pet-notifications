@@ -88,9 +88,9 @@ class Prefs(context: Context) {
         get() = sp.getInt(KEY_THEME, THEME_SYSTEM)
         set(v) = sp.edit { putInt(KEY_THEME, v) }
 
-    /** Globo del aviso: [BUBBLE_CLOUD] (nubecita, por defecto) o [BUBBLE_CARAMEL] (borde festoneado rosa). */
+    /** Globo del aviso: [BUBBLE_CLOUD] (nubecita, por defecto) o [BUBBLE_CARAMEL] (borde festoneado rosa, Pro). */
     var bubbleStyle: Int
-        get() = sp.getInt(KEY_BUBBLE_STYLE, BUBBLE_CLOUD)
+        get() = if (isPro) sp.getInt(KEY_BUBBLE_STYLE, BUBBLE_CLOUD) else BUBBLE_CLOUD
         set(v) = sp.edit { putInt(KEY_BUBBLE_STYLE, v) }
 
     /** Todos los avisos "sin interrumpir": no aparecen en pantalla, la mascota deja una carta sin interrumpir. */

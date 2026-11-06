@@ -303,7 +303,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     /** Compró Pro, terminó la prueba o eligió sus mascotas gratis: se reaplica todo lo que depende de Pro. */
     private fun onProChanged() {
         lastPro = prefs.isPro
-        listOf(Prefs.KEY_PET, Prefs.KEY_GHOST, Prefs.KEY_SIZE, Prefs.KEY_BEDTIME).forEach { onSharedPreferenceChanged(null, it) }
+        listOf(Prefs.KEY_PET, Prefs.KEY_GHOST, Prefs.KEY_SIZE, Prefs.KEY_BEDTIME, Prefs.KEY_BUBBLE_STYLE).forEach { onSharedPreferenceChanged(null, it) }
     }
 
     // ---------------------------------------------------------------- ventanas

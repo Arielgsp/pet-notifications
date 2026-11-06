@@ -5,6 +5,7 @@ import com.petnotifications.Slot
 import com.petnotifications.Outfit
 import com.petnotifications.pro.ProBilling
 import com.petnotifications.Accessory
+import androidx.compose.material.icons.outlined.FastForward
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material.icons.outlined.Medication
@@ -257,7 +258,7 @@ fun SettingsScreen(
     val isPro = prefs.isPro
     var showPro by remember { mutableStateOf(false) }
     var theme by remember { mutableIntStateOf(prefs.theme) }
-    var bubbleStyle by remember { mutableIntStateOf(prefs.bubbleStyle) }
+    var bubbleStyle by remember(isPro) { mutableIntStateOf(prefs.bubbleStyle) }
     var quietAlerts by remember { mutableStateOf(prefs.quietAlerts) }
     var friendly by remember { mutableIntStateOf(prefs.friendlyLevel) }
     /** Mascota y pelaje Pro que se están probando en la mascota flotante (sin Pro), o null. */
@@ -1211,7 +1212,6 @@ fun SettingsScreen(
                 mine = pet, previewed = preview, isLocked = { p -> freeMode && p !in prefs.freePets }, coatOf = { p -> if (p == pet) coatOf(p) else 0 },
             ) { p ->
                 when {
-                    !p.available -> android.widget.Toast.makeText(ctx, R.string.pet_soon_toast, android.widget.Toast.LENGTH_SHORT).show()
                     p == pet -> {
                         previewPet = null
                         previewCoat = 0
@@ -1550,23 +1550,32 @@ fun SettingsScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(top = 10.dp)) {
                 listOf(Prefs.BUBBLE_CARAMEL to R.string.bubble_caramel, Prefs.BUBBLE_CLOUD to R.string.bubble_cloud).forEach { (style, label) ->
                     val selected = bubbleStyle == style
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(16.dp))
-                            .border(if (selected) 2.dp else 1.dp, if (selected) c.cocoa else c.line, RoundedCornerShape(16.dp))
-                            .clickable {
-                                bubbleStyle = style
-                                prefs.bubbleStyle = style
-                            }
-                            .padding(vertical = 8.dp),
-                    ) {
-                        StickerBubble(word, style, mirrored = false, id = style.toLong())
-                        Text(
-                            stringResource(label), style = MaterialTheme.typography.labelLarge,
-                            color = if (selected) c.cocoa else c.inkMuted,
-                        )
+                    // El Caramelo (el rosa) es de Pro: sin Pro se ve apagado y tocarlo abre los planes.
+                    val locked = style == Prefs.BUBBLE_CARAMEL && !isPro
+                    Box(Modifier.weight(1f)) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp))
+                                .border(if (selected) 2.dp else 1.dp, if (selected) c.cocoa else c.line, RoundedCornerShape(16.dp))
+                                .clickable {
+                                    if (locked) {
+                                        showPro = true
+                                    } else {
+                                        bubbleStyle = style
+                                        prefs.bubbleStyle = style
+                                    }
+                                }
+                                .padding(vertical = 8.dp),
+                        ) {
+                            Box(Modifier.alpha(if (locked) 0.5f else 1f)) { StickerBubble(word, style, mirrored = false, id = style.toLong()) }
+                            Text(
+                                stringResource(label), style = MaterialTheme.typography.labelLarge,
+                                color = if (selected) c.cocoa else c.inkMuted,
+                            )
+                        }
+                        if (locked) ProCorner(Modifier.align(Alignment.TopEnd))
                     }
                 }
             }
@@ -1839,6 +1848,33 @@ fun SettingsScreen(
     @Composable
     fun PathPage(padding: PaddingValues) = SubPage(padding) {
         BondPathList(bondHearts)
+        // Con Pro se puede adelantar todo el camino (sin Pro, tocarlo abre los planes).
+        val top = Bond.LEVELS.last()
+        if (bondHearts < top.from) {
+            var confirm by remember { mutableStateOf(false) }
+            PetCard(padding = 0.dp) {
+                SettingRow(
+                    Icons.Outlined.FastForward, stringResource(R.string.bond_skip_title),
+                    stringResource(R.string.bond_skip_sub, top.number),
+                    trailing = if (!isPro) ({ ProTag() }) else null,
+                    onClick = { if (isPro) confirm = true else showPro = true },
+                )
+            }
+            if (confirm) {
+                AlertDialog(
+                    onDismissRequest = { confirm = false },
+                    title = { Text(stringResource(R.string.bond_skip_confirm_title)) },
+                    text = { Text(stringResource(R.string.bond_skip_confirm_body, top.number)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            confirm = false
+                            Bond.skipToEnd(ctx)
+                        }) { Text(stringResource(R.string.bond_skip_ok), color = c.cocoa, fontWeight = FontWeight(800)) }
+                    },
+                    dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.cancel)) } },
+                )
+            }
+        }
     }
 
     /** "Cómo se ve la mascota": su nombre, tamaño y transparencia (Pro), modo fantasma y qué tan inquieta es. */
