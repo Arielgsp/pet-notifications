@@ -1,5 +1,7 @@
 # Pet Notifications — guía de estilo
 
+> **Histórico: no vigente.** Es la guía de los primeros dibujos (Fredoka, globo de cómic, 10 mascotas). Colores, letras y componentes vigentes: el Design System (https://claude.ai/artifact/E13qkSQK22UezSXtJgWZ6o) y `ui/Theme.kt`. Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 ## Personalidad
 Tierna, cálida y juguetona. La mascota es una compañera, no una alarma: los avisos se sienten
 como un amigo que te habla, nunca como un reto.

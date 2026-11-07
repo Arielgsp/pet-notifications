@@ -1,12 +1,18 @@
 # MimuPet 🐶
 
-App Android donde una mascota (perro, gato, pato, rana, vaca, chancho, pollito, león, mono o búho)
-vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recordatorios y eventos.
+App Android donde una mascota (perro, gato, conejo, pato, cerdito, pollito o vaca) vive **siempre en
+pantalla**, encima de cualquier app, y te avisa de tus recordatorios y eventos. El nombre del paquete
+(`com.petnotifications`) y del repositorio quedan del nombre viejo, Pet Notifications.
+
+> **Lo vigente:** las decisiones al día están en [docs/mimupet-cowork/LEEME-traspaso.md](docs/mimupet-cowork/LEEME-traspaso.md)
+> y lo abierto en [docs/PENDIENTES.md](docs/PENDIENTES.md). Si este README contradice a esos archivos, mandan ellos.
 
 ## Cómo avisa
-1. La mascota se sacude y le sale de la boca una **onomatopeya** estilo cómic ("¡Guau!", "¡Miau!", "¡Cuac!"…),
-   opcionalmente dicha en voz alta.
-2. Aparece un **globo de texto de cómic** con el aviso, con la colita apuntando a la mascota.
+1. La mascota dice su sonido en un **globo** al costado ("guau", "miau", "cuac"…), opcionalmente en voz alta
+   (Pro). El globo es la **Nubecita**; con Pro se puede elegir el **Caramelo** (el rosa).
+2. Después sostiene con la patita un **papelito** con la esquina doblada, con la hora y el aviso.
+3. Al tocar el papelito se despliega la **cartita**, con **Listo** y **Más tarde**. Si en cambio se toca la
+   mascota, el aviso queda como una carta pendiente a sus pies.
 
 ## Interacción con la mascota
 | Gesto | Resultado |
@@ -17,6 +23,10 @@ vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recorda
 | 3 toques | Libre por ahora |
 | 1 toque dormida | La despierta |
 | Mantener apretado | Abre la app |
+| Tirón rápido ← | Próximos avisos |
+| Tirón rápido ↓ | Recordatorio rápido: una cartita de papel con 10 min · 30 min · 1 hora · Mañana 9:00 · calendario |
+| Tirón rápido ↑ | Se esconde 1 hora |
+| Tirón rápido → | Avisos en silencio hasta otro tirón |
 
 ## Primera vez
 Una **configuración guiada por la mascota** explica cada permiso antes de pedirlo (mostrar sobre otras
@@ -25,7 +35,7 @@ Todo es opcional: sin el permiso flotante la app avisa con notificaciones comune
 ver desde Ajustes › Permisos.
 
 ## Configuración
-- **Hecho / Posponer** en el globo y en la notificación. "Hecho" festeja (salto, ojitos felices y
+- **Listo / Más tarde** en la cartita y en la notificación (en el código siguen los nombres viejos, Hecho y Posponer). "Listo" festeja (salto, ojitos felices y
   corazón) y queda anotado en el teléfono (tabla `completions`, para rachas). Nunca se escribe en el
   calendario del usuario.
 - **Insistir si no respondés:** cada 5–30 min (o nunca), hasta 1, 3 o 5 veces. Cada repetición es un
@@ -56,6 +66,11 @@ ver desde Ajustes › Permisos.
 - **Hora de dormir:** se echa y se duerme tras 1, 2 o 4 h sin avisos ni mimos, y/o en tu horario de sueño
   (por ejemplo 22:00 a 07:00). Un aviso nuevo o un toque la despiertan.
 - **Recordatorios propios:** título, nota, fecha, hora y repetición (una vez / diario / semanal).
+- **Camino de la mascota (vínculo):** cada "Listo" suma un corazón (tope 10 por día) y el primer mimo del
+  día otro. Con los corazones la mascota gana premios: trucos (dar la patita, bailar) y accesorios que se
+  ponen en Vestir (pañuelo, camita, gorrito, corona). Es del usuario, nunca resta y viaja con la copia de
+  seguridad (`Bond.kt`). **Decidido el 07/11 y todavía no hecho:** 8 premios a 3, 10, 22, 40, 65, 95, 135 y
+  180 corazones, sin niveles a la vista (hoy la app muestra 8 niveles con nombre).
 - **Google Calendar / Gmail:** lee los calendarios sincronizados en el teléfono (sin OAuth ni API keys).
   Elegís qué calendarios y con cuánta anticipación (al empezar, 5, 10, 15, 30 o 60 min). Los eventos de
   todo el día se ignoran. "Borrar" sobre un evento de Google solo descarta el aviso; nunca modifica tu calendario.
@@ -81,10 +96,14 @@ ver desde Ajustes › Permisos.
   diseños del lienzo; no se editan a mano.
 
 ## Gratis y Pro
-Un solo pago (`pro_lifetime`, Google Play Billing). Los primeros días desde la primera apertura
-son Pro de prueba: 14 en la versión `production` y 7 en `closedTest` (sabores en `app/build.gradle.kts`). Gratis: 2 mascotas a elección, recordatorios, globo, mimos,
-sueño por inactividad e "insistir" cada 10 min hasta 3 veces. Pro: las 10 mascotas, Google Calendar,
-insistir a gusto, voz, horario de sueño, tamaño y opacidad (el modo fantasma es gratis). El límite se aplica en
+Un solo pago (`pro_lifetime`, Google Play Billing; USD 2,49 de lanzamiento y 3,99 de base, por región).
+Los primeros 7 días desde la primera apertura son Pro de prueba, en los dos sabores. Gratis: 1 mascota a
+elección, recordatorios, recordatorio rápido, Nubecita, mimos, frases, camino, sueño, modo fantasma e
+"insistir" cada 10 min hasta 3 veces. Pro: las 7 mascotas, globo Caramelo, Google Calendar, insistir a
+gusto, voz, horario de No molestar, tamaño y opacidad. **En el lanzamiento no se vende nada más que Pro**
+(decisión del 07/11): los packs de pelajes (`coats_*`), los accesorios de temporada (`acc_*`) y el pack de
+animales nuevos quedan en el código, escondidos con un interruptor. La versión 1.0.65 todavía muestra los
+pelajes a la venta y "Adelantar todo el camino"; se sacan con el pedido `2026-11-07-lanzamiento-solo-pro.md`. El límite se aplica en
 los getters de `Prefs` (lo elegido queda guardado y vuelve al comprar). `pro/ProBilling` consulta la
 compra a Play en cada apertura (sirve también de "Restaurar compras") y la guarda en el teléfono.
 "Enviar comentarios" (`ui/Feedback.kt`) abre la app de correo con un resumen técnico que el usuario
@@ -93,8 +112,10 @@ programados, los entregados en los últimos 30 días (con mascota o solo notific
 máxima, cuántos tarde) y el estado de los permisos; usa el registro `deliveries`.
 
 ## Idiomas
-Inglés por defecto (`res/values/strings.xml`) y español (`res/values-es/strings.xml`); ningún texto
-visible está escrito en el código. Cada mascota tiene nombre y onomatopeya por idioma ("Woof!" /
+Inglés por defecto (`res/values/strings.xml`), español neutro con tuteo (`res/values-es`) y voseo solo en
+Argentina y Uruguay (`values-es-rAR`, `values-es-rUY`). Los textos se editan en `tools/i18n/strings.py` (voseo e
+inglés) y `tools/i18n/tuteo.py` (neutro), y se generan con `python -X utf8 tools/i18n/gen_xml.py --write`; ningún
+texto visible está escrito en el código. En neutro el chancho es «Cerdito». Cada mascota tiene nombre y onomatopeya por idioma ("Woof!" /
 "¡Guau!"), y la voz habla en el idioma de los textos (`tts_language`), con una voz instalada en el
 teléfono. En Android 13+ se puede elegir el idioma solo para la app (`res/xml/locales_config.xml`).
 Para sumar portugués: `values-pt/strings.xml` + `<locale android:name="pt" />` en `locales_config.xml`.
@@ -108,7 +129,7 @@ archivo, la versión final se firma con la llave de prueba y Google Play la rech
 `appVersionCode` (gradle.properties) en cada entrega.
 
 ## Privacidad
-Texto oficial para la ficha y la política de privacidad (acordado con Cowork, 28/09): "La app no tiene acceso a internet: tus datos nunca llegan a nosotros. Si tenés activada la copia de seguridad de Android, tus recordatorios se guardan en tu propia cuenta de Google." (`allowBackup` sigue activado a propósito; al restaurar, `RestoreCheck` reprograma las alarmas.) `app/build.gradle.kts` tiene la tarea
+Texto oficial para la ficha y la política de privacidad (acordado con Cowork, 28/09; en la ficha va en neutro): "La app no tiene acceso a internet: tus datos nunca llegan a nosotros. Si tenés activada la copia de seguridad de Android, tus recordatorios se guardan en tu propia cuenta de Google." (`allowBackup` sigue activado a propósito; al restaurar, `RestoreCheck` reprograma las alarmas.) `app/build.gradle.kts` tiene la tarea
 `verifyNoNetworkPermissions`, que hace fallar la compilación de release si alguna librería agrega
 `INTERNET` o `ACCESS_NETWORK_STATE` al manifiesto final. La librería de compras de Google Play trae esos dos permisos
 (para mandarle a Google reportes de la propia librería); se quitan en el manifiesto con
@@ -129,5 +150,5 @@ APK: `app/build/outputs/apk/debug/app-debug.apk`.
 - **Solo Android.** iOS no permite que una app dibuje encima de otras, así que una mascota "siempre en pantalla" no es posible ahí.
 - Algunos fabricantes (Xiaomi, Huawei, Samsung) cierran servicios en segundo plano: conviene tocar
   "Batería sin restricciones" en la app.
-- Los emojis se ven según la fuente del teléfono. Para una mascota con arte propio se pueden reemplazar
-  por sprites o animaciones Lottie en `PetViews.kt`.
+- Las mascotas se dibujan con un modelo 2,5D (`overlay/PetModel.kt`, generado desde `tools/pet_art/`) y
+  dibujos fijos (`res/drawable/pet_*`); ninguno se edita a mano.

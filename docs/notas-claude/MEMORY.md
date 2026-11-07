@@ -1,7 +1,10 @@
-- [Pet Notifications project](pet-notifications-project.md) — original requirements, design decisions, open items
+- [Pet Notifications project](pet-notifications-project.md) — histórico: pedido original y decisiones técnicas de sep–oct (lo vigente, en LEEME-traspaso)
 - [Gradle build workaround](gradle-build-workaround.md) — JAVA_TOOL_OPTIONS fix for 'loopback connection' + emulator notes
 - [Pending list](pending-list.md) — docs/PENDIENTES.md holds every open item; update it after each task
 - [Responder en español](reply-in-spanish.md) — el usuario pide respuestas en español salvo que el inglés sea indispensable
 - [Decisión de Billing](billing-decision.md) — tarea 11: sacar INTERNET de la librería de Play (opción A), pasar a B ante el primer problema complejo
 - [Subir versión en cada APK](apk-version-bump.md) — appVersionCode en gradle.properties; Xiaomi no actualiza con el mismo número
-- [Memoria de la PC](pc-memory-limits.md) — preguntar antes de usar el emulador o compilar si el usuario está usando la PC
+- [Memoria de la PC](pc-memory-limits.md) — en la PC del trabajo (7,8 GB) preguntar antes de emulador/compilar; la de casa (32 GB) no tiene ese límite
+- [Setup de la PC de casa](home-pc-setup.md) — JDK/SDK/AVD/Gradle en E:, compila sin el truco, emulador andando (WHPX) desde el 29/10, Git 2.56, usa el debug.keystore de la PC del trabajo
+- [Venta de accesorios](shop-decisions.md) — lanzamiento solo con Pro; lo demás escondido. Después: temporada en su fecha, ≈US$2 Latam / ≈US$4 EE. UU. y Europa
+- [Lanzamiento y canal Cowork](launch-pets-and-cowork-channel.md) — 7 mascotas, pack sorpresa; lo vigente en docs/mimupet-cowork/LEEME-traspaso.md; leer para-code al empezar

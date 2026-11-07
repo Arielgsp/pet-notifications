@@ -1,5 +1,7 @@
 # Pet Notifications 🐶
 
+> **Histórico: no vigente.** Es una versión vieja del README (10 mascotas, globo de cómic); el técnico al día es el [README.md](../README.md) de la raíz. Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 App Android donde una mascota (perro, gato, pato, rana, vaca, chancho, pollito, león, mono o búho)
 vive **siempre en pantalla**, encima de cualquier app, y te avisa de tus recordatorios y eventos.
 

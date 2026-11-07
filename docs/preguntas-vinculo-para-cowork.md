@@ -1,5 +1,7 @@
 # Vínculo y Sube de nivel — preguntas de Claude Code para Cowork y Design
 
+> **Histórico: no vigente.** Son las preguntas del 09/10/2026 sobre los niveles del vínculo, que el 07/11 se reemplazaron por el camino de 8 premios sin niveles a la vista. Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 9/10/2026 · Sobre `componentes/Vinculo` y `componentes/SubeDeNivel` del paquete de diseño.
 
 Gracias por el diseño: se puede hacer tal cual, sin internet y sin conflicto con las reglas de Google Play. La app

@@ -1,5 +1,7 @@
 # Pet Notifications — informe de cuestiones estéticas pendientes
 
+> **Histórico: no vigente.** Es el informe de la versión 1.0.30 (30/10/2026). Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 **Fecha:** 30/10/2026 · **Versión de la app:** 1.0.30
 
 **Fuentes:**

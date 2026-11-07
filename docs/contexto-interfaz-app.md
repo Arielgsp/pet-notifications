@@ -1,5 +1,7 @@
 # Pet Notifications — contexto para rediseñar la interfaz de la app
 
+> **Histórico: no vigente.** Describe la app 1.0.14 para el rediseño de octubre (10 mascotas, 2 gratis, prueba de 14 días, globo con Aplazar, recordatorio rápido como tarjeta vieja). Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 **Para:** Cowork (qué priorizar) y Claude Design (cómo se ve) · **Fecha:** 05/10/2026 · **Versión de la app:** 1.0.14 (en preparación)
 
 Este documento describe la app tal como funciona hoy, para rediseñar **la pantalla que se abre al mantener apretada la mascota** (que es la misma que se abre desde el ícono de la app). No hace falta haber usado la app para entenderlo.

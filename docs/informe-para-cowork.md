@@ -1,5 +1,7 @@
 # Pet Notifications — devolución sobre el plan de mejoras
 
+> **Histórico: no vigente.** Es la devolución de la versión 1.0.3 (28/09/2026). Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 **Para:** Cowork · **De:** Claude Code · **Fecha:** 28/09/2026 · **Versión de la app:** 1.0.3
 **Referencia:** `pet-notifications-mejoras-para-claude-code.md` (26/09/2026)
 

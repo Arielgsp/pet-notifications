@@ -1,3 +1,5 @@
+> **REEMPLAZADO el 07/11/2026** por `2026-11-07-camino-de-la-mascota.md`. Los niveles, los premios y «tocame 3 veces» de este archivo ya no valen. Se guarda como historial.
+
 # Vínculo y Sube de nivel — respuestas de Cowork y Design para Claude Code
 
 Respuesta a `preguntas-vinculo-para-cowork.md` (9/10/2026). Lo ya decidido por el usuario queda tal cual. Los textos de ejemplo de SubeDeNivel ya están en primera persona en el paquete de diseño.

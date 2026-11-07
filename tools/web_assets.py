@@ -20,18 +20,18 @@ spec = importlib.util.spec_from_file_location("gen_outfit", os.path.join(ART, "g
 outfit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(outfit)
 
-NAMES = {"DOG": "dog", "CAT": "cat", "RABBIT": "rabbit", "DUCK": "duck", "FROG": "frog", "COW": "cow", "PIG": "pig",
-         "CHICK": "chick", "LION": "lion", "MONKEY": "monkey", "OWL": "owl"}
+# Solo las mascotas del lanzamiento: las del pack (rana, león, mono y búho) son sorpresa y no se publican.
+NAMES = {"DOG": "dog", "CAT": "cat", "RABBIT": "rabbit", "DUCK": "duck", "COW": "cow", "PIG": "pig", "CHICK": "chick"}
 BIRDS = ("DUCK", "CHICK", "OWL")  # las aves no se acuestan de costado (PetModelData.lying)
 LIE_TH = 270  # PetModel.LIE_TH
 SPIN_STEP = 30
 # (mascota, carpeta de Cowork, accesorios). Sin pato, vaca ni pollito: al vestirse cambian piezas de su dibujo.
 DRESSED = (
-    ("DOG", "perro", ("gorro_navideno", "panuelo")),
-    ("PIG", "chancho", ("casco_calabaza",)),
+    ("DOG", "perro", ("gorrito_lana", "panuelo")),
+    ("PIG", "chancho", ("panuelo",)),
     ("RABBIT", "conejo", ("corona_flores",)),
-    ("CAT", "gato", ("gorrito_lana", "panuelo")),
-)  # Solo mascotas del lanzamiento: león, mono, rana y búho llegan después, en el pack Amigos salvajes.
+    ("CAT", "gato", ("corona_flores", "panuelo")),
+)  # Solo mascotas del lanzamiento y solo premios del camino: en el lanzamiento no se vende ningún accesorio.
 # Lienzo de 200×240 de los dibujos, con aire a los costados para las orejas y arriba para las del conejo.
 VIEW = 'viewBox="-20 -24 240 268"'
 

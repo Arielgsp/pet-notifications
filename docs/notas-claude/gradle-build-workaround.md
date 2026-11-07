@@ -11,10 +11,10 @@ metadata:
 In this Windows environment `gradlew` fails with `java.io.IOException: Unable to establish loopback connection` (even outside the sandbox). Fix, in PowerShell with sandbox disabled:
 
 ```
-$env:JAVA_TOOL_OPTIONS="-Djdk.net.unixdomain.tmpdir=C:\Users\ariel.spagnuolo\.gradle\uds"
+$env:JAVA_TOOL_OPTIONS="-Djdk.net.unixdomain.tmpdir=$env:USERPROFILE\.gradle\uds"
 .\gradlew.bat assembleDebug testDebugUnitTest --console=plain -q
 ```
-(the `uds` folder must exist). Filter noise lines `RemoteException|Picked up JAVA_TOOL|SDK XML`.
+(the `uds` folder must exist). Found on the work PC (user ariel.spagnuolo); not yet verified whether the home PC (user ariel, Desktop\pet-notifications, since 2026-10-15) needs it — try a plain build first. Emulator/RAM notes below about 7.8 GB apply to the work PC only. Filter noise lines `RemoteException|Picked up JAVA_TOOL|SDK XML`.
 
 Emulator: AVD `medium_phone` (API 36) at `%LOCALAPPDATA%\Android\Sdk`. It is very slow/overloaded right after boot (ANRs in launcher, Play Store, etc. are emulator noise, not app bugs). Related: [[pet-notifications-project]].
 

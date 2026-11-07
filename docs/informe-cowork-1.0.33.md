@@ -1,5 +1,7 @@
 # Pet Notifications — informe para Cowork
 
+> **Histórico: no vigente.** Es el informe de la versión 1.0.33 (31/10/2026): globo con el mensaje, tarjeta Asomado, 11 mascotas. Lo vigente está en [docs/mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md) y lo abierto en [PENDIENTES.md](PENDIENTES.md). Se deja para entender por qué se decidió cada cosa.
+
 **Para:** Cowork · **De:** Claude Code · **Fecha:** 31/10/2026 · **Versión de la app:** 1.0.33
 **Informe anterior:** `informe-para-cowork.md` (28/09/2026, versión 1.0.3)
 

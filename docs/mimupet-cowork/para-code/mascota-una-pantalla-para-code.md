@@ -1,3 +1,5 @@
+> **Hecho en 1.0.54–1.0.57.** Desde el 07/11/2026, la línea de nivel y la tira de 11 mascotas quedan reemplazadas por la tarjeta del camino (`2026-11-07-camino-de-la-mascota.md`) y la tira de 7 (sin siluetas). Los pelajes no están en el lanzamiento.
+
 # Pantalla Mascota en una sola pantalla — para Claude Code
 
 Pedido de Ariel: sacar las dos pestañas internas (Accesorios | Mascotas) y dejar todo en una pantalla más simple. El detalle visual está en el Design System, en PantallaMascota, Vestidor (la hoja Vestir) y PantallaAjustes.

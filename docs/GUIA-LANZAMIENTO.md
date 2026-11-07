@@ -52,14 +52,18 @@ Confirmá cada respuesta con la ayuda de Google que aparece al lado de cada preg
 
 ## 4. Productos de compra en Play
 
-Cada producto se crea una sola vez en **Monetizar › Productos › Productos integrados en la aplicación › Crear producto**. El **ID tiene que ser exactamente este**: la app los busca por ese nombre y después no se puede cambiar.
+**Para el lanzamiento se carga un solo producto: Pro** (decisión del 07/11). Se crea una sola vez en **Monetizar › Productos › Productos integrados en la aplicación › Crear producto**. El **ID tiene que ser exactamente este**: la app lo busca por ese nombre y después no se puede cambiar.
 
 | ID | Qué es | Precio |
 | --- | --- | --- |
 | `pro_lifetime` | MimuPet Pro, pago único | USD 2,49 de lanzamiento, USD 3,99 de base, por país |
-| `acc_xmas_hat` | Gorro navideño | ≈ USD 2 en Latinoamérica, ≈ USD 4 en EE. UU. y Europa |
-| `acc_pumpkin` | Calabacita | igual que el anterior |
-| `acc_pumpkin_helmet` | Casco de calabaza | igual que el anterior |
-| `coats_dog`, `coats_cat`, `coats_duck`, `coats_cow`, `coats_pig`, `coats_chick`, `coats_rabbit` | Pack de pelajes de cada mascota (7 productos) | USD 0,99, por país |
 
-Después de crear cada uno, tocá **Activar**. Los de temporada quedan activos todo el año, porque la app decide cuándo mostrarlos. El pack Amigos salvajes se crea más adelante, cuando salga.
+Después de crearlo, tocá **Activar**.
+
+**Más adelante, con una actualización** (no hace falta cargarlos ahora; PENDIENTES X13, X16 y X18):
+
+| ID | Qué es | Precio |
+| --- | --- | --- |
+| `acc_xmas_hat`, `acc_pumpkin`, `acc_pumpkin_helmet` | Accesorios de temporada | ≈ USD 2 en Latinoamérica, ≈ USD 4 en EE. UU. y Europa |
+| `coats_dog`, `coats_cat`, `coats_duck`, `coats_cow`, `coats_pig`, `coats_chick`, `coats_rabbit` | Pack de pelajes de cada mascota | USD 0,99, por país |
+| (a definir) | Pack de animales nuevos | USD 1,49 |

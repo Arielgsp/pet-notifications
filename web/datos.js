@@ -17,7 +17,7 @@ window.MIMUPET = {
   },
 
   // Los videos, en orden. Para publicar uno, pegá su enlace en "enlace" y aparece el botón para verlo.
-  // Para sumar otro, copiá una línea entera. "texto_en" es la frase en inglés. "mascota" puede ser: dog, cat, rabbit, duck, cow, pig, chick (león, mono, rana y búho llegan con el pack).
+  // Para sumar otro, copiá una línea entera. "texto_en" es la frase en inglés. "mascota" puede ser: dog, cat, rabbit, duck, cow, pig, chick.
   videos: [
     { texto: "Cuando ignoras todas las notificaciones menos esta", texto_en: "When you ignore every notification but this one", mascota: "dog", enlace: "" },
     { texto: "¿Cuál sería la tuya?", texto_en: "Which one would be yours?", mascota: "rabbit", enlace: "" },
