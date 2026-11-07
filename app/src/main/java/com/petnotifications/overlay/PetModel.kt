@@ -444,6 +444,9 @@ object PetModel {
         outfitFront(ds, pet.name, vf.shape, vf.th, vf.head, outfit, asleep = view == PetView.SLEEP, fixedSide = fixedArt && view == PetView.SIDE)
     }
 
+    /** La pelotita, en el piso a la derecha de la mascota; [roll]: cuánto rodó (ver OutfitArt.ball). */
+    fun drawToy(ds: DrawScope, pet: PetType, roll: Float = 0f) = inFrame(ds, pet.name) { OutfitArt.ball(this, roll) }
+
     /** Encima del giro continuo (parada, [theta] grados). */
     fun drawOutfitTurn(ds: DrawScope, pet: PetType, theta: Float, outfit: com.petnotifications.Outfit) =
         outfitFront(ds, pet.name, STAND, theta.toDouble(), null, outfit)
@@ -484,9 +487,9 @@ object PetModel {
         !(asleep && (onHead == com.petnotifications.Accessory.CROWN || onHead == com.petnotifications.Accessory.PUMPKIN ||
             onHead == com.petnotifications.Accessory.PUMPKIN_HELMET))
 
-    /** Acostada, el cuello queda debajo del mentón: el pañuelo no se ve. */
+    /** Acostada, el cuello queda debajo del mentón: el pañuelo y la chapita no se ven. */
     private fun scarfVisible(outfit: com.petnotifications.Outfit, shape: Int) =
-        shape != LIE && outfit.neck == com.petnotifications.Accessory.SCARF
+        shape != LIE && outfit.neck != null
 
     /**
      * Piezas de la mascota que reemplaza lo que tiene puesto (LEEME de docs/accesorios-especies): lo de la
@@ -521,8 +524,10 @@ object PetModel {
                 val refBody = if (side) sheet.sbx ?: refHead else SHEET_FRONT_X
                 val refX = (refHead + refBody) / 2
                 val refY = if (side) sheet.sy else sheet.fy
-                if (fixedSide) OutfitArt.scarf(this, pet, refX, refY, refX, refY, b.facing, b.bodySin)
-                else OutfitArt.scarf(this, pet, (b.hx + b.bx) / 2, b.hy, refX, refY, b.facing, b.bodySin)
+                val x = if (fixedSide) refX else (b.hx + b.bx) / 2
+                val y = if (fixedSide) refY else b.hy
+                if (outfit.neck == com.petnotifications.Accessory.TAG) OutfitArt.tag(this, pet, x, y, refX, refY, b.facing, b.bodySin)
+                else OutfitArt.scarf(this, pet, x, y, refX, refY, b.facing, b.bodySin)
             }
             val onHead = outfit.head
             if (onHead != null && headVisible(onHead, asleep)) {

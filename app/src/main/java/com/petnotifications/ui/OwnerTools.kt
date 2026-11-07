@@ -78,19 +78,25 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
                 Text(stringResource(R.string.owner_bond), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
                 Text(
-                    stringResource(R.string.owner_hearts, hearts, Bond.levelFor(hearts).number),
+                    stringResource(R.string.owner_hearts, hearts),
                     fontSize = 13.sp, color = c.inkMuted,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SoftChip(stringResource(R.string.owner_bond_add_one)) {
+                        Bond.ownerAdd(ctx, 1)
+                        hearts = Bond.hearts(ctx)
+                    }
                     SoftChip(stringResource(R.string.owner_bond_add)) {
                         Bond.ownerAdd(ctx, 10)
                         hearts = Bond.hearts(ctx)
                     }
-                    OutlineChip(stringResource(R.string.owner_bond_reset)) {
-                        Bond.ownerReset(ctx)
-                        hearts = Bond.hearts(ctx)
-                    }
                 }
+                OutlineChip(stringResource(R.string.owner_bond_reset)) {
+                    Bond.ownerReset(ctx)
+                    hearts = Bond.hearts(ctx)
+                }
+                // La tienda de accesorios y pelajes, solo si algo está a la venta (Shop).
+                if (com.petnotifications.Shop.SEASONAL_FOR_SALE || com.petnotifications.Shop.COATS_FOR_SALE) {
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
                 Text(stringResource(R.string.owner_shop), fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink)
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -103,6 +109,7 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                 OutlineChip(stringResource(R.string.owner_shop_reset)) {
                     Outfit.ownerClearBought(ctx)
                     com.petnotifications.Prefs(ctx).ownerClearCoatPacks()
+                }
                 }
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))
                 OutlineChip(stringResource(R.string.owner_trial_end)) { trialEnd = true }

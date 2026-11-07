@@ -356,7 +356,7 @@ class FoldedPaperShape(private val fold: Dp, private val radius: Dp, private val
 }
 
 /** El doblez: un triángulo sobre la esquina recortada, con la punta redondeada. */
-private fun DrawScope.drawFold(fold: Float, mirrored: Boolean) {
+internal fun DrawScope.drawFold(fold: Float, mirrored: Boolean) {
     val tip = fold * 0.28f
     fun x(v: Float) = if (mirrored) size.width - v else v
     val p = Path().apply {

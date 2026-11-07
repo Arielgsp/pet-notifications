@@ -85,3 +85,6 @@ El día empieza a la medianoche local, como hoy.
 ---
 
 Cuando esté, anotá al final de este archivo `Estado: hecho en 1.0.xx`. Si hay dudas, dejalas en `docs/mimupet-cowork/para-cowork/`.
+
+
+Estado: hecho en 1.0.66 (07/11/2026). La patita quedó con 2 toques, como en la maqueta «Aprendió un truco». Las decisiones que tomé están en `para-cowork/2026-11-07-solo-pro-y-camino.md`.

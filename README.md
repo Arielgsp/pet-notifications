@@ -66,11 +66,13 @@ ver desde Ajustes › Permisos.
 - **Hora de dormir:** se echa y se duerme tras 1, 2 o 4 h sin avisos ni mimos, y/o en tu horario de sueño
   (por ejemplo 22:00 a 07:00). Un aviso nuevo o un toque la despiertan.
 - **Recordatorios propios:** título, nota, fecha, hora y repetición (una vez / diario / semanal).
-- **Camino de la mascota (vínculo):** cada "Listo" suma un corazón (tope 10 por día) y el primer mimo del
-  día otro. Con los corazones la mascota gana premios: trucos (dar la patita, bailar) y accesorios que se
-  ponen en Vestir (pañuelo, camita, gorrito, corona). Es del usuario, nunca resta y viaja con la copia de
-  seguridad (`Bond.kt`). **Decidido el 07/11 y todavía no hecho:** 8 premios a 3, 10, 22, 40, 65, 95, 135 y
-  180 corazones, sin niveles a la vista (hoy la app muestra 8 niveles con nombre).
+- **Camino de la mascota (vínculo, `Bond.kt`):** cada "Listo" suma un corazón (tope 10 por día) y el primero
+  del día uno más; el primer mimo del día y abrir la app una vez por día suman otro. Con los corazones gana
+  8 premios, sin niveles a la vista: pañuelo (3), dar la patita (10), camita (22), pelotita (40), bailar (65),
+  gorrito (95), chapita con su nombre (135) y corona de flores (180). Las cifras están solo en `Bond.Reward`.
+  Los accesorios y el juguete se festejan en la app («¡Estreno gorrito!», con "Ponérselo"); los trucos, con
+  un papelito sobre la mascota flotante ("¡A ver!"). Quien gana varios de una vez recibe un solo festejo.
+  Es del usuario, nunca resta y viaja con la copia de seguridad.
 - **Google Calendar / Gmail:** lee los calendarios sincronizados en el teléfono (sin OAuth ni API keys).
   Elegís qué calendarios y con cuánta anticipación (al empezar, 5, 10, 15, 30 o 60 min). Los eventos de
   todo el día se ignoran. "Borrar" sobre un evento de Google solo descarta el aviso; nunca modifica tu calendario.
@@ -102,8 +104,9 @@ elección, recordatorios, recordatorio rápido, Nubecita, mimos, frases, camino,
 "insistir" cada 10 min hasta 3 veces. Pro: las 7 mascotas, globo Caramelo, Google Calendar, insistir a
 gusto, voz, horario de No molestar, tamaño y opacidad. **En el lanzamiento no se vende nada más que Pro**
 (decisión del 07/11): los packs de pelajes (`coats_*`), los accesorios de temporada (`acc_*`) y el pack de
-animales nuevos quedan en el código, escondidos con un interruptor. La versión 1.0.65 todavía muestra los
-pelajes a la venta y "Adelantar todo el camino"; se sacan con el pedido `2026-11-07-lanzamiento-solo-pro.md`. El límite se aplica en
+animales nuevos quedan en el código, escondidos con interruptores (`Shop.COATS_FOR_SALE`,
+`Shop.SEASONAL_FOR_SALE` y `PetType.WILD_PACK_OUT`, los tres en false). Con los pelajes apagados, todas las
+mascotas usan el original, también durante la prueba. El límite se aplica en
 los getters de `Prefs` (lo elegido queda guardado y vuelve al comprar). `pro/ProBilling` consulta la
 compra a Play en cada apertura (sirve también de "Restaurar compras") y la guarda en el teléfono.
 "Enviar comentarios" (`ui/Feedback.kt`) abre la app de correo con un resumen técnico que el usuario

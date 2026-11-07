@@ -114,6 +114,11 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         PetOverlayService.appVisible = true
+        // Pasar a saludarla: abrir la app suma un corazón, una vez por día.
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            Bond.seedIfNeeded(applicationContext)
+            Bond.addVisit(applicationContext)
+        }
     }
 
     override fun onPause() {

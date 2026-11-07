@@ -32,3 +32,6 @@ Lo decidió Ariel. El lanzamiento será probablemente en la **primera semana de 
 ---
 
 Cuando esté, anotá al final de este archivo `Estado: hecho en 1.0.xx`. Si hay dudas, dejalas en `docs/mimupet-cowork/para-cowork/`.
+
+
+Estado: hecho en 1.0.66 (07/11/2026). Pelajes y accesorios de temporada escondidos con `Shop.COATS_FOR_SALE` y `Shop.SEASONAL_FOR_SALE` (en false). Se sacó «Adelantar todo el camino». El gorro navideño de regalo no está hecho: espera la confirmación de Ariel. Detalle en `para-cowork/2026-11-07-solo-pro-y-camino.md`.

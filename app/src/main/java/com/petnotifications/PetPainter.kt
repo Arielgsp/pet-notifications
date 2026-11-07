@@ -35,6 +35,26 @@ private class DressedPainter(val base: Painter, val pet: PetType, val view: PetV
         PetModel.drawOutfitBehind(this, pet, view, outfit)
         with(base) { draw(size) }
         PetModel.drawOutfitFront(this, pet, view, outfit, fixedArt)
+        if (outfit.toy != null) PetModel.drawToy(this, pet)
+    }
+}
+
+/**
+ * Solo [a], para verlo transparente encima de la mascota (el próximo premio del camino, "¿para mí?"). Mismo
+ * encuadre que [petPainter] con los mismos [pet], [view], [coat] y lo que tiene puesto ([worn]).
+ */
+@Composable
+fun accessoryPainter(pet: PetType, view: PetView, coat: Int, worn: Outfit, a: Accessory): Painter {
+    val density = LocalDensity.current.density
+    val fixedArt = coat == 0 && (if (PetModel.coversArt(pet, view, worn)) pet.plainArt(view) else pet.art(view)) != null
+    return remember(pet, view, coat, a, density) { AccessoryPainter(pet, view, Outfit.NONE.with(a), fixedArt, density) }
+}
+
+private class AccessoryPainter(val pet: PetType, val view: PetView, val outfit: Outfit, val fixedArt: Boolean, density: Float) : Painter() {
+    override val intrinsicSize = Size(256f * density, 240f * density)
+    override fun DrawScope.onDraw() {
+        PetModel.drawOutfitFront(this, pet, view, outfit, fixedArt)
+        if (outfit.toy != null) PetModel.drawToy(this, pet)
     }
 }
 

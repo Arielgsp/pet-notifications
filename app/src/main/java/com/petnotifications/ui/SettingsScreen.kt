@@ -5,7 +5,6 @@ import com.petnotifications.Slot
 import com.petnotifications.Outfit
 import com.petnotifications.pro.ProBilling
 import com.petnotifications.Accessory
-import androidx.compose.material.icons.outlined.FastForward
 import androidx.compose.material.icons.outlined.WaterDrop
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.material.icons.outlined.Medication
@@ -174,6 +173,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.petnotifications.PetType
 import com.petnotifications.Bond
+import com.petnotifications.Shop
 import com.petnotifications.R
 import com.petnotifications.PetView
 import com.petnotifications.petPainter
@@ -1104,19 +1104,20 @@ fun SettingsScreen(
         val preview = previewPet
         val triedPet = trying?.first
         val previewing = preview != null && preview != triedPet
-        val level = Bond.levelFor(bondHearts)
         val dressed = (if (previewing) previewOutfit else null) ?: outfit
         val shown = tryingAcc?.let { dressed.with(it) } ?: dressed
+        // El próximo premio del camino, si es de la cabeza o del cuello y ese lugar está libre: se ve transparente, "¿para mí?".
+        val ghost = Bond.next(bondHearts)?.accessory()
+            ?.takeIf { (it.slot == Slot.HEAD || it.slot == Slot.NECK) && shown[it.slot] == null && !previewing && trying == null && tryingAcc == null }
         /**
-         * [content] ocupa justo lo que el nivel y "Lo próximo" (dibujados invisibles debajo, para medir):
+         * [content] ocupa justo lo que la tarjeta del camino (dibujada invisible debajo, para medir):
          * así las mascotas de abajo no se mueven al mirar o probar una Pro.
          */
         @Composable
         fun SameHeightAsBond(content: @Composable androidx.compose.foundation.layout.BoxScope.() -> Unit) {
             Box(Modifier.fillMaxWidth()) {
-                Column(Modifier.alpha(0f).clearAndSetSemantics { }, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    BondLine(petName ?: stringResource(pet.nameRes), bondHearts, enabled = false) { }
-                    BondNextCard(bondHearts, enabled = false) { }
+                Column(Modifier.alpha(0f).clearAndSetSemantics { }) {
+                    BondPathCard(petName ?: stringResource(pet.nameRes), bondHearts, enabled = false, onHow = { }, onAll = { })
                 }
                 content()
             }
@@ -1142,6 +1143,7 @@ fun SettingsScreen(
                 activeSlot = dressSlot,
                 onTap = { stageView = PetView.HAPPY },
                 onSlot = { dressSlot = it },
+                ghost = ghost,
             )
             when {
                 previewing -> preview?.let { p ->
@@ -1194,10 +1196,7 @@ fun SettingsScreen(
                 trying != null -> trying?.let { (p, coat) ->
                     SameHeightAsBond { TryCard(p, coat, Modifier.matchParentSize(), fill = true) }
                 }
-                else -> {
-                    BondLine(petName ?: stringResource(pet.nameRes), bondHearts) { sub = SUB_PATH }
-                    BondNextCard(bondHearts) { sub = SUB_PATH }
-                }
+                else -> BondPathCard(petName ?: stringResource(pet.nameRes), bondHearts, onHow = { sub = SUB_PATH }, onAll = { sub = SUB_PATH })
             }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                 SectionLabel(stringResource(R.string.dress_pets))
@@ -1227,6 +1226,8 @@ fun SettingsScreen(
                 }
             }
             // Pelajes, debajo de la tira para que ella no se mueva. Sin su pack se ven con candado: tocarlos los muestra en la vista previa.
+            // Mientras no se venden (Shop.COATS_FOR_SALE), no se ven.
+            if (Shop.COATS_FOR_SALE) {
             val coatPet = if (previewing) preview ?: pet else triedPet ?: pet
             Text(stringResource(R.string.coat_title), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.inkMuted)
             CoatDots(
@@ -1251,6 +1252,7 @@ fun SettingsScreen(
                     }
                     else -> startTry(coatPet, i)
                 }
+            }
             }
             if (freeMode && canChangeFreePets) {
                 OutlineChip(stringResource(R.string.free_pets_change), Icons.Outlined.SwapHoriz) { changingFreePets = true }
@@ -1277,7 +1279,7 @@ fun SettingsScreen(
                 note = lockedNote,
                 grid = {
                     AccessoryGrid(
-                        slot, items, dressed, level.number, bought, items.mapNotNull { a -> priceOf(a)?.let { a to it } }.toMap(), tryingAcc,
+                        slot, items, dressed, bondHearts, bought, items.mapNotNull { a -> priceOf(a)?.let { a to it } }.toMap(), tryingAcc,
                         onNone = {
                             tryOn = null
                             lockedNote = null
@@ -1285,11 +1287,10 @@ fun SettingsScreen(
                         },
                     ) { acc ->
                         lockedNote = null
-                        if (!acc.forSale && acc.level > level.number) {
+                        if (!acc.forSale && acc.at > bondHearts) {
                             tryOn = null
-                            val from = Bond.LEVELS.first { it.number == acc.level }.from
-                            val missing = from - bondHearts
-                            lockedNote = if (missing == 1) lockedOneText.format(acc.level, from) else lockedText.format(acc.level, from, missing)
+                            val missing = acc.at - bondHearts
+                            lockedNote = if (missing == 1) lockedOneText.format(acc.at) else lockedText.format(acc.at, missing)
                         } else if (acc.forSale && acc !in bought) {
                             tryOn = if (tryingAcc == acc) null else acc
                         } else {
@@ -1847,34 +1848,7 @@ fun SettingsScreen(
 
     @Composable
     fun PathPage(padding: PaddingValues) = SubPage(padding) {
-        BondPathList(bondHearts)
-        // Con Pro se puede adelantar todo el camino (sin Pro, tocarlo abre los planes).
-        val top = Bond.LEVELS.last()
-        if (bondHearts < top.from) {
-            var confirm by remember { mutableStateOf(false) }
-            PetCard(padding = 0.dp) {
-                SettingRow(
-                    Icons.Outlined.FastForward, stringResource(R.string.bond_skip_title),
-                    stringResource(R.string.bond_skip_sub, top.number),
-                    trailing = if (!isPro) ({ ProTag() }) else null,
-                    onClick = { if (isPro) confirm = true else showPro = true },
-                )
-            }
-            if (confirm) {
-                AlertDialog(
-                    onDismissRequest = { confirm = false },
-                    title = { Text(stringResource(R.string.bond_skip_confirm_title)) },
-                    text = { Text(stringResource(R.string.bond_skip_confirm_body, top.number)) },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            confirm = false
-                            Bond.skipToEnd(ctx)
-                        }) { Text(stringResource(R.string.bond_skip_ok), color = c.cocoa, fontWeight = FontWeight(800)) }
-                    },
-                    dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.cancel)) } },
-                )
-            }
-        }
+        BondPathPage(petName ?: stringResource(pet.nameRes), bondHearts)
     }
 
     /** "Cómo se ve la mascota": su nombre, tamaño y transparencia (Pro), modo fantasma y qué tan inquieta es. */
@@ -2041,23 +2015,21 @@ fun SettingsScreen(
             bondVersion++
         }
         BondCelebrationDialog(
-            cel,
-            onPrimary = {
+            cel, petName ?: stringResource(pet.nameRes), pet, coatOf(pet), outfit,
+            onWear = { acc ->
                 close()
-                if (cel is Bond.Celebration.Welcome) {
-                    tab = TAB_PET
-                    sub = SUB_PATH
-                } else {
-                    // "Mostrame": la mascota (que está en pantalla, encima de la app) hace el truco.
-                    val reward = when (cel) {
-                        is Bond.Celebration.LevelUp -> cel.level.reward
-                        is Bond.Celebration.Arrived -> cel.level.reward
-                        is Bond.Celebration.Welcome -> null
-                    }
-                    if (reward != null && PetOverlayService.running) {
-                        PetOverlayService.showReward(ctx, reward)
-                    }
-                }
+                Outfit.wear(ctx, acc)
+                tab = TAB_PET
+            },
+            // "¡A ver!": la mascota (que está en pantalla, encima de la app) hace el truco.
+            onShow = { reward ->
+                close()
+                if (PetOverlayService.running) PetOverlayService.showReward(ctx, reward)
+            },
+            onAll = {
+                close()
+                tab = TAB_PET
+                sub = SUB_PATH
             },
             onDismiss = ::close,
         )

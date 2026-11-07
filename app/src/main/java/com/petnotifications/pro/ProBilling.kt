@@ -17,6 +17,7 @@ import com.petnotifications.Accessory
 import com.petnotifications.Outfit
 import com.petnotifications.PetType
 import com.petnotifications.Prefs
+import com.petnotifications.Shop
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -152,9 +153,11 @@ object ProBilling {
         return c.takeIf { ok }
     }
 
-    /** Pide a Play Pro y los accesorios juntos; un producto que no está cargado en Play Console no vuelve. */
+    /** Pide a Play Pro y lo que se vende aparte (si está a la venta, ver Shop) juntos; un producto que no está cargado en Play Console no vuelve. */
     private suspend fun loadProduct(c: BillingClient): ProductDetails? {
-        val ids = listOf(PRODUCT_ID) + Accessory.forSale.mapNotNull { it.productId } + PetType.launch.map(Prefs::coatPackId)
+        val ids = listOf(PRODUCT_ID) +
+            (if (Shop.SEASONAL_FOR_SALE) Accessory.forSale.mapNotNull { it.productId } else emptyList()) +
+            (if (Shop.COATS_FOR_SALE) PetType.launch.map(Prefs::coatPackId) else emptyList())
         val params = QueryProductDetailsParams.newBuilder()
             .setProductList(
                 ids.map {

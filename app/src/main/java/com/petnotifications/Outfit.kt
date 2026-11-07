@@ -7,13 +7,13 @@ import java.time.LocalDate
 import java.time.MonthDay
 
 /*
- * El vestidor (Design: Vestidor): accesorios que se ganan con el vínculo o se compran, y se ponen o
- * sacan. Cada uno va en un lugar (cabeza, cuello o camita) y en cada lugar va uno solo. La camita solo
- * se ve cuando la mascota está acostada o duerme. Los dibuja PetModel (OutfitArt) encima de cualquier
- * dibujo.
+ * El vestidor (Design: Vestidor): accesorios que se ganan con el camino o se compran, y se ponen o
+ * sacan. Cada uno va en un lugar (cabeza, cuello, camita o juguete) y en cada lugar va uno solo. La camita
+ * solo se ve cuando la mascota está acostada o duerme; el juguete (la pelotita) queda en el piso, a su lado.
+ * Los dibuja PetModel (OutfitArt) encima de cualquier dibujo.
  */
 
-enum class Slot { HEAD, NECK, BED }
+enum class Slot { HEAD, NECK, BED, TOY }
 
 /**
  * Temporada de un accesorio a la venta: solo se ve y se compra entre [from] y [to] (puede cruzar el
@@ -42,15 +42,17 @@ enum class Accessory(
     val season: Season? = null,
 ) {
     SCARF(Slot.NECK, R.string.acc_scarf, reward = Bond.Reward.SCARF),
+    TAG(Slot.NECK, R.string.acc_tag, reward = Bond.Reward.TAG),
     XMAS_HAT(Slot.HEAD, R.string.acc_xmas_hat, productId = "acc_xmas_hat", season = Season.CHRISTMAS),
     PUMPKIN(Slot.HEAD, R.string.acc_pumpkin, productId = "acc_pumpkin", season = Season.HALLOWEEN),
     PUMPKIN_HELMET(Slot.HEAD, R.string.acc_pumpkin_helmet, productId = "acc_pumpkin_helmet", season = Season.HALLOWEEN),
     HAT(Slot.HEAD, R.string.acc_hat, reward = Bond.Reward.HAT),
     BED(Slot.BED, R.string.acc_bed, reward = Bond.Reward.BED),
+    BALL(Slot.TOY, R.string.acc_ball, reward = Bond.Reward.BALL),
     CROWN(Slot.HEAD, R.string.acc_crown, reward = Bond.Reward.CROWN);
 
-    /** Nivel del vínculo en el que se gana (0 = se compra). */
-    val level: Int get() = reward?.let { r -> Bond.LEVELS.first { it.reward == r }.number } ?: 0
+    /** Corazones con los que se gana en el camino (0 = se compra). */
+    val at: Int get() = reward?.at ?: 0
 
     val forSale: Boolean get() = productId != null
 
@@ -62,15 +64,16 @@ enum class Accessory(
 }
 
 /** Lo que tiene puesto: uno por lugar (o nada). */
-data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val bed: Accessory? = null) {
+data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val bed: Accessory? = null, val toy: Accessory? = null) {
 
     operator fun get(slot: Slot) = when (slot) {
         Slot.HEAD -> head
         Slot.NECK -> neck
         Slot.BED -> bed
+        Slot.TOY -> toy
     }
 
-    fun isEmpty() = head == null && neck == null && bed == null
+    fun isEmpty() = head == null && neck == null && bed == null && toy == null
 
     fun wearing(a: Accessory) = get(a.slot) == a
 
@@ -79,12 +82,14 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
         Slot.HEAD -> copy(head = a)
         Slot.NECK -> copy(neck = a)
         Slot.BED -> copy(bed = a)
+        Slot.TOY -> copy(toy = a)
     }
 
     fun without(slot: Slot) = when (slot) {
         Slot.HEAD -> copy(head = null)
         Slot.NECK -> copy(neck = null)
         Slot.BED -> copy(bed = null)
+        Slot.TOY -> copy(toy = null)
     }
 
     fun toggle(a: Accessory) = if (wearing(a)) without(a.slot) else with(a)
@@ -126,24 +131,24 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
         fun setOwnerAllSeasons(ctx: Context, on: Boolean) = Prefs(ctx).sp.edit { putBoolean(KEY_OWNER_SEASONS, on) }
 
         /** A la venta ahora: en su temporada (o todas, con las herramientas de dueño). */
-        fun onSale(ctx: Context, a: Accessory) = a.forSale && (a.season?.isOn() != false || ownerAllSeasons(ctx))
+        fun onSale(ctx: Context, a: Accessory) = Shop.SEASONAL_FOR_SALE && a.forSale && (a.season?.isOn() != false || ownerAllSeasons(ctx))
 
-        /** Lo tiene: ganado con el vínculo o comprado. */
-        fun owns(ctx: Context, a: Accessory, level: Int = Bond.level(ctx).number, bought: Set<Accessory> = bought(ctx)) =
-            if (a.forSale) a in bought else a.level <= level
+        /** Lo tiene: ganado con el camino o comprado. */
+        fun owns(ctx: Context, a: Accessory, hearts: Int = Bond.hearts(ctx), bought: Set<Accessory> = bought(ctx)) =
+            if (a.forSale) a in bought else a.at <= hearts
 
         /** Lo que tiene puesto, solo con lo que todavía tiene (si el vínculo vuelve a cero, se lo saca). */
         fun current(ctx: Context): Outfit {
-            val level = Bond.level(ctx).number
+            val hearts = Bond.hearts(ctx)
             val bought = bought(ctx)
             val worn = Prefs(ctx).sp.getStringSet(KEY, emptySet()).orEmpty()
                 .mapNotNull { name -> Accessory.entries.firstOrNull { it.name == name } }
-                .filter { owns(ctx, it, level, bought) }
+                .filter { owns(ctx, it, hearts, bought) }
             return worn.fold(NONE) { o, a -> o.with(a) }
         }
 
         fun save(ctx: Context, outfit: Outfit) = Prefs(ctx).sp.edit {
-            putStringSet(KEY, listOfNotNull(outfit.head, outfit.neck, outfit.bed).map { it.name }.toSet())
+            putStringSet(KEY, listOfNotNull(outfit.head, outfit.neck, outfit.bed, outfit.toy).map { it.name }.toSet())
         }
 
         /** Recién ganado o comprado: se lo pone enseguida, para que se vea. */

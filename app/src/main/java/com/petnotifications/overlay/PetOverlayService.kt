@@ -1047,6 +1047,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             if (PetModel.hasHead(pet)) addAll(listOf(Trick.HEAD, Trick.HEAD, Trick.HEAD))
             if (Bond.knows(this@PetOverlayService, Bond.Reward.PAW)) add(Trick.PAW)
         }.filter { it != lastLife }
+        // Con la pelotita, de vez en cuando juega con ella.
+        if (state.outfit.toy != null && Random.nextInt(5) == 0) {
+            lastLife = null
+            playBall()
+            return
+        }
         when (Random.nextInt(8)) {
             // La vuelta de 360° (la de los 2 toques).
             0 -> {
@@ -1092,39 +1098,33 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /**
-     * Festeja lo pendiente del vínculo si se puede ahora: nunca encima de un aviso, ni con la
-     * pantalla bloqueada, en No molestar o con los avisos en silencio (espera al siguiente
-     * desbloqueo). Con la app abierta lo muestra la app.
+     * Festeja un truco recién aprendido, en el momento: un papelito sobre la mascota ("¡Aprendí a dar la
+     * patita!") con "¡A ver!" y "Después". Nunca encima de un aviso, ni con la pantalla bloqueada, en No
+     * molestar o con los avisos en silencio (espera al siguiente desbloqueo). Con la app abierta lo
+     * muestra la app. Los accesorios, el juguete y los resúmenes los festeja la app cuando se abre.
      */
     private fun maybeCelebrate() {
         if (state.card != null || current != null || queue.isNotEmpty() || state.phase !is FxPhase.None) return
         if (!canShowAlert(this) || inDnd() || prefs.muted || appVisible) return
-        val c = Bond.pending(this) ?: return
-        Bond.markCelebrated(this, c)
+        val trick = Bond.pendingTrick(this) ?: return
+        Bond.markCelebrated(this, Bond.Celebration.Earned(trick))
         wake()
-        val level = when (c) {
-            is Bond.Celebration.LevelUp -> c.level
-            is Bond.Celebration.Welcome -> c.level
-            is Bond.Celebration.Arrived -> c.level
-        }
-        val chip = getString(R.string.bond_chip, level.number, getString(level.name))
-        val card = when (c) {
-            is Bond.Celebration.Welcome -> BondCard.Celebrate(
-                SystemClock.uptimeMillis(), chip, getString(R.string.bond_welcome_title), getString(level.title),
-                getString(R.string.bond_see_path), getString(R.string.bond_later),
-            )
-            else -> BondCard.Celebrate(
-                SystemClock.uptimeMillis(), chip, getString(level.reward.learned), getString(level.reward.howTo),
-                getString(R.string.bond_show_me), getString(R.string.bond_later),
-            )
-        }
+        val card = BondCard.Trick(
+            SystemClock.uptimeMillis(), getString(trick.won), getString(Bond.trickHow(trick)),
+            getString(R.string.bond_see_it), getString(R.string.bond_later),
+        )
         // Se pone contenta y le salen corazoncitos en abanico.
         state.play(Trick.CHEER)
         heartFan(5)
-        showCard(card, CARD_MS) { primary ->
-            if (!primary) return@showCard
-            if (c is Bond.Celebration.Welcome) openApp(null, bondPath = true) else showReward(level.reward)
-        }
+        showCard(card, CARD_MS) { primary -> if (primary) showReward(trick) }
+    }
+
+    /** Juega con la pelotita: la mira, la pelotita rueda hacia ella y salta contenta cuando vuelve. */
+    private fun playBall() {
+        if (state.outfit.toy == null) return
+        state.ballTick++
+        state.play(Trick.LOOK)
+        main.postDelayed({ if (!state.sleeping) state.play(Trick.HOP) }, 1_100)
     }
 
     private fun heartFan(n: Int) {
@@ -1137,15 +1137,14 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
-    /** "Mostrame": hace el truco, saluda, o festeja el premio si es un accesorio. */
+    /** "¡A ver!": hace el truco, juega con la pelotita o festeja el premio si es un accesorio. */
     private fun showReward(reward: Bond.Reward) {
         if (hiddenNow) return
         wake()
         when (reward) {
-            Bond.Reward.WAG -> state.play(Trick.WAG)
             Bond.Reward.PAW -> state.play(Trick.PAW)
             Bond.Reward.DANCE -> state.play(Trick.DANCE)
-            Bond.Reward.MORNING -> scope.launch { morning(force = true) }
+            Bond.Reward.BALL -> playBall()
             else -> {
                 state.play(Trick.CHEER)
                 heartFan(3)
@@ -1156,7 +1155,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     /** Al desbloquear: saludo de buenos días (una vez por día) o, si no, mueve la cola (como mucho cada 1 h). */
     private suspend fun greetOnUnlock() {
         if (hiddenNow || inDnd() || current != null || queue.isNotEmpty() || !canShowAlert(this)) return
-        if (Bond.knows(this, Bond.Reward.MORNING) && morningDue()) {
+        if (morningDue()) {
             morning(force = false)
             return
         }
@@ -1242,8 +1241,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY,
             LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT,
         ).apply {
-            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            y = statusBarHeight() + dp(8)
+            if (card is BondCard.Trick) {
+                // El papelito del truco, encima de la mascota (o debajo, si no entra arriba).
+                gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                val above = petParams.y + petParams.height + dp(4)
+                val roomAbove = resources.displayMetrics.heightPixels - statusBarHeight() - above
+                y = if (roomAbove >= dp(TRICK_PAPER_DP)) above else (petParams.y - dp(TRICK_PAPER_DP)).coerceAtLeast(dp(8))
+            } else {
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                y = statusBarHeight() + dp(8)
+            }
         }
         runCatching { wm.addView(view, lp) }.onSuccess { cardView = view }
         cardJob = scope.launch {
@@ -1821,6 +1828,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         /** Vínculo: espera antes de festejar (para que primero se vea el "+1"), duración de las tarjetas. */
         private const val CELEBRATE_DELAY_MS = 1_800L
         private const val CARD_MS = 10_000L
+        /** Alto aproximado del papelito del truco, para ver si entra arriba de la mascota. */
+        private const val TRICK_PAPER_DP = 150
         private const val MORNING_CARD_MS = 6_000L
         private const val UNLOCK_GREET_DELAY_MS = 900L
         private const val UNLOCK_CELEBRATE_DELAY_MS = 3_000L

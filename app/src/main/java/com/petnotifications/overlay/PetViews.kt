@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -513,6 +514,16 @@ fun PetContent(state: OverlayState) {
         else -> restFace
     }
     val stretched = lying && state.pet.liesDown
+    // La pelotita va aparte, fuera de la capa que se espeja y rebota: queda quieta en el piso.
+    val worn = state.outfit.without(com.petnotifications.Slot.TOY)
+    val ballRoll = remember { Animatable(0f) }
+    LaunchedEffect(state.ballTick) {
+        if (state.ballTick == 0) return@LaunchedEffect
+        ballRoll.animateTo(-34f, tween(650, easing = FastOutSlowInEasing))
+        delay(350)
+        ballRoll.animateTo(6f, tween(900, easing = FastOutSlowInEasing))
+        ballRoll.animateTo(0f, spring(dampingRatio = 0.5f))
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val hopPx = with(LocalDensity.current) { hop.value.dp.toPx() }
@@ -543,25 +554,34 @@ fun PetContent(state: OverlayState) {
         if (modelTurning) {
             // Se redibuja en cada cuadro del giro (solo mientras gira).
             Canvas(petLayer) {
-                PetModel.draw(this, state.pet, turnAngle.value, coat = state.coat, outfit = state.outfit)
-                PetModel.drawOutfitTurn(this, state.pet, turnAngle.value, state.outfit)
+                PetModel.draw(this, state.pet, turnAngle.value, coat = state.coat, outfit = worn)
+                PetModel.drawOutfitTurn(this, state.pet, turnAngle.value, worn)
             }
         } else if (headTurning) {
             // Cuerpo sentado fijo y la cabeza dibujada en el ángulo de cada cuadro.
             Box(petLayer) {
                 Image(petPainter(state.pet, PetView.SIT_BODY, state.coat), null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
                 Canvas(Modifier.fillMaxSize()) {
-                    PetModel.drawHead(this, state.pet, headAngle.value, coat = state.coat, outfit = state.outfit)
-                    PetModel.drawOutfitHead(this, state.pet, headAngle.value, state.outfit)
+                    PetModel.drawHead(this, state.pet, headAngle.value, coat = state.coat, outfit = worn)
+                    PetModel.drawOutfitHead(this, state.pet, headAngle.value, worn)
                 }
             }
         } else {
             Image(
-                petPainter(state.pet, view, state.coat, state.outfit),
+                petPainter(state.pet, view, state.coat, worn),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = petLayer,
             )
+        }
+        if (state.outfit.toy != null) {
+            // Mismo encuadre que los dibujos (256×240, ajustado al ancho como ContentScale.Fit).
+            Canvas(Modifier.fillMaxSize()) {
+                val h = size.width * 240f / 256f
+                translate(top = (size.height - h) / 2) {
+                    PetModel.drawToy(this, state.pet, ballRoll.value)
+                }
+            }
         }
         if (dozing) Snores(maxWidth, Modifier.align(Alignment.TopStart))
     }

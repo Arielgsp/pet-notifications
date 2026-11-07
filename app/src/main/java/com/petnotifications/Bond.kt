@@ -12,57 +12,54 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * El vínculo con la mascota (Design: Vinculo y SubeDeNivel). Cada "Listo" suma un corazón (tope
- * diario), el primer mimo del día suma otro, y con los corazones se sube de nivel: la mascota aprende
- * trucos o gana accesorios. Nunca resta. Es del usuario, no de cada mascota, y se guarda en las
- * preferencias (viaja con la copia de seguridad de Android).
+ * El camino de la mascota (pedido de Cowork del 07/11/2026). Cada "Listo" suma un corazón (tope diario) y
+ * el primero del día uno más; el primer mimo del día y abrir la app una vez por día suman otro. Con los
+ * corazones la mascota gana 8 premios: trucos, accesorios y un juguete. No hay niveles a la vista. Nunca
+ * resta. Es del usuario, no de cada mascota, y se guarda en las preferencias (viaja con la copia de
+ * seguridad de Android).
  */
 object Bond {
 
+    enum class Kind { TRICK, WEAR, TOY }
+
     /**
-     * Lo que se gana en cada nivel. [ready]: ya existe en la app; si no, se anuncia y en "Nuestro
-     * camino" aparece como "Muy pronto" (se entrega cuando esté dibujado).
+     * Los premios, en orden. [at]: corazones con los que se gana (las cifras están solo acá). [title]: su
+     * nombre ("Gorrito de lana"); [phrase]: cómo se dice en las frases ("gorrito", "dar la patita");
+     * [won]: el título del festejo ("¡Estreno gorrito!").
      */
     enum class Reward(
+        val at: Int,
+        val kind: Kind,
         @StringRes val title: Int,
-        @StringRes val learned: Int,
-        @StringRes val howTo: Int,
-        val ready: Boolean,
+        @StringRes val phrase: Int,
+        @StringRes val won: Int,
     ) {
-        WAG(R.string.bond_r_wag, R.string.bond_learned_wag, R.string.bond_how_wag, true),
-        SCARF(R.string.bond_r_scarf, R.string.bond_learned_scarf, R.string.bond_how_scarf, true),
-        PAW(R.string.bond_r_paw, R.string.bond_learned_paw, R.string.bond_how_paw, true),
-        MORNING(R.string.bond_r_morning, R.string.bond_learned_morning, R.string.bond_how_morning, true),
-        BED(R.string.bond_r_bed, R.string.bond_learned_bed, R.string.bond_how_bed, true),
-        HAT(R.string.bond_r_hat, R.string.bond_learned_hat, R.string.bond_how_hat, true),
-        DANCE(R.string.bond_r_dance, R.string.bond_learned_dance, R.string.bond_how_dance, true),
-        CROWN(R.string.bond_r_crown, R.string.bond_learned_crown, R.string.bond_how_crown, true),
+        SCARF(3, Kind.WEAR, R.string.acc_scarf, R.string.bond_p_scarf, R.string.bond_won_scarf),
+        PAW(10, Kind.TRICK, R.string.bond_r_paw, R.string.bond_p_paw, R.string.bond_won_paw),
+        BED(22, Kind.WEAR, R.string.acc_bed, R.string.bond_p_bed, R.string.bond_won_bed),
+        BALL(40, Kind.TOY, R.string.acc_ball, R.string.bond_p_ball, R.string.bond_won_ball),
+        DANCE(65, Kind.TRICK, R.string.bond_r_dance, R.string.bond_p_dance, R.string.bond_won_dance),
+        HAT(95, Kind.WEAR, R.string.acc_hat, R.string.bond_p_hat, R.string.bond_won_hat),
+        TAG(135, Kind.WEAR, R.string.acc_tag, R.string.bond_p_tag, R.string.bond_won_tag),
+        CROWN(180, Kind.WEAR, R.string.acc_crown, R.string.bond_p_crown, R.string.bond_won_crown),
     }
 
-    class Level(val number: Int, val from: Int, @StringRes val name: Int, @StringRes val title: Int, val reward: Reward)
-
-    val LEVELS = listOf(
-        Level(1, 0, R.string.bond_l1, R.string.bond_t1, Reward.WAG),
-        Level(2, 10, R.string.bond_l2, R.string.bond_t2, Reward.SCARF),
-        Level(3, 30, R.string.bond_l3, R.string.bond_t3, Reward.PAW),
-        Level(4, 60, R.string.bond_l4, R.string.bond_t4, Reward.MORNING),
-        Level(5, 100, R.string.bond_l5, R.string.bond_t5, Reward.BED),
-        Level(6, 150, R.string.bond_l6, R.string.bond_t6, Reward.HAT),
-        Level(7, 220, R.string.bond_l7, R.string.bond_t7, Reward.DANCE),
-        Level(8, 300, R.string.bond_l8, R.string.bond_t8, Reward.CROWN),
-    )
+    val REWARDS = Reward.entries
 
     /** Corazones por "Listo" en un mismo día (evita marcar "Listo" en serie). */
     const val DAILY_LISTO_CAP = 10
+
+    /** Con este "Listo" ya se dicen "casi": la tarjeta pasa de "Lo próximo" a "Un poco más y...". */
+    const val ALMOST = 10
 
     const val KEY_PREFIX = "bond_"
     private const val KEY_HEARTS = "bond_hearts"
     private const val KEY_DAY = "bond_day"
     private const val KEY_DAY_LISTO = "bond_day_listo"
     private const val KEY_PET_DAY = "bond_pet_day"
+    private const val KEY_VISIT_DAY = "bond_visit_day"
     private const val KEY_SEEDED = "bond_seeded"
-    private const val KEY_CELEBRATED = "bond_celebrated"
-    private const val KEY_WELCOME = "bond_welcome"
+    /** Premios ya festejados (nombres de Reward). Los de versiones anteriores siguen sirviendo. */
     private const val KEY_GOT = "bond_got"
     private const val KEY_GREET_DAY = "bond_greet_day"
     private const val KEY_DANCE_DAY = "bond_dance_day"
@@ -74,17 +71,17 @@ object Bond {
 
     fun hearts(ctx: Context): Int = sp(ctx).getInt(KEY_HEARTS, 0)
 
-    fun levelFor(hearts: Int): Level = LEVELS.last { hearts >= it.from }
+    /** Los ganados con [hearts]. */
+    fun earned(hearts: Int): List<Reward> = REWARDS.filter { hearts >= it.at }
 
-    fun level(ctx: Context): Level = levelFor(hearts(ctx))
+    /** El próximo premio; null si ya ganó todos. */
+    fun next(hearts: Int): Reward? = REWARDS.firstOrNull { hearts < it.at }
 
-    fun next(level: Level): Level? = LEVELS.getOrNull(level.number)
-
-    /** Avance dentro del nivel: corazones ya juntados y los que pide el próximo (0/0 en el último). */
-    fun progress(hearts: Int): Pair<Int, Int> {
-        val level = levelFor(hearts)
-        val next = next(level) ?: return 0 to 0
-        return (hearts - level.from) to (next.from - level.from)
+    /** Avance hacia el próximo premio, de 0 a 1 (1 si ya ganó todos). */
+    fun progress(hearts: Int): Float {
+        val next = next(hearts) ?: return 1f
+        val from = REWARDS.getOrNull(next.ordinal - 1)?.at ?: 0
+        return ((hearts - from).toFloat() / (next.at - from)).coerceIn(0f, 1f)
     }
 
     // ---------------------------------------------------------------- sumar corazones
@@ -92,29 +89,39 @@ object Bond {
     /** Un "Listo" que cuenta (fuentes del usuario: recordatorios y calendario, no pruebas ni mensajes). */
     fun counts(alert: PetAlert) = alert.source == PetAlert.Source.LOCAL || alert.source == PetAlert.Source.CALENDAR
 
-    /** Suma el corazón de un "Listo". false si ya se llegó al tope del día. */
+    /**
+     * Suma el corazón de un "Listo" y, si es el primero del día, uno más. false si ya se llegó al tope
+     * del día.
+     */
     @Synchronized
     fun addListo(ctx: Context): Boolean {
         val sp = sp(ctx)
         val day = today()
         val count = if (sp.getLong(KEY_DAY, -1) == day) sp.getInt(KEY_DAY_LISTO, 0) else 0
         if (count >= DAILY_LISTO_CAP) return false
+        val gain = if (count == 0) 2 else 1
         sp.edit(commit = true) {
             putLong(KEY_DAY, day)
             putInt(KEY_DAY_LISTO, count + 1)
-            putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + 1)
+            putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + gain)
         }
         return true
     }
 
     /** El primer mimo del día (1 o 2 toques) suma un corazón. */
     @Synchronized
-    fun addPetting(ctx: Context): Boolean {
+    fun addPetting(ctx: Context): Boolean = addDaily(ctx, KEY_PET_DAY)
+
+    /** Pasar a saludarla: abrir la app suma un corazón, una vez por día. */
+    @Synchronized
+    fun addVisit(ctx: Context): Boolean = sp(ctx).getBoolean(KEY_SEEDED, false) && addDaily(ctx, KEY_VISIT_DAY)
+
+    private fun addDaily(ctx: Context, key: String): Boolean {
         val sp = sp(ctx)
         val day = today()
-        if (sp.getLong(KEY_PET_DAY, -1) == day) return false
+        if (sp.getLong(key, -1) == day) return false
         sp.edit(commit = true) {
-            putLong(KEY_PET_DAY, day)
+            putLong(key, day)
             putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + 1)
         }
         return true
@@ -124,8 +131,8 @@ object Bond {
 
     /**
      * La primera vez (también al actualizar desde una versión sin vínculo) se cuentan los "Listo" ya
-     * registrados, con el mismo tope diario. Si eso ya sube de nivel, se festeja una sola vez
-     * ("¡Ya nos conocíamos!"), no un nivel por vez.
+     * registrados, con el mismo tope diario. Si con eso ya gana premios, se festejan todos juntos en un
+     * solo festejo ([Celebration.CatchUp]).
      */
     suspend fun seedIfNeeded(ctx: Context) = seedLock.withLock {
         val sp = sp(ctx)
@@ -136,13 +143,8 @@ object Bond {
             .groupBy { Instant.ofEpochMilli(it.doneAt).atZone(zone).toLocalDate() }
         val seeded = done.values.sumOf { minOf(it.size, DAILY_LISTO_CAP) }
         synchronized(this) {
-            val hearts = sp.getInt(KEY_HEARTS, 0) + seeded
-            val level = levelFor(hearts)
             sp.edit(commit = true) {
-                putInt(KEY_HEARTS, hearts)
-                putInt(KEY_CELEBRATED, level.number)
-                putBoolean(KEY_WELCOME, level.number > 1)
-                putStringSet(KEY_GOT, readyUpTo(level))
+                putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + seeded)
                 done[LocalDate.now()]?.let {
                     putLong(KEY_DAY, today())
                     putInt(KEY_DAY_LISTO, minOf(it.size, DAILY_LISTO_CAP))
@@ -152,37 +154,22 @@ object Bond {
         }
     }
 
-    private fun readyUpTo(level: Level): Set<String> =
-        LEVELS.filter { it.number <= level.number && it.reward.ready }.map { it.reward.name }.toSet()
-
-    // ---------------------------------------------------------------- Pro: adelantar el camino
-
-    /** Con Pro se puede llegar de una vez al último nivel (se festeja como una subida de nivel). */
-    @Synchronized
-    fun skipToEnd(ctx: Context) {
-        val sp = sp(ctx)
-        val top = LEVELS.last().from
-        if (sp.getInt(KEY_HEARTS, 0) < top) sp.edit(commit = true) { putInt(KEY_HEARTS, top) }
-    }
-
     // ---------------------------------------------------------------- herramientas de dueño
 
-    /** Suma corazones para probar los niveles (los festejos salen como siempre). */
+    /** Suma corazones para probar los premios (los festejos salen como siempre). */
     @Synchronized
     fun ownerAdd(ctx: Context, n: Int) {
         val sp = sp(ctx)
         sp.edit(commit = true) { putInt(KEY_HEARTS, sp.getInt(KEY_HEARTS, 0) + n) }
     }
 
-    /** Vuelve a cero: nivel 1, sin festejos pendientes ni premios entregados. */
+    /** Vuelve a cero: sin premios ni festejos pendientes, y los corazones de hoy se pueden volver a ganar. */
     @Synchronized
     fun ownerReset(ctx: Context) {
         sp(ctx).edit(commit = true) {
             putInt(KEY_HEARTS, 0)
-            putInt(KEY_CELEBRATED, 1)
-            putBoolean(KEY_WELCOME, false)
-            putStringSet(KEY_GOT, readyUpTo(LEVELS.first()))
-            remove(KEY_DAY); remove(KEY_DAY_LISTO); remove(KEY_PET_DAY); remove(KEY_GREET_DAY)
+            putStringSet(KEY_GOT, emptySet())
+            remove(KEY_DAY); remove(KEY_DAY_LISTO); remove(KEY_PET_DAY); remove(KEY_VISIT_DAY); remove(KEY_GREET_DAY)
             putBoolean(KEY_SEEDED, true)
         }
     }
@@ -190,59 +177,57 @@ object Bond {
     // ---------------------------------------------------------------- festejos
 
     sealed interface Celebration {
-        /** Subió de nivel jugando: lo que aprendió o ganó. */
-        data class LevelUp(val level: Level) : Celebration
-        /** Usuario que ya tenía la app: un solo festejo con el nivel al que llegó. */
-        data class Welcome(val level: Level) : Celebration
-        /** Llegó un premio que antes estaba "Muy pronto" (por ejemplo, el pañuelo). */
-        data class Arrived(val level: Level) : Celebration
+        val rewards: List<Reward>
+
+        /** Ganó un premio. */
+        data class Earned(val reward: Reward) : Celebration {
+            override val rewards get() = listOf(reward)
+        }
+
+        /**
+         * Ganó varios de una vez (quien ya tenía corazones, al actualizar o al cambiar la tabla): un solo
+         * festejo que los resume.
+         */
+        data class CatchUp(override val rewards: List<Reward>) : Celebration
     }
 
-    /** Lo que falta festejar, si hay algo. Lo muestra la mascota o, con la app abierta, la app. */
+    /** Lo que falta festejar, si hay algo. Un truco lo festeja la mascota; lo demás, la app. */
     fun pending(ctx: Context): Celebration? {
         val sp = sp(ctx)
         if (!sp.getBoolean(KEY_SEEDED, false)) return null
-        val level = level(ctx)
-        if (sp.getBoolean(KEY_WELCOME, false)) return Celebration.Welcome(level)
-        if (level.number > sp.getInt(KEY_CELEBRATED, 1)) return Celebration.LevelUp(level)
         val got = sp.getStringSet(KEY_GOT, emptySet()).orEmpty()
-        LEVELS.firstOrNull { it.number in 2..level.number && it.reward.ready && it.reward.name !in got }
-            ?.let { return Celebration.Arrived(it) }
-        return null
+        val missing = earned(hearts(ctx)).filter { it.name !in got }
+        return when (missing.size) {
+            0 -> null
+            1 -> Celebration.Earned(missing.single())
+            else -> Celebration.CatchUp(missing)
+        }
     }
+
+    /** Un truco ganado que todavía no se festejó: lo festeja la mascota en el momento (OverlayService). */
+    fun pendingTrick(ctx: Context): Reward? {
+        val sp = sp(ctx)
+        if (!sp.getBoolean(KEY_SEEDED, false)) return null
+        val got = sp.getStringSet(KEY_GOT, emptySet()).orEmpty()
+        val missing = earned(hearts(ctx)).filter { it.name !in got }
+        // Si además hay otros premios sin festejar, va todo junto en el resumen de la app.
+        return missing.singleOrNull()?.takeIf { it.kind == Kind.TRICK }
+    }
+
+    /** Cómo se usa un truco ("Tócame dos veces y, entre vuelta y vuelta, te la doy."). */
+    @StringRes
+    fun trickHow(r: Reward): Int = if (r == Reward.DANCE) R.string.bond_how_dance else R.string.bond_how_paw
 
     @Synchronized
     fun markCelebrated(ctx: Context, c: Celebration) {
         val sp = sp(ctx)
         val got = sp.getStringSet(KEY_GOT, emptySet()).orEmpty()
-        sp.edit(commit = true) {
-            when (c) {
-                is Celebration.Welcome -> {
-                    putBoolean(KEY_WELCOME, false)
-                    putInt(KEY_CELEBRATED, maxOf(c.level.number, sp.getInt(KEY_CELEBRATED, 1)))
-                    putStringSet(KEY_GOT, got + readyUpTo(c.level))
-                }
-                // Si subió varios niveles de golpe se festeja el último; los trucos de antes quedan entregados.
-                is Celebration.LevelUp -> {
-                    putInt(KEY_CELEBRATED, c.level.number)
-                    putStringSet(KEY_GOT, got + readyUpTo(c.level))
-                }
-                is Celebration.Arrived -> putStringSet(KEY_GOT, got + c.level.reward.name)
-            }
-        }
-        // Un accesorio recién ganado se lo pone enseguida (se cambia en el Vestidor).
-        val won = when (c) {
-            is Celebration.LevelUp -> c.level.reward
-            is Celebration.Arrived -> c.level.reward
-            is Celebration.Welcome -> null
-        }
-        won?.let(Accessory::of)?.let { Outfit.wear(ctx, it) }
+        sp.edit(commit = true) { putStringSet(KEY_GOT, got + c.rewards.map { it.name }) }
     }
 
     // ---------------------------------------------------------------- trucos
 
-    fun knows(ctx: Context, reward: Reward): Boolean =
-        reward.ready && level(ctx).number >= LEVELS.first { it.reward == reward }.number
+    fun knows(ctx: Context, reward: Reward): Boolean = hearts(ctx) >= reward.at
 
     /** El saludo de buenos días ya se dio hoy. */
     fun greetedToday(ctx: Context) = sp(ctx).getLong(KEY_GREET_DAY, -1) == today()

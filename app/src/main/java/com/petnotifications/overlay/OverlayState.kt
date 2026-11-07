@@ -66,6 +66,8 @@ class OverlayState {
     var outfit by mutableStateOf(com.petnotifications.Outfit.NONE)
     /** Cada incremento: se da una vuelta despacito (frente → perfil → espalda → perfil → frente). */
     var spinTick by mutableIntStateOf(0)
+    /** Cada incremento: juega con la pelotita (rueda un poco hacia ella y vuelve). */
+    var ballTick by mutableIntStateOf(0)
     var bounceTick by mutableIntStateOf(0)
     var talking by mutableStateOf(false)
     /** Echada durmiendo (hora de dormir o mucho rato sin avisos). */
@@ -129,6 +131,15 @@ sealed interface BondCard {
     data class Celebrate(
         override val id: Long,
         val chip: String,
+        val title: String,
+        val body: String,
+        val primary: String,
+        val secondary: String,
+    ) : BondCard
+
+    /** Truco nuevo: un papelito sobre la mascota, con cómo se usa, "¡A ver!" y "Después". */
+    data class Trick(
+        override val id: Long,
         val title: String,
         val body: String,
         val primary: String,

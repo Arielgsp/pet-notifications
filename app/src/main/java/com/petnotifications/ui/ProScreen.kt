@@ -80,14 +80,15 @@ fun ProDialog(onDismiss: () -> Unit) {
                 CompareRow(stringResource(R.string.pro_row_reminders), yes, yes)
                 CompareRow(stringResource(R.string.pro_row_pet_life), yes, yes)
                 CompareRow(stringResource(R.string.pro_row_caramel), no, yes)
-                CompareRow(stringResource(R.string.pro_row_bond_skip), no, yes)
                 CompareRow(stringResource(R.string.pro_row_insist), stringResource(R.string.pro_row_insist_free), stringResource(R.string.pro_row_insist_pro))
                 CompareRow(stringResource(R.string.pro_row_calendar), no, yes)
                 CompareRow(stringResource(R.string.pro_row_voice), no, yes)
                 CompareRow(stringResource(R.string.pro_row_bedtime), no, yes)
                 CompareRow(stringResource(R.string.pro_row_ghost), yes, yes)
                 CompareRow(stringResource(R.string.pro_row_look), no, yes)
-                CompareRow(stringResource(R.string.pro_row_coats), stringResource(R.string.pro_row_coats_free), stringResource(R.string.pro_row_coats_pro))
+                if (com.petnotifications.Shop.COATS_FOR_SALE) {
+                    CompareRow(stringResource(R.string.pro_row_coats), stringResource(R.string.pro_row_coats_free), stringResource(R.string.pro_row_coats_pro))
+                }
                 if (!prefs.proPurchased) {
                     Text(
                         stringResource(R.string.pro_one_time),
@@ -163,9 +164,9 @@ fun TrialEndDialog(prefs: Prefs, onBuy: () -> Unit, onStayFree: () -> Unit) {
     val ctx = LocalContext.current
     val free = prefs.freePets.firstOrNull() ?: prefs.pet
     val chosen = prefs.chosenPet
-    val goes = listOf(
+    val goes = listOfNotNull(
         R.string.trial_end_pets to (chosen != free),
-        R.string.trial_end_coats to prefs.usedCoats(),
+        (R.string.trial_end_coats to prefs.usedCoats()).takeIf { com.petnotifications.Shop.COATS_FOR_SALE },
         R.string.trial_end_calendar to prefs.usedCalendar(),
         R.string.trial_end_voice to prefs.usedVoice(),
         R.string.trial_end_dnd to prefs.usedBedtime(),

@@ -1,6 +1,6 @@
 # MimuPet — resumen de la app
 
-Al día el 07/11/2026 (versión 1.0.65). Las decisiones vigentes, con más detalle, están en
+Al día el 07/11/2026 (versión 1.0.66). Las decisiones vigentes, con más detalle, están en
 [mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md); si algo de acá las contradice, mandan ellas.
 
 ## Qué es

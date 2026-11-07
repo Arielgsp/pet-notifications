@@ -31,9 +31,10 @@ class Prefs(context: Context) {
 
     /**
      * Los pelajes no son parte de Pro: se venden en un pack por mascota ([coatPackId]). Durante la prueba
-     * de Pro se pueden usar todos.
+     * de Pro se pueden usar todos. Con [Shop.COATS_FOR_SALE] apagado, ninguno: solo el original.
      */
     fun hasCoats(p: PetType): Boolean = when {
+        !Shop.COATS_FOR_SALE -> false
         BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_PRO -> true
         BuildConfig.OWNER_TOOLS && ownerPlan == OWNER_FREE -> p in coatPacks()
         else -> trialActive() || p in coatPacks()
@@ -348,7 +349,7 @@ class Prefs(context: Context) {
     val chosenPet: PetType get() = PetType.from(sp.getString(KEY_PET, null))
 
     /** Usó algún pelaje de Pro, el calendario o la voz (aunque ahora, sin Pro, no se apliquen). */
-    fun usedCoats() = coatPacks().let { packs -> PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 && it !in packs } }
+    fun usedCoats() = Shop.COATS_FOR_SALE && coatPacks().let { packs -> PetType.entries.any { sp.getInt(KEY_COAT + it.name, 0) != 0 && it !in packs } }
     fun usedCalendar() = sp.getBoolean(KEY_CAL_ENABLED, false)
     fun usedVoice() = sp.getBoolean(KEY_VOICE, false)
     fun usedBedtime() = sp.getBoolean(KEY_BEDTIME, false)

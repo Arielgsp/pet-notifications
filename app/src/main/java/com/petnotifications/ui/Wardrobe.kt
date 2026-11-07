@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,6 +58,7 @@ import com.petnotifications.PetType
 import com.petnotifications.PetView
 import com.petnotifications.R
 import com.petnotifications.Slot
+import com.petnotifications.accessoryPainter
 import com.petnotifications.petPainter
 
 /*
@@ -68,24 +70,37 @@ import com.petnotifications.petPainter
 /**
  * Escenario: un panel rosa con la mascota grande y, adentro a la derecha, los lugares ([onSlot]: null los
  * esconde, en la vista previa de otra mascota; [activeSlot]: el que se está vistiendo). [banner]: "Vista previa".
+ * [ghost]: el próximo premio del camino, transparente encima de la mascota y con un cartelito "¿para mí?".
  */
 @Composable
 fun WardrobeStage(
     pet: PetType, coat: Int, outfit: Outfit, view: PetView, description: String, banner: String?, activeSlot: Slot?, onTap: () -> Unit,
-    onSlot: ((Slot) -> Unit)?,
+    onSlot: ((Slot) -> Unit)?, ghost: Accessory? = null,
 ) {
     val c = Pet.colors
     val shape = RoundedCornerShape(24.dp)
     Box(Modifier.fillMaxWidth().height(270.dp).background(c.blushSoft, shape).padding(12.dp)) {
-        Image(
-            petPainter(pet, view, coat, outfit),
-            contentDescription = description,
-            modifier = Modifier
+        Box(
+            Modifier
                 .align(if (onSlot != null) Alignment.CenterStart else Alignment.Center)
                 .padding(end = if (onSlot != null) 72.dp else 0.dp)
                 .size(226.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onTap),
-        )
+        ) {
+            Image(petPainter(pet, view, coat, outfit), contentDescription = description, modifier = Modifier.fillMaxSize())
+            if (ghost != null) {
+                Image(accessoryPainter(pet, view, coat, outfit, ghost), contentDescription = null, modifier = Modifier.fillMaxSize().alpha(0.4f))
+                Text(
+                    stringResource(R.string.bond_for_me), fontSize = 12.sp, fontWeight = FontWeight(800), color = c.cocoa,
+                    modifier = Modifier
+                        .align(if (ghost.slot == Slot.HEAD) Alignment.TopEnd else Alignment.CenterEnd)
+                        .padding(top = if (ghost.slot == Slot.HEAD) 6.dp else 0.dp)
+                        .background(c.surfaceRaised, RoundedCornerShape(50))
+                        .dashedBorder(c.fur, 50.dp)
+                        .padding(horizontal = 10.dp, vertical = 3.dp),
+                )
+            }
+        }
         if (banner != null) {
             Text(
                 banner, fontSize = 12.sp, fontWeight = FontWeight(800), color = c.cocoa,
@@ -95,10 +110,10 @@ fun WardrobeStage(
         }
         if (onSlot != null) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
                 modifier = Modifier.align(Alignment.CenterEnd),
             ) {
-                listOf(Slot.HEAD to R.string.slot_head, Slot.NECK to R.string.slot_neck, Slot.BED to R.string.slot_bed).forEach { (slot, name) ->
+                SLOTS.forEach { (slot, name) ->
                     SlotTile(stringResource(name), outfit[slot], slot == activeSlot) { onSlot(slot) }
                 }
             }
@@ -116,7 +131,7 @@ private fun SlotTile(name: String, worn: Accessory?, active: Boolean, onClick: (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .size(76.dp)
+            .size(width = 70.dp, height = 56.dp)
             .clip(shape)
             .background(c.surfaceRaised)
             .border(if (active) 2.dp else 1.dp, if (active) c.cocoa else c.line, shape)
@@ -124,11 +139,14 @@ private fun SlotTile(name: String, worn: Accessory?, active: Boolean, onClick: (
             .clearAndSetSemantics { contentDescription = a11y }
             .padding(2.dp),
     ) {
-        if (worn != null) AccessoryIcon(worn, Modifier.size(46.dp, 38.dp))
-        else Icon(Icons.Outlined.Add, contentDescription = null, tint = c.inkMuted, modifier = Modifier.size(30.dp))
+        if (worn != null) AccessoryIcon(worn, Modifier.size(36.dp, 30.dp))
+        else Icon(Icons.Outlined.Add, contentDescription = null, tint = c.inkMuted, modifier = Modifier.size(24.dp))
         Text(name, fontSize = 11.sp, lineHeight = 13.sp, fontWeight = FontWeight(800), color = c.ink)
     }
 }
+
+/** Los lugares, en el orden del escenario y de los chips de la hoja Vestir. */
+private val SLOTS = listOf(Slot.HEAD to R.string.slot_head, Slot.NECK to R.string.slot_neck, Slot.BED to R.string.slot_bed, Slot.TOY to R.string.slot_toy)
 
 /** Orden de la hoja Vestir; en cada lugar va primero "Sin nada". */
 private val HEAD_ORDER = listOf(Accessory.XMAS_HAT, Accessory.PUMPKIN, Accessory.PUMPKIN_HELMET, Accessory.HAT, Accessory.CROWN)
@@ -153,7 +171,7 @@ fun DressSheet(slot: Slot, onSlot: (Slot) -> Unit, onDismiss: () -> Unit, note: 
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                listOf(Slot.HEAD to R.string.slot_head, Slot.NECK to R.string.slot_neck, Slot.BED to R.string.slot_bed).forEach { (s, name) ->
+                SLOTS.forEach { (s, name) ->
                     val on = s == slot
                     Text(
                         stringResource(name), fontSize = 13.sp, fontWeight = FontWeight(800), textAlign = TextAlign.Center,
@@ -163,7 +181,7 @@ fun DressSheet(slot: Slot, onSlot: (Slot) -> Unit, onDismiss: () -> Unit, note: 
                             .background(if (on) c.cocoa else c.surfaceRaised)
                             .border(1.dp, if (on) c.cocoa else c.line, RoundedCornerShape(50))
                             .clickable(role = Role.Tab) { onSlot(s) }
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                     )
                 }
             }
@@ -177,11 +195,11 @@ fun DressSheet(slot: Slot, onSlot: (Slot) -> Unit, onDismiss: () -> Unit, note: 
 /**
  * Grilla de 3 columnas, con "Sin nada" primero: puesto (borde cocoa y tilde), ganado o comprado (tocar lo
  * pone o lo saca), a la venta (precio de Google Play; tocarlo lo prueba, con borde punteado) y bloqueado por
- * el vínculo (atenuado, candado y "Nivel N"; tocarlo explica cómo se gana).
+ * el camino (atenuado, candado y con cuántos corazones se gana; tocarlo explica cómo se gana).
  */
 @Composable
 fun AccessoryGrid(
-    slot: Slot, items: List<Accessory>, outfit: Outfit, level: Int, bought: Set<Accessory>, prices: Map<Accessory, String>, trying: Accessory?,
+    slot: Slot, items: List<Accessory>, outfit: Outfit, hearts: Int, bought: Set<Accessory>, prices: Map<Accessory, String>, trying: Accessory?,
     onNone: () -> Unit, onTap: (Accessory) -> Unit,
 ) {
     val c = Pet.colors
@@ -191,7 +209,7 @@ fun AccessoryGrid(
                 row.forEach { a ->
                     val isTrying = a != null && a == trying
                     val on = if (a == null) outfit[slot] == null && trying == null else outfit.wearing(a) && !isTrying
-                    val locked = a != null && !a.forSale && a.level > level
+                    val locked = a != null && !a.forSale && a.at > hearts
                     val sale = a != null && a.forSale && a !in bought
                     val shape = RoundedCornerShape(16.dp)
                     Box(
@@ -220,7 +238,7 @@ fun AccessoryGrid(
                                 if (locked) Icon(Icons.Outlined.Lock, contentDescription = null, tint = c.inkMuted, modifier = Modifier.size(11.dp))
                                 Text(
                                     when {
-                                        locked -> stringResource(R.string.bond_level_chip, a.level)
+                                        locked -> stringResource(R.string.bond_state_at, a.at)
                                         sale -> prices[a].orEmpty()
                                         on -> stringResource(R.string.acc_worn)
                                         a.forSale -> stringResource(R.string.acc_bought)
@@ -292,6 +310,11 @@ private val icons: Map<Accessory, List<Pair<androidx.compose.ui.graphics.Path, C
             svg("M30 17 L34 23 L26 23Z") to Color(0xFF4A3228),
             svg("M16 26 Q23 29 30 26 Q27 32 23 32 Q19 32 16 26Z") to Color(0xFF4A3228),
         ),
+        Accessory.TAG to listOf(
+            svg("M14 22a9 9 0 1 0 18 0a9 9 0 1 0-18 0z") to honey,
+            svg("M23 30 L19.2 26 C17.2 23.6 20 20.4 23 23.2 C26 20.4 28.8 23.6 26.8 26 Z") to Color(0xFFFF9EAE),
+        ),
+        Accessory.BALL to listOf(svg("M8 20a15 15 0 1 0 30 0a15 15 0 1 0-30 0z") to Color(0xFFFF9EAE)),
         Accessory.CROWN to listOf(9.0 to 22.0, 17.0 to 25.0, 25.0 to 26.0, 33.0 to 25.0, 39.0 to 22.0).mapIndexed { i, (x, y) ->
             svg("M${x - 4.5} ${y}a4.5 4.5 0 1 0 9 0a4.5 4.5 0 1 0-9 0z") to if (i % 2 == 0) blush else honey
         },
@@ -299,7 +322,7 @@ private val icons: Map<Accessory, List<Pair<androidx.compose.ui.graphics.Path, C
 }
 
 @Composable
-private fun AccessoryIcon(a: Accessory, modifier: Modifier) {
+internal fun AccessoryIcon(a: Accessory, modifier: Modifier) {
     val ink = Color(0xFF4A3228)
     Canvas(modifier) {
         val k = minOf(size.width / 46f, size.height / 38f)
@@ -318,6 +341,16 @@ private fun AccessoryIcon(a: Accessory, modifier: Modifier) {
             }
             if (a == Accessory.PUMPKIN) {
                 drawPath(svg("M17 15 Q16 24 17 33M29 15 Q30 24 29 33"), Color(0xFF8A5A3B).copy(alpha = 0.45f), style = Stroke(1.2f))
+            }
+            if (a == Accessory.TAG) {
+                drawPath(svg("M8 4 Q23 14 38 4"), ink, style = Stroke(4.2f, cap = StrokeCap.Round))
+                drawPath(svg("M8 4 Q23 14 38 4"), Color(0xFFC98A55), style = Stroke(2.4f, cap = StrokeCap.Round))
+                drawPath(svg("M23 10 V13"), ink, style = Stroke(1.6f, cap = StrokeCap.Round))
+            }
+            if (a == Accessory.BALL) {
+                drawPath(svg("M9 17 Q23 26 37 17"), ink, style = Stroke(1.6f, cap = StrokeCap.Round))
+                drawPath(svg("M10 26 Q23 33 36 26"), Color(0xFFFFF4E2), style = Stroke(2.6f, cap = StrokeCap.Round))
+                drawCircle(Color(0xFFFFF4E2).copy(alpha = 0.8f), 2.6f, androidx.compose.ui.geometry.Offset(17f, 13f))
             }
             if (a == Accessory.SCARF) {
                 for ((x, y) in listOf(18f to 15f, 28f to 15f, 23f to 22f)) drawCircle(Color(0xFFFFFDF9), 1.4f, androidx.compose.ui.geometry.Offset(x, y))

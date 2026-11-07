@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.PathParser
@@ -108,6 +109,107 @@ internal object OutfitArt {
         }
     }
 
+    /**
+     * Cuello de cada especie en la lámina (docs/accesorios-especies/anclajes.json): x, y y ancho, de frente y de
+     * perfil. Ahí va la chapita.
+     */
+    private class Neck(val fx: Float, val fy: Float, val fw: Float, val sx: Float, val sy: Float, val sw: Float)
+
+    private val necks = mapOf(
+        "DOG" to Neck(100f, 151.1f, 63.3f, 103.7f, 150.1f, 51.8f),
+        "CAT" to Neck(100f, 151.1f, 63.3f, 103.7f, 150.1f, 51.8f),
+        "DUCK" to Neck(100f, 150.8f, 62.7f, 108.3f, 148.7f, 55.1f),
+        "FROG" to Neck(100f, 153.5f, 61.4f, 104.3f, 151.7f, 55.7f),
+        "COW" to Neck(100f, 151.1f, 63.3f, 103.9f, 149f, 46.8f),
+        "PIG" to Neck(100f, 151.1f, 63.3f, 103.7f, 150.1f, 51.8f),
+        "LION" to Neck(100f, 146.4f, 52.4f, 109f, 146f, 21.1f),
+        "MONKEY" to Neck(100f, 149.3f, 59.7f, 103.9f, 149f, 46.8f),
+        "RABBIT" to Neck(100f, 155.7f, 71f, 100.5f, 153.5f, 65.9f),
+        "CHICK" to Neck(100f, 165.6f, 123.4f, 100f, 165.6f, 119.8f),
+        "OWL" to Neck(100f, 164.4f, 127.1f, 100f, 164.4f, 116.2f),
+    )
+
+    /** Ancho de cuello más grande que se usa para la chapita: el pollito y el búho no tienen cuello y quedaría enorme. */
+    private const val TAG_MAX_NECK = 66f
+
+    /**
+     * Chapita con su nombre (Cowork: camino/chapita.svg): un cordón marrón y una medalla dorada con un
+     * corazón, centrada debajo del mentón; la medalla mide el 45 % del ancho del pañuelo. Va donde el
+     * pañuelo (es una opción en su lugar). De perfil la medalla queda adelante; de espaldas no se ve.
+     */
+    fun tag(ds: DrawScope, pet: String, x: Double, y: Double, refX: Double, refY: Double, c: Double, s: Double) = with(ds) {
+        val side = abs(s) > abs(c)
+        if (!side && c < 0) return@with
+        val n = necks[pet] ?: return@with
+        val w = (if (side) n.sw else n.fw).coerceAtMost(TAG_MAX_NECK).coerceAtLeast(40f)
+        val nx = if (side) n.sx else n.fx
+        val ny = if (side) n.sy else n.fy
+        val r = w * 0.45f / 2
+        // De perfil la medalla cuelga del lado de la cara (adelante); el cordón da la vuelta por atrás.
+        val discX = if (side) nx + w * 0.28f else nx
+        val discY = ny + 6f + r * 1.25f
+        translate(x.toFloat(), y.toFloat()) {
+            scale(if (side && s < 0) -1f else 1f, 1f, pivot = Offset.Zero) {
+                translate(-refX.toFloat(), -refY.toFloat()) {
+                    val cord = Path().apply {
+                        if (side) {
+                            moveTo(nx - w * 0.42f, ny - 4f)
+                            quadraticTo(nx - w * 0.05f, ny + 8f, discX, ny + 6f)
+                        } else {
+                            moveTo(nx - w * 0.4f, ny - 3f)
+                            quadraticTo(nx, ny + 12f, nx + w * 0.4f, ny - 3f)
+                        }
+                    }
+                    drawPath(cord, INK, style = Stroke(9f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                    drawPath(cord, TAG_CORD, style = Stroke(5f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                    drawLine(INK, Offset(discX, ny + 4f), Offset(discX, discY - r), strokeWidth = 4f, cap = StrokeCap.Round)
+                    drawCircle(TAG_GOLD, r, Offset(discX, discY))
+                    drawCircle(INK, r, Offset(discX, discY), style = Stroke(4f))
+                    // El corazón de la medalla (el del dibujo de Cowork, escalado al disco).
+                    val k = r / 24f
+                    val heart = Path().apply {
+                        fun p(px: Float, py: Float) = Offset(discX + (px - 50f) * k, discY + (py - 64f) * k)
+                        p(50f, 74f).let { moveTo(it.x, it.y) }
+                        p(40f, 64f).let { lineTo(it.x, it.y) }
+                        val a = p(35f, 58f); val b = p(42f, 50f); val e = p(50f, 57f)
+                        cubicTo(a.x, a.y, b.x, b.y, e.x, e.y)
+                        val a2 = p(58f, 50f); val b2 = p(65f, 58f); val e2 = p(60f, 64f)
+                        cubicTo(a2.x, a2.y, b2.x, b2.y, e2.x, e2.y)
+                        close()
+                    }
+                    drawPath(heart, TAG_HEART)
+                    drawPath(heart, INK, style = Stroke(3f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                }
+            }
+        }
+    }
+
+    /**
+     * Pelotita (Cowork: camino/pelotita.svg), en el piso al lado de la mascota, en el lienzo de 200×240.
+     * [roll]: cuánto rodó (en unidades del lienzo, negativo hacia la mascota); gira con lo que rueda.
+     */
+    fun ball(ds: DrawScope, roll: Float = 0f) = with(ds) {
+        val r = BALL_R
+        val cx = BALL_X + roll
+        val cy = FLOOR - r
+        drawOval(INK.copy(alpha = 0.14f), Offset(cx - r * 0.9f, FLOOR - 3f), Size(r * 1.8f, 6f))
+        drawCircle(BALL_PINK, r, Offset(cx, cy))
+        rotate(roll / r * 57.3f, Offset(cx, cy)) {
+            val band = Path().apply {
+                moveTo(cx - r * 0.95f, cy - r * 0.2f)
+                quadraticTo(cx, cy + r * 0.75f, cx + r * 0.95f, cy - r * 0.2f)
+            }
+            drawPath(band, BALL_CREAM, style = Stroke(5f, cap = StrokeCap.Round))
+            val seam = Path().apply {
+                moveTo(cx - r * 0.95f, cy - r * 0.42f)
+                quadraticTo(cx, cy + r * 0.05f, cx + r * 0.95f, cy - r * 0.42f)
+            }
+            drawPath(seam, INK, style = Stroke(3f, cap = StrokeCap.Round))
+        }
+        drawCircle(INK, r, Offset(cx, cy), style = Stroke(4f))
+        drawCircle(BALL_CREAM.copy(alpha = 0.8f), r * 0.18f, Offset(cx - r * 0.37f, cy - r * 0.47f))
+    }
+
     /** Camita, detrás de todo: base verde, almohadón crema y la sombra del borde. */
     fun bed(ds: DrawScope, cx: Double, rx: Double) = with(ds) {
         val x = cx.toFloat()
@@ -135,4 +237,13 @@ internal object OutfitArt {
     private val BED_SHADE = Color(0xFF74A886)
     private val BED_CREAM = Color(0xFFFFF4E2)
     private const val BED_Y = 216f
+
+    private val TAG_CORD = Color(0xFFC98A55)
+    private val TAG_GOLD = Color(0xFFF7C873)
+    private val TAG_HEART = Color(0xFFFF9EAE)
+    private val BALL_PINK = Color(0xFFFF9EAE)
+    private val BALL_CREAM = Color(0xFFFFF4E2)
+    private const val BALL_R = 17f
+    private const val BALL_X = 206f
+    private const val FLOOR = 228f
 }

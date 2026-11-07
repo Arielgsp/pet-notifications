@@ -1017,6 +1017,27 @@ Para probar con y sin Pro: Herramientas de dueño → plan.
 | 74.6 | Con Pro: tocá "Adelantar todo el camino". | Pregunta "¿Adelantar todo el camino?". Cancelar no cambia nada. Adelantar: nivel 8, festejo de la corona y el botón desaparece. | |
 | 74.7 | Planes (Ver Pro). | Dos filas nuevas: "Globo Caramelo (el rosa)" y "Adelantar el camino de amistad", solo en Pro. | |
 
+## 75. Solo Pro a la venta y camino rehecho (versión 1.0.66)
+
+Reemplaza a 74.5, 74.6 y la fila «Adelantar el camino» de 74.7. Para sumar corazones: Ajustes → tocar 7 veces la versión → Herramientas de dueño → «+1 corazón» o «+10 corazones»; «Reiniciar vínculo» vuelve a cero.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 75.1 | Pantalla Mascota, con y sin Pro (también en la prueba). | No hay fila de pelajes. Las mascotas se ven con su pelaje original. | |
+| 75.2 | Planes (Ver Pro) y Herramientas de dueño → «Ver el cierre de la prueba de Pro». | Sin filas de pelajes ni de «Adelantar el camino». | |
+| 75.3 | Vestir → Cabeza. | Solo gorrito y corona; ni gorro navideño ni calabazas. | |
+| 75.4 | Pantalla Mascota, tarjeta del camino. | Sin niveles. Título «Lo próximo: …» o, si faltan 10 o menos, «Un poco más y (nombre) estrena …». Barra rosa, «Faltan N corazones», «¿Cómo gano corazones?» y 8 fichas: ganadas en verde, la próxima en rosa con borde, las demás apagadas. | |
+| 75.5 | «Ver todo». | «Lo que (nombre) aprende contigo», los 8 premios en dos columnas con «Ya lo tiene», «Lo próximo · faltan N» o «A los N corazones», las 4 formas de ganar corazones y la frase final. | |
+| 75.6 | Reiniciar el vínculo y sumar 3 corazones con la app abierta. | «¡Estreno pañuelo!» con la mascota vestida y corazones. «Ponérselo» se lo pone; «Ahora no» no. | |
+| 75.7 | Con 9 corazones, salir de la app y sumar 1 (marcar «Listo» en un aviso). | Sobre la mascota flotante, un papelito «¡Aprendí a dar la patita!». «¡A ver!»: da la patita. | |
+| 75.8 | Llegar a 22, 40, 95, 135 y 180. | Festejo de cada uno. La camita se ve con la mascota acostada. | |
+| 75.9 | Ponerle la pelotita (Vestir → Juguete). | Queda en el piso a la derecha, en la app y en la mascota flotante. De vez en cuando la mascota la mira, la pelotita rueda hacia ella y salta. | |
+| 75.10 | Ponerle la chapita (Vestir → Cuello) a cada mascota: de frente, de perfil, girando y dormida. | Cordón y medalla debajo del mentón; reemplaza al pañuelo. Acostada no se ve. | |
+| 75.11 | Con el gorrito sin ganar y nada en la cabeza. | El gorrito se ve transparente sobre la mascota, con «¿para mí?». Desaparece al ganarlo. | |
+| 75.12 | Primer «Listo» del día. | Suma 2 corazones (los siguientes, 1). | |
+| 75.13 | Abrir la app un día nuevo. | Suma 1 corazón (una sola vez por día). | |
+| 75.14 | Actualizar desde la 1.0.65 con corazones. | Conserva los corazones. Si gana premios nuevos de una vez (por ejemplo, pelotita y chapita), un solo festejo «¡Ya nos conocíamos!» que los nombra. | |
+
 ---
 
 ## Si algo falla
