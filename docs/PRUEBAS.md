@@ -1053,6 +1053,14 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 76.7 | (1.0.68) «Sacar el regalo», «Recibir el gorro navideño» y enseguida salir al inicio sin que la app lo festeje. | En unos segundos, papelito sobre la mascota: «¡Me trajeron un regalo!», «Abrí la app para verlo», «¡A ver!» y «Después». Una sola vez. | |
 | 76.8 | Tocar «¡A ver!». | Se abre la app y festeja el gorro. | |
 
+## 77. Aviso: mascota asomada y sin manito (versión 1.0.69)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 77.1 | Ayuda → «Probar un aviso» y salir al inicio. | Globo con el sonido y después el papelito al costado, **sin la manito** en el borde. | |
+| 77.2 | Tocar el papelito, con la mascota arriba o en el medio de la pantalla. | La cartita se abre **debajo de la mascota**, que se asoma por arriba con las patitas sobre el borde. | |
+| 77.3 | Lo mismo con la mascota bien abajo. | Si debajo no entra, la cartita va al costado (sin manito). | |
+
 ---
 
 ## Si algo falla

@@ -431,9 +431,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         // La tarjeta va debajo de la mascota (ella la sostiene con las patitas) si entra; si no, al costado.
         // Borde de arriba de la tarjeta, medido desde abajo; la ventana empieza un poco más arriba (lugar para las patitas).
         val holdTop = petParams.y + (height * HOLD_OVERLAP).roundToInt()
-        // Solo la carta abierta desde sus pies: el aviso se despliega al costado, desde el papelito.
-        val fromLetter = (state.phase as? FxPhase.Bubble)?.letter != null
-        val holdFits = card && fromLetter && needed + dp(HOLD_PAW_ROOM_DP) <= holdTop - dp(NAV_MARGIN_DP)
+        // También el aviso abierto desde el papelito: la mascota se asoma por arriba de la cartita (pedido de Ariel, 08/11).
+        val holdFits = card && needed + dp(HOLD_PAW_ROOM_DP) <= holdTop - dp(NAV_MARGIN_DP)
         state.held = null
         if (holdFits) {
             state.fxSide = 0
@@ -462,7 +461,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // La onomatopeya ocupa solo lo que mide el globo: no tapa la app de al lado más de lo necesario.
             if (call != null) fxParams.width = minOf(fxParams.width, dp(stickerWidth(call.text).value.toInt() + 4))
             fxParams.x = if (side > 0) petParams.x + size else petParams.x - fxParams.width
-            // El papelito y la cartita arrancan pegados al cuerpo: la mascota los sostiene con la patita.
+            // El papelito y la cartita (si no entra debajo) arrancan pegados al costado de la cara.
             if (peek != null || card) {
                 val overlap = ((1f - pet.mouthX - PEEK_FACE) * size).roundToInt()
                 fxParams.width = minOf(fullWidth, room + overlap - dp(2))

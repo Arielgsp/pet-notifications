@@ -369,23 +369,6 @@ internal fun DrawScope.drawFold(fold: Float, mirrored: Boolean) {
     drawPath(p, FoldTone)
 }
 
-/**
- * Una patita de la mascota apoyada sobre el borde del papel que da a ella ([edgeX]), a la altura [y]:
- * así parece que lo sostiene.
- */
-private fun DrawScope.drawHoldingPaw(edgeX: Float, y: Float, fill: Color, line: Color) {
-    val w = 15.dp.toPx()
-    val h = w * 0.82f
-    val tl = Offset(edgeX - w / 2f, y - h / 2f)
-    drawOval(fill, tl, Size(w, h))
-    drawOval(line, tl, Size(w, h), style = Stroke(1.4.dp.toPx()))
-    for (t in listOf(-0.17f, 0.17f)) {
-        val ty = y + t * h
-        val x0 = if (edgeX > size.width / 2f) tl.x + w * 0.08f else tl.x + w * 0.62f
-        drawLine(line, Offset(x0, ty), Offset(x0 + w * 0.3f, ty), 1.2.dp.toPx(), StrokeCap.Round)
-    }
-}
-
 /** Curva de Design para que el papel se despliegue: arranca rápido y se asienta suave. */
 private val UnfoldEasing = androidx.compose.animation.core.CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
 
@@ -398,11 +381,11 @@ private fun PetAlert.peekText() = title.ifBlank { body }
 
 /**
  * Segundo paso del aviso, después del globo de la onomatopeya: un papelito al costado de la mascota,
- * que lo sostiene con la patita, con la hora arriba y el aviso abajo en una línea. [side]: 1 la mascota
+ * con la hora arriba y el aviso abajo en una línea. [side]: 1 la mascota
  * a la izquierda (el papel a su derecha, espejado), -1 a la derecha, 0 arriba. Tocarlo abre la cartita.
  */
 @Composable
-fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, paw: Pair<Long, Long>, modifier: Modifier = Modifier) {
+fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, modifier: Modifier = Modifier) {
     val appear = remember(phase.id) { Animatable(0f) }
     LaunchedEffect(phase.id) { appear.animateTo(1f, tween(320, easing = FastOutSlowInEasing)) }
     val mirrored = side > 0
@@ -424,7 +407,6 @@ fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, paw: Pair<L
                 .drawWithContent {
                     drawContent()
                     drawFold(18.dp.toPx(), mirrored)
-                    if (side != 0) drawHoldingPaw(if (side > 0) 0f else size.width, size.height * 0.55f, Color(paw.first), Color(paw.second))
                 }
                 .shadow(6.dp, shape, ambientColor = Ink, spotColor = Ink)
                 .background(Paper, shape)
@@ -618,11 +600,8 @@ fun NoteCard(
             .drawWithContent {
                 drawContent()
                 drawFold(22.dp.toPx(), mirrored)
-                // Las patitas de la mascota: sobre el borde de arriba (debajo de ella) o sobre el costado que da a ella.
+                // Las patitas de la mascota sobre el borde de arriba: se asoma por encima de la cartita.
                 held?.let { (x, petW) -> drawPaws(x - cardX - 10.dp.toPx(), petW, Color(paw.first), Color(paw.second)) }
-                if (held == null && side != 0) {
-                    drawHoldingPaw(if (side > 0) 0f else size.width, 34.dp.toPx(), Color(paw.first), Color(paw.second))
-                }
             }
             .shadow(6.dp, shape, ambientColor = Ink, spotColor = Ink)
             .background(tone?.card ?: Paper, shape)
