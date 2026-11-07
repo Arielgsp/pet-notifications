@@ -400,6 +400,8 @@
     <string name="acc_gift">Gift</string>
     <string name="gift_xmas_title">Look what I got!</string>
     <string name="gift_xmas_body">A Christmas hat, as a gift. It’s mine forever, and it’s in Dress up now.</string>
+    <string name="gift_tell_title">I got a gift!</string>
+    <string name="gift_tell_body">Open the app to see it.</string>
     <string name="shop_remove">Take off</string>
     <string name="shop_buy">Buy · %1$s</string>
     <string name="shop_bought">It’s yours! I’ll keep it on.</string>

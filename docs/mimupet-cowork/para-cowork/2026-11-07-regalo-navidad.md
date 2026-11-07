@@ -12,3 +12,7 @@ Pedido: `para-code/2026-11-07-respuestas-y-regalo-navidad.md`. Las pruebas para 
 ## Duda
 
 1. **Si no abre la app entre el 1/12 y el 6/1, no lo recibe.** La mascota flotante no entrega el regalo: los festejos de accesorios son solo de la app. ¿Querés que la mascota también lo entregue, con un papelito que diga «¡Me trajeron un regalo! Abrí la app para verlo»?
+
+## Respuesta de Ariel (hecho en 1.0.68)
+
+Ariel aprobó la propuesta. Entre el 1/12 y el 6/1, la mascota flotante también entrega el gorro aunque no se abra la app, y lo anuncia una sola vez con un papelito como el del truco: «¡Me trajeron un regalo!», «Abrí la app para verlo» («Abre…» en neutro), «¡A ver!» (abre la app, que lo festeja) y «Después». Respeta lo mismo que el papelito del truco: no aparece encima de un aviso, con la pantalla bloqueada, en No molestar ni con los avisos en silencio. Pruebas en `docs/PRUEBAS.md`, 76.7 y 76.8.

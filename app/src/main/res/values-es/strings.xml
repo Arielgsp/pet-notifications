@@ -399,6 +399,8 @@
     <string name="acc_gift">Regalo</string>
     <string name="gift_xmas_title">¡Mira lo que me trajeron!</string>
     <string name="gift_xmas_body">Un gorro navideño de regalo. Es mío para siempre y ya está en Vestir.</string>
+    <string name="gift_tell_title">¡Me trajeron un regalo!</string>
+    <string name="gift_tell_body">Abre la app para verlo.</string>
     <string name="shop_remove">Quitar</string>
     <string name="shop_buy">Comprar · %1$s</string>
     <string name="shop_bought">¡Ya es tuyo! Me lo dejo puesto.</string>

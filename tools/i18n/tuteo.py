@@ -106,6 +106,7 @@ T = {
     'trial_end_body': 'Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue contigo.',
     'bond_learns_with_you': 'Lo que %1$s aprende contigo',
     'gift_xmas_title': '¡Mira lo que me trajeron!',
+    'gift_tell_body': 'Abre la app para verlo.',
 }
 
 # Frases: lista -> {posición: texto neutro}

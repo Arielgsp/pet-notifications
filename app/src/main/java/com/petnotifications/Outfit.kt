@@ -129,6 +129,9 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
         /** Regalos ya festejados. */
         private const val KEY_GIFTS_SEEN = Bond.KEY_PREFIX + "gifts_seen"
 
+        /** Regalos que la mascota flotante ya anunció con el papelito. */
+        private const val KEY_GIFTS_TOLD = Bond.KEY_PREFIX + "gifts_told"
+
         private fun names(ctx: Context, key: String) = Prefs(ctx).sp.getStringSet(key, emptySet()).orEmpty()
 
         fun gifted(ctx: Context): Set<Accessory> =
@@ -152,6 +155,7 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
         fun ownerClearGifts(ctx: Context) = Prefs(ctx).sp.edit {
             remove(KEY_GIFTS)
             remove(KEY_GIFTS_SEEN)
+            remove(KEY_GIFTS_TOLD)
         }
 
         private fun give(ctx: Context, items: List<Accessory>) = Prefs(ctx).sp.edit(commit = true) {
@@ -166,6 +170,19 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
 
         fun markGiftSeen(ctx: Context, a: Accessory) = Prefs(ctx).sp.edit(commit = true) {
             putStringSet(KEY_GIFTS_SEEN, names(ctx, KEY_GIFTS_SEEN) + a.name)
+        }
+
+        /**
+         * Para la mascota flotante: un regalo sin festejar que todavía no anunció. Así lo recibe también
+         * quien no abre la app en esos días; el festejo sigue siendo de la app.
+         */
+        fun giftToTell(ctx: Context): Accessory? {
+            val told = names(ctx, KEY_GIFTS_TOLD)
+            return pendingGift(ctx)?.takeIf { it.name !in told }
+        }
+
+        fun markGiftTold(ctx: Context, a: Accessory) = Prefs(ctx).sp.edit(commit = true) {
+            putStringSet(KEY_GIFTS_TOLD, names(ctx, KEY_GIFTS_TOLD) + a.name)
         }
 
         fun setBought(ctx: Context, items: Set<Accessory>) = Prefs(ctx).sp.edit {

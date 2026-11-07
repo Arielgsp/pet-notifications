@@ -399,6 +399,8 @@ S = [
 ('acc_gift', 'Regalo', 'Gift'),
 ('gift_xmas_title', '¡Mirá lo que me trajeron!', 'Look what I got!'),
 ('gift_xmas_body', 'Un gorro navideño de regalo. Es mío para siempre y ya está en Vestir.', 'A Christmas hat, as a gift. It’s mine forever, and it’s in Dress up now.'),
+('gift_tell_title', '¡Me trajeron un regalo!', 'I got a gift!'),
+('gift_tell_body', 'Abrí la app para verlo.', 'Open the app to see it.'),
 ('shop_remove', 'Sacar', 'Take off'),
 ('shop_buy', 'Comprar · %1$s', 'Buy · %1$s'),
 ('shop_bought', '¡Ya es tuyo! Me lo dejo puesto.', 'It’s yours! I’ll keep it on.'),

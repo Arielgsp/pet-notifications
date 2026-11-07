@@ -1102,11 +1102,13 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
      * patita!") con "¡A ver!" y "Después". Nunca encima de un aviso, ni con la pantalla bloqueada, en No
      * molestar o con los avisos en silencio (espera al siguiente desbloqueo). Con la app abierta lo
      * muestra la app. Los accesorios, el juguete y los resúmenes los festeja la app cuando se abre.
+     * El regalo de temporada sí lo entrega ella (por si no abre la app en esos días) y lo anuncia con
+     * otro papelito: "¡Me trajeron un regalo!" y "¡A ver!" abre la app, que lo festeja.
      */
     private fun maybeCelebrate() {
         if (state.card != null || current != null || queue.isNotEmpty() || state.phase !is FxPhase.None) return
         if (!canShowAlert(this) || inDnd() || prefs.muted || appVisible) return
-        val trick = Bond.pendingTrick(this) ?: return
+        val trick = Bond.pendingTrick(this) ?: return maybeTellGift()
         Bond.markCelebrated(this, Bond.Celebration.Earned(trick))
         wake()
         val card = BondCard.Trick(
@@ -1117,6 +1119,20 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         state.play(Trick.CHEER)
         heartFan(5)
         showCard(card, CARD_MS) { primary -> if (primary) showReward(trick) }
+    }
+
+    private fun maybeTellGift() {
+        Outfit.giveSeasonGifts(this)
+        val gift = Outfit.giftToTell(this) ?: return
+        Outfit.markGiftTold(this, gift)
+        wake()
+        val card = BondCard.Trick(
+            SystemClock.uptimeMillis(), getString(R.string.gift_tell_title), getString(R.string.gift_tell_body),
+            getString(R.string.bond_see_it), getString(R.string.bond_later),
+        )
+        state.play(Trick.CHEER)
+        heartFan(5)
+        showCard(card, CARD_MS, onTap = { openApp(null) }) { primary -> if (primary) openApp(null) }
     }
 
     /** Juega con la pelotita: la mira, la pelotita rueda hacia ella y salta contenta cuando vuelve. */

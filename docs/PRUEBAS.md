@@ -1050,6 +1050,8 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 76.4 | Con el gorro puesto, salir de la app. | La mascota flotante lo lleva puesto. | |
 | 76.5 | Del 1/12 al 6/1 (o cambiando la fecha del celular), abrir la app. | Llega el regalo sola, una sola vez. Después del 6/1 lo sigue teniendo. | |
 | 76.6 | Plan gratis y con Pro. | Igual en los dos. | |
+| 76.7 | (1.0.68) «Sacar el regalo», «Recibir el gorro navideño» y enseguida salir al inicio sin que la app lo festeje. | En unos segundos, papelito sobre la mascota: «¡Me trajeron un regalo!», «Abrí la app para verlo», «¡A ver!» y «Después». Una sola vez. | |
+| 76.8 | Tocar «¡A ver!». | Se abre la app y festeja el gorro. | |
 
 ---
 
