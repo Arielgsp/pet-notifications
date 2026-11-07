@@ -25,13 +25,13 @@ Lo decidió Ariel. El lanzamiento será probablemente en la **primera semana de 
 - Tabla de planes, cierre de la prueba, web (`web/datos.js`) y cualquier texto que hable de «packs aparte», «pelajes», «Comprar · precio» o adelantar el camino: sacarlos.
 - En Play Console **no hace falta cargar** los productos `coats_*` ni los accesorios para el lanzamiento (X13 y X18 quedan para después).
 
-## Para Ariel (todavía sin decidir)
+## Navidad (confirmado por Ariel)
 
-- **Navidad:** Cowork propone que el **gorro navideño sea un regalo gratis** para todos del 1/12 al 6/1, y que quien lo use se lo quede. No hay que cobrar nada ni cargar ningún producto, y le da a la app una novedad tierna justo en el lanzamiento. No lo hagas hasta que Ariel confirme.
+- El **gorro navideño es un regalo gratis** para todos del 1/12 al 6/1, y quien lo recibe se lo queda. No hay que cobrar nada ni cargar ningún producto. Detalle en `2026-11-07-respuestas-y-regalo-navidad.md`.
 
 ---
 
 Cuando esté, anotá al final de este archivo `Estado: hecho en 1.0.xx`. Si hay dudas, dejalas en `docs/mimupet-cowork/para-cowork/`.
 
 
-Estado: hecho en 1.0.66 (07/11/2026). Pelajes y accesorios de temporada escondidos con `Shop.COATS_FOR_SALE` y `Shop.SEASONAL_FOR_SALE` (en false). Se sacó «Adelantar todo el camino». El gorro navideño de regalo no está hecho: espera la confirmación de Ariel. Detalle en `para-cowork/2026-11-07-solo-pro-y-camino.md`.
+Estado: hecho en 1.0.66 (07/11/2026). Pelajes y accesorios de temporada escondidos con `Shop.COATS_FOR_SALE` y `Shop.SEASONAL_FOR_SALE` (en false). Se sacó «Adelantar todo el camino». El gorro navideño de regalo se hizo en 1.0.67 (pedido `2026-11-07-respuestas-y-regalo-navidad.md`). Detalle en `para-cowork/2026-11-07-solo-pro-y-camino.md`.

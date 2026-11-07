@@ -17,7 +17,7 @@ Lo que no cambia: el vínculo nunca resta, es del usuario y no de cada mascota, 
 | Corazones | Premio | Tipo |
 | --- | --- | --- |
 | 3 | Pañuelo | Cuello (ya existe) |
-| 10 | Dar la patita | Truco (ya existe: 3 toques) |
+| 10 | Dar la patita | Truco (ya existe: 2 toques, intercalada con la vuelta) |
 | 22 | Camita | Ya existe |
 | 40 | **Pelotita** | Nuevo: un juguete al lado de la mascota. A veces juega sola con ella (empujarla o perseguirla un poco) |
 | 65 | Bailar | Truco (ya existe) |
@@ -65,7 +65,7 @@ El día empieza a la medianoche local, como hoy.
   - botones «Ahora no» y «Ponérselo».
   - Si la app está cerrada, sale la próxima vez que se abre.
 - **Truco** (tablero «Camino · Aprendió un truco»):
-  - en el momento de ganarlo, sobre la mascota flotante, un **papelito** (el mismo del aviso, con la esquina doblada) con «¡Aprendí a dar la patita!» y «Tócame 3 veces y te la doy»;
+  - en el momento de ganarlo, sobre la mascota flotante, un **papelito** (el mismo del aviso, con la esquina doblada) con «¡Aprendí a dar la patita!» y «Tócame dos veces y, entre vuelta y vuelta, te la doy»;
   - botones «¡A ver!» (hace el truco en el momento) y «Después».
   - Para bailar: «¡Aprendí a bailar!» y «A veces bailo cuando tocas Listo».
 
@@ -87,4 +87,4 @@ El día empieza a la medianoche local, como hoy.
 Cuando esté, anotá al final de este archivo `Estado: hecho en 1.0.xx`. Si hay dudas, dejalas en `docs/mimupet-cowork/para-cowork/`.
 
 
-Estado: hecho en 1.0.66 (07/11/2026). La patita quedó con 2 toques, como en la maqueta «Aprendió un truco». Las decisiones que tomé están en `para-cowork/2026-11-07-solo-pro-y-camino.md`.
+Estado: hecho en 1.0.66 (07/11/2026). La patita quedó con 2 toques, como en la maqueta «Aprendió un truco» (confirmado por Cowork). Las decisiones que tomé están en `para-cowork/2026-11-07-solo-pro-y-camino.md`.

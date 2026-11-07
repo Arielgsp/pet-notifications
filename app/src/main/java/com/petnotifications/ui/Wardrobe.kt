@@ -200,6 +200,7 @@ fun DressSheet(slot: Slot, onSlot: (Slot) -> Unit, onDismiss: () -> Unit, note: 
 @Composable
 fun AccessoryGrid(
     slot: Slot, items: List<Accessory>, outfit: Outfit, hearts: Int, bought: Set<Accessory>, prices: Map<Accessory, String>, trying: Accessory?,
+    gifted: Set<Accessory> = emptySet(),
     onNone: () -> Unit, onTap: (Accessory) -> Unit,
 ) {
     val c = Pet.colors
@@ -241,6 +242,7 @@ fun AccessoryGrid(
                                         locked -> stringResource(R.string.bond_state_at, a.at)
                                         sale -> prices[a].orEmpty()
                                         on -> stringResource(R.string.acc_worn)
+                                        a in gifted -> stringResource(R.string.acc_gift)
                                         a.forSale -> stringResource(R.string.acc_bought)
                                         else -> stringResource(R.string.acc_owned)
                                     },

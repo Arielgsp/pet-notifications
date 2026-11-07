@@ -106,11 +106,66 @@ data class Outfit(val head: Accessory? = null, val neck: Accessory? = null, val 
         /** Comprados de mentira con las herramientas de dueño (aparte, para que Play no los borre). */
         const val KEY_OWNER_BOUGHT = Bond.KEY_PREFIX + "owner_bought"
 
+        /** Comprados o regalados: los dos se tienen para siempre. */
         fun bought(ctx: Context): Set<Accessory> {
             val sp = Prefs(ctx).sp
             val ids = sp.getStringSet(KEY_BOUGHT, emptySet()).orEmpty() +
                 if (BuildConfig.OWNER_TOOLS) sp.getStringSet(KEY_OWNER_BOUGHT, emptySet()).orEmpty() else emptySet()
-            return ids.mapNotNull(Accessory::ofProduct).toSet()
+            return ids.mapNotNull(Accessory::ofProduct).toSet() + gifted(ctx)
+        }
+
+        // ------------------------------------------------------------ regalos de temporada
+
+        /**
+         * Regalos para todos, gratis y Pro (pedido de Cowork del 07/11/2026): el gorro navideño del 1/12 al
+         * 6/1. Va por fecha, no por versión: quien abre la app en esos días lo recibe y se lo queda para
+         * siempre. No depende de Play ni del camino.
+         */
+        val GIFTS = mapOf(Accessory.XMAS_HAT to Season.CHRISTMAS)
+
+        /** Regalos recibidos (nombres de Accessory). Empieza como las del vínculo: viaja con la copia de seguridad. */
+        const val KEY_GIFTS = Bond.KEY_PREFIX + "gifts"
+
+        /** Regalos ya festejados. */
+        private const val KEY_GIFTS_SEEN = Bond.KEY_PREFIX + "gifts_seen"
+
+        private fun names(ctx: Context, key: String) = Prefs(ctx).sp.getStringSet(key, emptySet()).orEmpty()
+
+        fun gifted(ctx: Context): Set<Accessory> =
+            names(ctx, KEY_GIFTS).mapNotNull { n -> Accessory.entries.firstOrNull { it.name == n } }.toSet()
+
+        /** Los regalos que tocan [day] y todavía no recibió. */
+        fun giftsDue(day: LocalDate, have: Set<Accessory>): List<Accessory> =
+            GIFTS.filter { (a, season) -> season.isOn(day) && a !in have }.keys.toList()
+
+        /** Entrega los regalos de la fecha (al abrir la app). */
+        @Synchronized
+        fun giveSeasonGifts(ctx: Context, day: LocalDate = LocalDate.now()) {
+            val due = giftsDue(day, gifted(ctx))
+            if (due.isNotEmpty()) give(ctx, due)
+        }
+
+        /** Herramientas de dueño: recibir un regalo fuera de su fecha, para probarlo. */
+        fun ownerGive(ctx: Context, a: Accessory) = give(ctx, listOf(a))
+
+        /** Herramientas de dueño: como si nunca lo hubiera recibido. */
+        fun ownerClearGifts(ctx: Context) = Prefs(ctx).sp.edit {
+            remove(KEY_GIFTS)
+            remove(KEY_GIFTS_SEEN)
+        }
+
+        private fun give(ctx: Context, items: List<Accessory>) = Prefs(ctx).sp.edit(commit = true) {
+            putStringSet(KEY_GIFTS, names(ctx, KEY_GIFTS) + items.map { it.name })
+        }
+
+        /** Un regalo recibido que todavía no se festejó (lo festeja la app, como un accesorio del camino). */
+        fun pendingGift(ctx: Context): Accessory? {
+            val seen = names(ctx, KEY_GIFTS_SEEN)
+            return gifted(ctx).firstOrNull { it.name !in seen }
+        }
+
+        fun markGiftSeen(ctx: Context, a: Accessory) = Prefs(ctx).sp.edit(commit = true) {
+            putStringSet(KEY_GIFTS_SEEN, names(ctx, KEY_GIFTS_SEEN) + a.name)
         }
 
         fun setBought(ctx: Context, items: Set<Accessory>) = Prefs(ctx).sp.edit {

@@ -118,6 +118,8 @@ class MainActivity : ComponentActivity() {
         kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
             Bond.seedIfNeeded(applicationContext)
             Bond.addVisit(applicationContext)
+            // Regalo de temporada (gorro navideño del 1/12 al 6/1): se festeja en la app.
+            Outfit.giveSeasonGifts(applicationContext)
         }
     }
 

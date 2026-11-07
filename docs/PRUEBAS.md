@@ -1038,6 +1038,19 @@ Reemplaza a 74.5, 74.6 y la fila «Adelantar el camino» de 74.7. Para sumar cor
 | 75.13 | Abrir la app un día nuevo. | Suma 1 corazón (una sola vez por día). | |
 | 75.14 | Actualizar desde la 1.0.65 con corazones. | Conserva los corazones. Si gana premios nuevos de una vez (por ejemplo, pelotita y chapita), un solo festejo «¡Ya nos conocíamos!» que los nombra. | |
 
+## 76. Regalo de Navidad (versión 1.0.67)
+
+Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navideño» («Sacar el regalo» lo deja como antes).
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 76.1 | Abrir la app antes del 1/12 (sin tocar las herramientas). | No hay regalo; el gorro navideño no está en Vestir. | |
+| 76.2 | «Recibir el gorro navideño». | Festejo con la mascota con el gorro y corazones: «¡Mirá lo que me trajeron!», «Ahora no» y «Ponérselo». | |
+| 76.3 | «Ahora no» y Vestir → Cabeza. | El gorro navideño figura como «Regalo», sin precio ni candado. Tocarlo se lo pone. | |
+| 76.4 | Con el gorro puesto, salir de la app. | La mascota flotante lo lleva puesto. | |
+| 76.5 | Del 1/12 al 6/1 (o cambiando la fecha del celular), abrir la app. | Llega el regalo sola, una sola vez. Después del 6/1 lo sigue teniendo. | |
+| 76.6 | Plan gratis y con Pro. | Igual en los dos. | |
+
 ---
 
 ## Si algo falla

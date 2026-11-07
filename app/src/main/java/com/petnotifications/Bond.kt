@@ -189,6 +189,11 @@ object Bond {
          * festejo que los resume.
          */
         data class CatchUp(override val rewards: List<Reward>) : Celebration
+
+        /** Un regalo de temporada (el gorro navideño): no es del camino. */
+        data class Gift(val accessory: Accessory) : Celebration {
+            override val rewards get() = emptyList<Reward>()
+        }
     }
 
     /** Lo que falta festejar, si hay algo. Un truco lo festeja la mascota; lo demás, la app. */
@@ -198,7 +203,7 @@ object Bond {
         val got = sp.getStringSet(KEY_GOT, emptySet()).orEmpty()
         val missing = earned(hearts(ctx)).filter { it.name !in got }
         return when (missing.size) {
-            0 -> null
+            0 -> Outfit.pendingGift(ctx)?.let { Celebration.Gift(it) }
             1 -> Celebration.Earned(missing.single())
             else -> Celebration.CatchUp(missing)
         }
@@ -221,6 +226,10 @@ object Bond {
     @Synchronized
     fun markCelebrated(ctx: Context, c: Celebration) {
         val sp = sp(ctx)
+        if (c is Celebration.Gift) {
+            Outfit.markGiftSeen(ctx, c.accessory)
+            return
+        }
         val got = sp.getStringSet(KEY_GOT, emptySet()).orEmpty()
         sp.edit(commit = true) { putStringSet(KEY_GOT, got + c.rewards.map { it.name }) }
     }

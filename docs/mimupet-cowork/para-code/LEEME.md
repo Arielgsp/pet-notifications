@@ -4,9 +4,10 @@ Estado de cada archivo de esta carpeta (al 07/11/2026). Los marcados «Reemplaza
 
 | Archivo | Estado |
 | --- | --- |
-| `2026-11-07-camino-de-la-mascota.md` (+ carpeta `camino/`) | **Para hacer** |
-| `2026-11-07-lanzamiento-solo-pro.md` | **Para hacer** |
-| `2026-11-07-revisar-documentos.md` | **Para hacer** |
+| `2026-11-07-respuestas-y-regalo-navidad.md` | **Para hacer** (regalo de Navidad confirmado) |
+| `2026-11-07-camino-de-la-mascota.md` (+ carpeta `camino/`) | Hecho en 1.0.66 |
+| `2026-11-07-lanzamiento-solo-pro.md` | Hecho en 1.0.66, salvo el regalo de Navidad (ver el pedido de arriba) |
+| `2026-11-07-revisar-documentos.md` | Hecho |
 | `2026-11-06-recordatorio-rapido-y-aviso.md` | Hecho en 1.0.64 (falta probar en el Xiaomi) |
 | `accesorios-11-especies.zip` | Hecho en 1.0.45 y 1.0.52 |
 | `mascota-una-pantalla-para-code.md` | Hecho en 1.0.54–1.0.57. La línea de nivel y la tira de 11 quedan reemplazadas por el camino y la tira de 7 |

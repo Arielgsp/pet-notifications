@@ -1280,6 +1280,7 @@ fun SettingsScreen(
                 grid = {
                     AccessoryGrid(
                         slot, items, dressed, bondHearts, bought, items.mapNotNull { a -> priceOf(a)?.let { a to it } }.toMap(), tryingAcc,
+                        gifted = remember(bondVersion) { Outfit.gifted(ctx) },
                         onNone = {
                             tryOn = null
                             lockedNote = null

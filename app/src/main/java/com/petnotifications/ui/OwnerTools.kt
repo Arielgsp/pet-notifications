@@ -95,6 +95,10 @@ fun OwnerToolsDialog(onDismiss: () -> Unit) {
                     Bond.ownerReset(ctx)
                     hearts = Bond.hearts(ctx)
                 }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    SoftChip(stringResource(R.string.owner_gift)) { Outfit.ownerGive(ctx, com.petnotifications.Accessory.XMAS_HAT) }
+                    OutlineChip(stringResource(R.string.owner_gift_clear)) { Outfit.ownerClearGifts(ctx) }
+                }
                 // La tienda de accesorios y pelajes, solo si algo está a la venta (Shop).
                 if (com.petnotifications.Shop.SEASONAL_FOR_SALE || com.petnotifications.Shop.COATS_FOR_SALE) {
                 HorizontalDivider(color = c.line, modifier = Modifier.padding(vertical = 6.dp))

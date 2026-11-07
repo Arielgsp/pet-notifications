@@ -1,6 +1,6 @@
 # MimuPet — resumen de la app
 
-Al día el 07/11/2026 (versión 1.0.66). Las decisiones vigentes, con más detalle, están en
+Al día el 07/11/2026 (versión 1.0.67). Las decisiones vigentes, con más detalle, están en
 [mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md); si algo de acá las contradice, mandan ellas.
 
 ## Qué es
@@ -31,6 +31,7 @@ la patita y, al tocarlo, se despliega una cartita con «Listo» y «Más tarde»
   fantasma.
 - **Pro** (pago único, con prueba gratis de 7 días; USD 2,49 de lanzamiento y 3,99 de base): las 7
   mascotas, globo Caramelo, tamaño y transparencia, Google Calendar, voz, No molestar e insistencia a gusto.
+- Regalo de Navidad: del 1/12 al 6/1, todos reciben gratis el gorro navideño, para siempre.
 - En el lanzamiento no se vende nada más. Los pelajes y los accesorios de temporada quedan para
   actualizaciones.
 

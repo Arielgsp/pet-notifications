@@ -338,6 +338,7 @@ fun BondWaysCard() {
  *   "Ponérselo" ([onWear]).
  * - Truco: "¡Aprendí a dar la patita!", cómo se usa, "Después" y "¡A ver!" ([onShow], la mascota lo hace).
  * - Varios de una vez: "¡Ya nos conocíamos!", lo que ganó, "Después" y "Ver todo" ([onAll]).
+ * - Regalo de temporada: como un accesorio, con "¡Mirá lo que me trajeron!".
  */
 @Composable
 fun BondCelebrationDialog(
@@ -346,14 +347,22 @@ fun BondCelebrationDialog(
 ) {
     val colors = Pet.colors
     val single = (c as? Bond.Celebration.Earned)?.reward
-    val acc = single?.accessory()
+    val gift = (c as? Bond.Celebration.Gift)?.accessory
+    val acc = gift ?: single?.accessory()
     val title: String
     val body: String
     val primary: String
     val secondary: String
     val onPrimary: () -> Unit
     when {
-        acc != null -> {
+        gift != null -> {
+            title = stringResource(R.string.gift_xmas_title)
+            body = stringResource(R.string.gift_xmas_body)
+            primary = stringResource(R.string.bond_wear_ok)
+            secondary = stringResource(R.string.bond_not_now)
+            onPrimary = { onWear(gift) }
+        }
+        acc != null && single != null -> {
             title = stringResource(single.won)
             body = stringResource(R.string.bond_wear_body)
             primary = stringResource(if (acc == Accessory.BALL) R.string.bond_ball_ok else R.string.bond_wear_ok)

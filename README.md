@@ -106,7 +106,8 @@ gusto, voz, horario de No molestar, tamaño y opacidad. **En el lanzamiento no s
 (decisión del 07/11): los packs de pelajes (`coats_*`), los accesorios de temporada (`acc_*`) y el pack de
 animales nuevos quedan en el código, escondidos con interruptores (`Shop.COATS_FOR_SALE`,
 `Shop.SEASONAL_FOR_SALE` y `PetType.WILD_PACK_OUT`, los tres en false). Con los pelajes apagados, todas las
-mascotas usan el original, también durante la prueba. El límite se aplica en
+mascotas usan el original, también durante la prueba. **Regalo de Navidad:** del 1/12 al 6/1, quien abre la app
+recibe gratis el gorro navideño y se lo queda para siempre (`Outfit.GIFTS`, por fecha y no por versión; sin Play). El límite se aplica en
 los getters de `Prefs` (lo elegido queda guardado y vuelve al comprar). `pro/ProBilling` consulta la
 compra a Play en cada apertura (sirve también de "Restaurar compras") y la guarda en el teléfono.
 "Enviar comentarios" (`ui/Feedback.kt`) abre la app de correo con un resumen técnico que el usuario

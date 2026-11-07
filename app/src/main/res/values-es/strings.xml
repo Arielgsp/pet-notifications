@@ -396,6 +396,9 @@
     <string name="acc_pumpkin">Calabacita</string>
     <string name="acc_pumpkin_helmet">Casco de calabaza</string>
     <string name="acc_bought">Comprado</string>
+    <string name="acc_gift">Regalo</string>
+    <string name="gift_xmas_title">¡Mira lo que me trajeron!</string>
+    <string name="gift_xmas_body">Un gorro navideño de regalo. Es mío para siempre y ya está en Vestir.</string>
     <string name="shop_remove">Quitar</string>
     <string name="shop_buy">Comprar · %1$s</string>
     <string name="shop_bought">¡Ya es tuyo! Me lo dejo puesto.</string>
@@ -630,6 +633,8 @@
     <string name="owner_hearts">Corazones: %1$d</string>
     <string name="owner_bond_add">+10 corazones</string>
     <string name="owner_bond_reset">Reiniciar vínculo</string>
+    <string name="owner_gift">Recibir el gorro navideño</string>
+    <string name="owner_gift_clear">Sacar el regalo</string>
     <string name="owner_bond_add_one">+1 corazón</string>
     <string name="owner_shop">Vestidor</string>
     <string name="owner_all_seasons">Mostrar todas las temporadas</string>

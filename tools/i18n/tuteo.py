@@ -105,6 +105,7 @@ T = {
     'trial_notice_body_back': 'Mañana vuelvo a ser %1$s. Si te gustó cómo estamos, puedes quedarte con Pro.',
     'trial_end_body': 'Gracias por estos días. Desde hoy seguimos con el plan gratis, y %1$s sigue contigo.',
     'bond_learns_with_you': 'Lo que %1$s aprende contigo',
+    'gift_xmas_title': '¡Mira lo que me trajeron!',
 }
 
 # Frases: lista -> {posición: texto neutro}
