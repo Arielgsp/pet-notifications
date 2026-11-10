@@ -7,7 +7,9 @@ tareas que faltan y limitaciones conocidas.
 
 **Lo vigente manda:** el resumen al día de las decisiones está en [mimupet-cowork/LEEME-traspaso.md](mimupet-cowork/LEEME-traspaso.md). Lo que sigue es la historia de cada versión, y muchas entradas viejas ya no valen (11 mascotas, prueba de 14 días, niveles con nombre, globito con el mensaje, pelajes en Pro).
 
-Última actualización: 07/11/2026, versión 1.0.69 (pedido de Ariel): **sin la manito** al costado del papelito y de la cartita (era un agregado de Code, no un pedido), y al tocar el papelito la cartita vuelve a abrirse **debajo de la mascota, que se asoma por arriba** con las patitas sobre el borde (como la carta abierta desde sus pies). Si debajo no entra, va al costado.
+Última actualización: 10/11/2026, versión 1.0.70 (pedido de Ariel): la **pelotita ya no queda siempre al lado** de la mascota flotante, porque molestaba sin hacer nada. Aparece solo cuando juega: llega rebotando desde la derecha, la mascota la mira, le da un saltito cuando le llega a los pies, la pelotita se va rebotando y desaparece, y la mascota mueve la cola. Pasa de vez en cuando (1 de cada 5 movimientos de la mascota) y con «¡A ver!» al ganarla. En la app (Vestir) se sigue viendo al lado, para saber que está puesta. **A mirar en el Xiaomi:** PRUEBAS 78.
+
+Antes, 07/11/2026, versión 1.0.69 (pedido de Ariel): **sin la manito** al costado del papelito y de la cartita (era un agregado de Code, no un pedido), y al tocar el papelito la cartita vuelve a abrirse **debajo de la mascota, que se asoma por arriba** con las patitas sobre el borde (como la carta abierta desde sus pies). Si debajo no entra, va al costado.
 
 Antes, 07/11/2026, versión 1.0.68: la **mascota flotante también entrega el regalo de Navidad** (Ariel aprobó la propuesta). Entre el 1/12 y el 6/1, aunque no abra la app, lo recibe y lo anuncia una vez con un papelito: «¡Me trajeron un regalo!», «Abrí la app para verlo», «¡A ver!» (abre la app, que lo festeja) / «Después» (`Outfit.giftToTell`, `KEY_GIFTS_TOLD`). Se cierra solo a los 10 s, como el del truco.
 

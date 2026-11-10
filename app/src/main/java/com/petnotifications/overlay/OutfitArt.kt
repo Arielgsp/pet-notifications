@@ -187,12 +187,14 @@ internal object OutfitArt {
     /**
      * Pelotita (Cowork: camino/pelotita.svg), en el piso al lado de la mascota, en el lienzo de 200×240.
      * [roll]: cuánto rodó (en unidades del lienzo, negativo hacia la mascota); gira con lo que rueda.
+     * [lift]: cuánto está en el aire (rebote); la sombrita queda en el piso y se achica.
      */
-    fun ball(ds: DrawScope, roll: Float = 0f) = with(ds) {
+    fun ball(ds: DrawScope, roll: Float = 0f, lift: Float = 0f) = with(ds) {
         val r = BALL_R
         val cx = BALL_X + roll
-        val cy = FLOOR - r
-        drawOval(INK.copy(alpha = 0.14f), Offset(cx - r * 0.9f, FLOOR - 3f), Size(r * 1.8f, 6f))
+        val cy = FLOOR - r - lift
+        val sh = 1f - (lift / 60f).coerceIn(0f, 0.5f)
+        drawOval(INK.copy(alpha = 0.14f * sh), Offset(cx - r * 0.9f * sh, FLOOR - 3f), Size(r * 1.8f * sh, 6f))
         drawCircle(BALL_PINK, r, Offset(cx, cy))
         rotate(roll / r * 57.3f, Offset(cx, cy)) {
             val band = Path().apply {

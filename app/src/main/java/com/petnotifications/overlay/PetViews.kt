@@ -95,6 +95,22 @@ internal val SurfaceRaised = Color(0xFFFFFDF9) // surface-raised
 /** Cuánto se queda parada después de hacer algo antes de volver a sentarse. */
 private const val SIT_AFTER_MS = 3_000L
 
+/** Pelotita: de dónde llega (unidades del lienzo, a la derecha) y cuánto tarda en llegar y en irse. */
+private const val BALL_FAR = 70f
+private const val BALL_IN_MS = 900
+private const val BALL_OUT_MS = 1_100
+
+/** Rebotes que se achican: [n] saltos desde [top] en [ms] en total. */
+private suspend fun Animatable<Float, *>.bounces(top: Float, n: Int, ms: Int) {
+    val each = ms / n / 2
+    var h = top
+    repeat(n) {
+        animateTo(h, tween(each, easing = LinearOutSlowInEasing))
+        animateTo(0f, tween(each, easing = FastOutLinearInEasing))
+        h *= 0.45f
+    }
+}
+
 /** Trucos que se hacen parada; el resto (cola, bostezo, sacudirse, festejar) los hace sentada. */
 private val STANDING_TRICKS = setOf(Trick.PAW, Trick.DANCE, Trick.LOOK, Trick.PEEK, Trick.STRETCH, Trick.HOP)
 
@@ -514,15 +530,29 @@ fun PetContent(state: OverlayState) {
         else -> restFace
     }
     val stretched = lying && state.pet.liesDown
-    // La pelotita va aparte, fuera de la capa que se espeja y rebota: queda quieta en el piso.
+    // La pelotita va aparte, fuera de la capa que se espeja y rebota. No está siempre: aparece solo
+    // cuando juega (pedido de Ariel, 10/11). Llega rebotando desde la derecha, rueda hasta la mascota,
+    // ella la empuja con un saltito y sale rebotando hasta perderse (ver PetOverlayService.playBall).
     val worn = state.outfit.without(com.petnotifications.Slot.TOY)
     val ballRoll = remember { Animatable(0f) }
+    val ballLift = remember { Animatable(0f) }
+    val ballAlpha = remember { Animatable(0f) }
     LaunchedEffect(state.ballTick) {
         if (state.ballTick == 0) return@LaunchedEffect
-        ballRoll.animateTo(-34f, tween(650, easing = FastOutSlowInEasing))
-        delay(350)
-        ballRoll.animateTo(6f, tween(900, easing = FastOutSlowInEasing))
-        ballRoll.animateTo(0f, spring(dampingRatio = 0.5f))
+        ballRoll.snapTo(BALL_FAR)
+        ballLift.snapTo(0f)
+        launch { ballAlpha.animateTo(1f, tween(250)) }
+        launch { ballLift.bounces(26f, 2, BALL_IN_MS) }
+        ballRoll.animateTo(0f, tween(BALL_IN_MS, easing = LinearOutSlowInEasing))
+        delay(150)
+        ballRoll.animateTo(-34f, tween(600, easing = FastOutSlowInEasing))
+        delay(250)
+        launch { ballLift.bounces(34f, 2, BALL_OUT_MS) }
+        launch {
+            delay(BALL_OUT_MS - 400L)
+            ballAlpha.animateTo(0f, tween(400))
+        }
+        ballRoll.animateTo(BALL_FAR + 20f, tween(BALL_OUT_MS, easing = LinearEasing))
     }
 
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -574,12 +604,12 @@ fun PetContent(state: OverlayState) {
                 modifier = petLayer,
             )
         }
-        if (state.outfit.toy != null) {
+        if (state.outfit.toy != null && ballAlpha.value > 0f) {
             // Mismo encuadre que los dibujos (256×240, ajustado al ancho como ContentScale.Fit).
-            Canvas(Modifier.fillMaxSize()) {
+            Canvas(Modifier.fillMaxSize().graphicsLayer { alpha = ballAlpha.value }) {
                 val h = size.width * 240f / 256f
                 translate(top = (size.height - h) / 2) {
-                    PetModel.drawToy(this, state.pet, ballRoll.value)
+                    PetModel.drawToy(this, state.pet, ballRoll.value, ballLift.value)
                 }
             }
         }

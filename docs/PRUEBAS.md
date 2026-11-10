@@ -1031,7 +1031,7 @@ Reemplaza a 74.5, 74.6 y la fila «Adelantar el camino» de 74.7. Para sumar cor
 | 75.6 | Reiniciar el vínculo y sumar 3 corazones con la app abierta. | «¡Estreno pañuelo!» con la mascota vestida y corazones. «Ponérselo» se lo pone; «Ahora no» no. | |
 | 75.7 | Con 9 corazones, salir de la app y sumar 1 (marcar «Listo» en un aviso). | Sobre la mascota flotante, un papelito «¡Aprendí a dar la patita!». «¡A ver!»: da la patita. | |
 | 75.8 | Llegar a 22, 40, 95, 135 y 180. | Festejo de cada uno. La camita se ve con la mascota acostada. | |
-| 75.9 | Ponerle la pelotita (Vestir → Juguete). | Queda en el piso a la derecha, en la app y en la mascota flotante. De vez en cuando la mascota la mira, la pelotita rueda hacia ella y salta. | |
+| 75.9 | Ponerle la pelotita (Vestir → Juguete). | Queda en el piso a la derecha en la app. En la mascota flotante solo aparece cuando juega (desde la 1.0.70, ver 78). | |
 | 75.10 | Ponerle la chapita (Vestir → Cuello) a cada mascota: de frente, de perfil, girando y dormida. | Cordón y medalla debajo del mentón; reemplaza al pañuelo. Acostada no se ve. | |
 | 75.11 | Con el gorrito sin ganar y nada en la cabeza. | El gorrito se ve transparente sobre la mascota, con «¿para mí?». Desaparece al ganarlo. | |
 | 75.12 | Primer «Listo» del día. | Suma 2 corazones (los siguientes, 1). | |
@@ -1060,6 +1060,15 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 77.1 | Ayuda → «Probar un aviso» y salir al inicio. | Globo con el sonido y después el papelito al costado, **sin la manito** en el borde. | |
 | 77.2 | Tocar el papelito, con la mascota arriba o en el medio de la pantalla. | La cartita se abre **debajo de la mascota**, que se asoma por arriba con las patitas sobre el borde. | |
 | 77.3 | Lo mismo con la mascota bien abajo. | Si debajo no entra, la cartita va al costado (sin manito). | |
+
+---
+## 78. La pelotita aparece solo cuando juega (versión 1.0.70)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 78.1 | Con la pelotita puesta (Vestir → Juguete), salir al inicio. | La mascota flotante **no** tiene la pelotita al lado. En la app (Vestir) sí se ve, para saber que la tiene puesta. | |
+| 78.2 | Esperar con la mascota en pantalla (cada tanto juega; puede tardar varios minutos). | La pelotita llega rebotando desde la derecha y la mascota la mira. Cuando le llega a los pies, la mascota da un saltito, la pelotita sale rebotando y desaparece, y la mascota mueve la cola. | |
+| 78.3 | Lo mismo con la mascota pegada al borde derecho. | La pelotita entra y sale por el borde sin cortes raros. | |
 
 ---
 

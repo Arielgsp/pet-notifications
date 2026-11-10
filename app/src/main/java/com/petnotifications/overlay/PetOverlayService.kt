@@ -1134,12 +1134,17 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         showCard(card, CARD_MS, onTap = { openApp(null) }) { primary -> if (primary) openApp(null) }
     }
 
-    /** Juega con la pelotita: la mira, la pelotita rueda hacia ella y salta contenta cuando vuelve. */
+    /**
+     * Juega con la pelotita, que solo se ve mientras tanto (pedido de Ariel, 10/11): llega rebotando y la
+     * mira; cuando le llega a los pies la empuja con un saltito, la pelotita se va rebotando y ella mueve
+     * la cola. Los tiempos van con la animación de PetViews (llega en ~1,65 s, sale a los ~1,9 s).
+     */
     private fun playBall() {
         if (state.outfit.toy == null) return
         state.ballTick++
         state.play(Trick.LOOK)
-        main.postDelayed({ if (!state.sleeping) state.play(Trick.HOP) }, 1_100)
+        main.postDelayed({ if (!state.sleeping) state.play(Trick.HOP) }, 1_550)
+        main.postDelayed({ if (!state.sleeping) state.play(Trick.WAG) }, 3_000)
     }
 
     private fun heartFan(n: Int) {

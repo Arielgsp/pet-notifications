@@ -444,8 +444,9 @@ object PetModel {
         outfitFront(ds, pet.name, vf.shape, vf.th, vf.head, outfit, asleep = view == PetView.SLEEP, fixedSide = fixedArt && view == PetView.SIDE)
     }
 
-    /** La pelotita, en el piso a la derecha de la mascota; [roll]: cuánto rodó (ver OutfitArt.ball). */
-    fun drawToy(ds: DrawScope, pet: PetType, roll: Float = 0f) = inFrame(ds, pet.name) { OutfitArt.ball(this, roll) }
+    /** La pelotita, en el piso a la derecha de la mascota; [roll] y [lift]: ver OutfitArt.ball. */
+    fun drawToy(ds: DrawScope, pet: PetType, roll: Float = 0f, lift: Float = 0f) =
+        inFrame(ds, pet.name) { OutfitArt.ball(this, roll, lift) }
 
     /** Encima del giro continuo (parada, [theta] grados). */
     fun drawOutfitTurn(ds: DrawScope, pet: PetType, theta: Float, outfit: com.petnotifications.Outfit) =
