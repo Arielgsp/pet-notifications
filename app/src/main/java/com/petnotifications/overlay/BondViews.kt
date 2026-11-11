@@ -49,6 +49,10 @@ fun BondCardContent(card: BondCard, actions: CardActions) {
         TrickPaper(card, enter.value, actions)
         return
     }
+    if (card is BondCard.Morning) {
+        MorningPaper(card, enter.value, actions)
+        return
+    }
     val shape = RoundedCornerShape(26.dp)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -79,10 +83,7 @@ fun BondCardContent(card: BondCard, actions: CardActions) {
                     CardButton(card.secondary, filled = false, onClick = actions.onSecondary)
                 }
             }
-            is BondCard.Trick -> Unit
-            is BondCard.Morning -> Text(
-                card.text, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold, color = Ink, textAlign = TextAlign.Center,
-            )
+            is BondCard.Trick, is BondCard.Morning -> Unit
         }
     } }
 }
@@ -119,6 +120,41 @@ private fun TrickPaper(card: BondCard.Trick, enter: Float, actions: CardActions)
             PaperButton(card.primary, filled = true, onClick = actions.onPrimary)
             PaperButton(card.secondary, filled = false, onClick = actions.onSecondary)
         }
+    } }
+}
+
+/**
+ * El saludo de buenos días: un papelito chico como el del aviso, encima de la mascota, sin botones
+ * (pedido de Ariel, 11/11: antes era una tarjeta blanca grande arriba de la pantalla). "¡Buen día!"
+ * en negrita y lo de hoy debajo. Tocarlo abre la app.
+ */
+@Composable
+private fun MorningPaper(card: BondCard.Morning, enter: Float, actions: CardActions) {
+    val shape = remember { FoldedPaperShape(18.dp, 16.dp, mirrored = false) }
+    val cut = card.text.indexOf("! ").takeIf { it > 0 }
+    val title = if (cut != null) card.text.substring(0, cut + 1) else card.text
+    val body = cut?.let { card.text.substring(it + 2) }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier
+            .padding(12.dp)
+            .graphicsLayer {
+                alpha = enter.coerceIn(0f, 1f)
+                translationY = (1f - enter) * 24f
+                rotationZ = -2f
+            }
+            .widthIn(max = 220.dp)
+            .drawWithContent {
+                drawContent()
+                drawFold(18.dp.toPx(), mirrored = false)
+            }
+            .shadow(8.dp, shape, ambientColor = Ink.copy(alpha = 0.35f), spotColor = Ink.copy(alpha = 0.35f))
+            .background(Paper, shape)
+            .clickable(role = Role.Button, onClick = actions.onTap)
+            .padding(start = 20.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+    ) { ProvideTextStyle(TextStyle(fontFamily = Nunito)) {
+        Text(title, fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.ExtraBold, color = Ink)
+        body?.let { Text(it, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold, color = InkMuted) }
     } }
 }
 

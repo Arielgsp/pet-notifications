@@ -1197,8 +1197,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /**
-     * "¡Buen día!": la onomatopeya (sin voz si los avisos están en silencio) y una tarjeta chica con
-     * lo que hay hoy. Tocarla abre la app; se va sola a los 6 s.
+     * "¡Buen día!": la onomatopeya (sin voz si los avisos están en silencio) y un papelito encima de la
+     * mascota con lo que hay hoy. Tocarlo abre la app; se va solo a los 6 s.
      */
     private suspend fun morning(force: Boolean) {
         if (!force) Bond.markGreeted(this)
@@ -1261,12 +1261,19 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY,
             LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT,
         ).apply {
-            if (card is BondCard.Trick) {
-                // El papelito del truco, encima de la mascota (o debajo, si no entra arriba).
+            if (card is BondCard.Trick || card is BondCard.Morning) {
+                // El papelito del truco o del buen día, encima de la mascota (o debajo, si no entra arriba).
                 gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                val paper = dp(if (card is BondCard.Morning) MORNING_PAPER_DP else TRICK_PAPER_DP)
                 val above = petParams.y + petParams.height + dp(4)
                 val roomAbove = resources.displayMetrics.heightPixels - statusBarHeight() - above
-                y = if (roomAbove >= dp(TRICK_PAPER_DP)) above else (petParams.y - dp(TRICK_PAPER_DP)).coerceAtLeast(dp(8))
+                y = if (roomAbove >= paper) above else (petParams.y - paper).coerceAtLeast(dp(8))
+                if (card is BondCard.Morning) {
+                    // Centrado sobre la mascota, sin salirse de la pantalla (medio papelito ≈ 122 dp).
+                    val half = resources.displayMetrics.widthPixels / 2
+                    val limit = (half - dp(MORNING_HALF_DP)).coerceAtLeast(0)
+                    x = (petParams.x + petParams.width / 2 - half).coerceIn(-limit, limit)
+                }
             } else {
                 gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                 y = statusBarHeight() + dp(8)
@@ -1850,6 +1857,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val CARD_MS = 10_000L
         /** Alto aproximado del papelito del truco, para ver si entra arriba de la mascota. */
         private const val TRICK_PAPER_DP = 150
+        private const val MORNING_PAPER_DP = 100
+        private const val MORNING_HALF_DP = 122
         private const val MORNING_CARD_MS = 6_000L
         private const val UNLOCK_GREET_DELAY_MS = 900L
         private const val UNLOCK_CELEBRATE_DELAY_MS = 3_000L

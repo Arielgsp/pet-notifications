@@ -1071,6 +1071,16 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 78.3 | Lo mismo con la mascota pegada al borde derecho. | La pelotita entra y sale por el borde sin cortes raros. | |
 
 ---
+## 79. Saludo de buenos días como papelito (versión 1.0.71)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 79.1 | Primer desbloqueo del día a la mañana (después de las 6:00 o del fin del horario de dormir, antes del mediodía). | La mascota dice su sonido y aparece un **papelito chico encima de ella**, con la esquina doblada: «¡Buen día!» en negrita y debajo lo de hoy («Hoy no tenemos nada pendiente.», «Hoy tenemos 1 cosa.» o «Hoy tenemos X cosas.»). Ya no sale la tarjeta blanca grande arriba de la pantalla. | |
+| 79.2 | Lo mismo con la mascota cerca de un costado. | El papelito queda arriba de la mascota sin salirse de la pantalla. | |
+| 79.3 | Con la mascota pegada arriba. | El papelito va debajo de ella. | |
+| 79.4 | Tocar el papelito. No tocarlo. | Tocarlo abre la app. Si no se toca, se va solo a los 6 s. | |
+
+---
 
 ## Si algo falla
 
