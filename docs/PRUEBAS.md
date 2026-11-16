@@ -1095,6 +1095,16 @@ Reemplaza a la sección 79: el saludo ya no va encima ni debajo de la mascota.
 | 80.6 | Con la cartita abierta, esconder el teclado con Atrás. | La mascota y la cartita bajan juntas a donde estaba la mascota. | |
 
 ---
+## 81. Recordatorio rápido sin saltos (versión 1.0.73)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 81.1 | Con la mascota en la **mitad de arriba**, tirón hacia abajo. | La mascota **queda quieta**: no sube ni baja cuando aparece el teclado. La cartita aparece pegada a ella. | |
+| 81.2 | Con la mascota en la **mitad de abajo**, tirón hacia abajo. | La mascota y la cartita suben juntas, de a poco, y quedan arriba del teclado. Sin saltos. | |
+| 81.3 | Cerrar (tocar afuera o «Anotado»), en los dos casos. | La mascota vuelve a su lugar sin saltar ni parpadear, y con sus cartas a los pies si las tenía. | |
+| 81.4 | Mientras la cartita está abierta. | La mascota se ve parada y sin las cartas a sus pies (es un dibujo dentro de la cartita); al cerrar vuelve todo. Con transparencia o modo fantasma, se ve igual de transparente. | |
+
+---
 
 ## Si algo falla
 

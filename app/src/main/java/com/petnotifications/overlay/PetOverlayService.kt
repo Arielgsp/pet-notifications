@@ -215,6 +215,9 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         fxView?.let { runCatching { wm.removeView(it) } }
         lettersView?.let { runCatching { wm.removeView(it) } }
         lettersView = null
+        quickJob?.cancel()
+        quickView?.let { runCatching { wm.removeView(it) } }
+        quickView = null
         closeQuickNote()
         closeCard()
         petView = null
@@ -705,25 +708,30 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
     private var quickView: View? = null
 
-    /** Recordatorio rápido: alto del teclado (px) y dónde queda la mascota (px desde arriba de la pantalla). */
+    /** Recordatorio rápido: alto del teclado (px) y dónde va la mascota (px desde arriba de la pantalla). */
     private val quickIme = androidx.compose.runtime.mutableIntStateOf(0)
     private val quickPetTop = androidx.compose.runtime.mutableIntStateOf(0)
-    /** Dónde estaba la mascota al abrirlo: la "y" de su ventana y su borde de arriba en la pantalla. */
-    private var quickY0 = 0
+    /** Se está cerrando: ya sin cartita, solo la mascota volviendo a su lugar. */
+    private val quickClosing = androidx.compose.runtime.mutableStateOf(false)
+    /** Dónde estaba la mascota al abrirlo (borde de arriba, en la pantalla). */
     private var quickTop0 = 0
     /** Teclado según la ventana de la cartita (márgenes del sistema o lo que se achicó). */
     private var quickInset = 0
-    /** Vueltas a esperar después de mover la mascota, hasta que la pantalla refleje el cambio. */
-    private var quickSkip = 0
     private var quickJob: Job? = null
-    private var quickRestore: Job? = null
 
     /**
      * Recordatorio rápido flotante (tirón hacia abajo): una ventana propia que sí recibe el teclado,
      * con un texto y cuándo avisar. No abre la app.
+     *
+     * Mientras está abierto, la mascota se dibuja dentro de esta misma ventana y la de verdad queda
+     * invisible (pedido de Ariel, 17/11). En algunos celulares (Xiaomi) el sistema sube la ventana de la
+     * mascota cuando aparece el teclado: corregirla después se veía como un salto de ida y vuelta. Así
+     * la mascota y la cartita se ubican juntas, en una ventana que el teclado no mueve:
+     * - mitad de arriba de la pantalla: la mascota no se mueve;
+     * - mitad de abajo: sube con la cartita lo que mide el teclado.
      */
     private fun showQuickNote() {
-        if (quickView != null || quickRestore?.isActive == true) return
+        if (quickView != null) return
         val petWindow = petView ?: return
         closeCurrent()
         val params = LayoutParams(
@@ -737,13 +745,13 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
         // Dónde está la mascota de verdad en la pantalla (medido, no calculado): la cartita va a su lado.
         val at = IntArray(2).also(petWindow::getLocationOnScreen)
-        quickY0 = petParams.y
         quickTop0 = at[1]
         quickInset = 0
-        quickSkip = 0
         quickIme.intValue = 0
         quickPetTop.intValue = at[1]
+        quickClosing.value = false
         val spot = PetSpot(at[0], at[1], petParams.width, petParams.height, state.pet.mouthX)
+        val look = PetLook(state.pet, state.coat, state.outfit.without(com.petnotifications.Slot.TOY), petParams.alpha)
         val who = state.pet.subject(this)
         val compose = ComposeView(this).apply {
             owner.attach(this)
@@ -751,8 +759,11 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
                 QuickNoteCard(
                     who = who,
                     pet = spot,
+                    look = look,
                     petTop = quickPetTop,
                     ime = quickIme,
+                    closing = quickClosing,
+                    onShown = { if (quickView != null) hideRealPet(true) },
                     onResize = { quickInset = maxOf(quickInset, it) },
                     onSave = { title, time -> saveQuickNote(title, time) },
                     onCancel = ::closeQuickNote,
@@ -769,73 +780,68 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             }
         }
         quickView = view
-        runCatching { wm.addView(view, params) }.onFailure { quickView = null }
+        runCatching { wm.addView(view, params) }.onFailure {
+            quickView = null
+            return
+        }
         quickJob?.cancel()
         quickJob = scope.launch {
-            while (quickView != null) {
+            while (quickView != null && !quickClosing.value) {
                 delay(QUICK_SETTLE_MS)
-                settleQuickPet()
+                // El alto del teclado sale de la ventana de la cartita o de cuánto empujó el sistema a la mascota de verdad.
+                val real = petView ?: break
+                val pushed = quickTop0 - IntArray(2).also(real::getLocationOnScreen)[1]
+                val ime = maxOf(quickInset, pushed).takeIf { it >= dp(QUICK_IME_MIN_DP) } ?: 0
+                quickIme.intValue = ime
+                val (_, sh) = screenSize()
+                val lowerHalf = quickTop0 + petParams.height / 2 > sh / 2
+                quickPetTop.intValue =
+                    if (lowerHalf && ime > 0) (quickTop0 - ime).coerceAtLeast(statusBarHeight() + dp(8)) else quickTop0
             }
         }
+    }
+
+    /** Esconde (o vuelve a mostrar) la mascota de verdad, con sus cartas y efectos, sin sacar sus ventanas. */
+    private fun hideRealPet(hide: Boolean) {
+        val alpha = if (hide) 0f else 1f
+        petView?.alpha = alpha
+        fxView?.alpha = alpha
+        lettersView?.alpha = alpha
     }
 
     /**
-     * Con el recordatorio rápido abierto, la mascota y la cartita van juntas (pedido de Ariel, 16/11).
-     * En algunos celulares (Xiaomi) el sistema sube la ventana de la mascota cuando aparece el teclado y
-     * en otros no; por eso se mide dónde quedó de verdad y se la lleva adonde tiene que estar:
-     * - mitad de arriba de la pantalla: no se mueve;
-     * - mitad de abajo: sube lo que mide el teclado, y la cartita con ella.
-     * El alto del teclado sale de la ventana de la cartita o de cuánto empujó el sistema a la mascota.
+     * Cierra el recordatorio rápido: saca la cartita y esconde el teclado, y la mascota dibujada vuelve a
+     * su lugar. La ventana se saca recién cuando la mascota de verdad ya está otra vez ahí (el sistema la
+     * suelta cuando el teclado se va), así no se ve ningún salto.
      */
-    private fun settleQuickPet() {
-        val petWindow = petView ?: return
-        if (quickSkip > 0) {
-            quickSkip--
-            return
-        }
-        val at = IntArray(2).also(petWindow::getLocationOnScreen)
-        val (_, sh) = screenSize()
-        val pushed = quickTop0 - (petParams.y - quickY0) - at[1]
-        val ime = maxOf(quickInset, pushed).takeIf { it >= dp(QUICK_IME_MIN_DP) } ?: 0
-        quickIme.intValue = ime
-        val lowerHalf = quickTop0 + petParams.height / 2 > sh / 2
-        val want = if (lowerHalf && ime > 0) (quickTop0 - ime).coerceAtLeast(statusBarHeight() + dp(8)) else quickTop0
-        quickPetTop.intValue = want
-        movePetBy(petWindow, at[1] - want)
-    }
-
-    /** Sube la mascota [up] px en la pantalla (negativo: la baja). */
-    private fun movePetBy(petWindow: View, up: Int) {
-        if (kotlin.math.abs(up) <= 2) return
-        petParams.y += up
-        runCatching { wm.updateViewLayout(petWindow, petParams) }
-        layoutFx()
-        quickSkip = 3
-    }
-
     private fun closeQuickNote() {
         val open = quickView ?: return
-        runCatching { wm.removeView(open) }
-        quickView = null
+        if (quickClosing.value) return
+        quickClosing.value = true
+        quickPetTop.intValue = quickTop0
         quickJob?.cancel()
-        // La mascota vuelve a donde estaba; mientras el teclado se va, se sigue midiendo dónde quedó.
-        quickRestore?.cancel()
-        quickRestore = scope.launch {
-            quickSkip = 0
-            repeat(QUICK_RESTORE_STEPS) {
+        runCatching {
+            getSystemService(android.view.inputmethod.InputMethodManager::class.java)?.hideSoftInputFromWindow(open.windowToken, 0)
+            val lp = open.layoutParams as LayoutParams
+            // Ya no escribe: el teclado se va. (Sin FLAG_NOT_TOUCHABLE: Android la volvería medio transparente.)
+            lp.flags = lp.flags or LayoutParams.FLAG_NOT_FOCUSABLE
+            wm.updateViewLayout(open, lp)
+        }
+        quickJob = scope.launch {
+            var calm = 0
+            var steps = 0
+            delay(QUICK_BACK_MS) // lo que tarda la mascota dibujada en volver
+            while (steps++ < QUICK_CLOSE_STEPS && calm < 2) {
                 delay(QUICK_SETTLE_MS)
-                val petWindow = petView ?: return@launch
-                if (touching) return@launch
-                if (quickSkip > 0) quickSkip-- else {
-                    val at = IntArray(2).also(petWindow::getLocationOnScreen)
-                    movePetBy(petWindow, at[1] - quickTop0)
-                }
+                val real = petView ?: break
+                val off = IntArray(2).also(real::getLocationOnScreen)[1] - quickTop0
+                calm = if (kotlin.math.abs(off) <= 2) calm + 1 else 0
             }
-            val petWindow = petView ?: return@launch
-            if (touching || petParams.y == quickY0) return@launch
-            petParams.y = quickY0
-            runCatching { wm.updateViewLayout(petWindow, petParams) }
-            layoutFx()
+            hideRealPet(false)
+            delay(QUICK_SETTLE_MS) // un cuadro con las dos, para que no parpadee
+            runCatching { wm.removeView(open) }
+            quickView = null
+            quickClosing.value = false
         }
     }
 
@@ -1980,7 +1986,9 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         /** Alto aproximado del papelito del truco, para ver si entra arriba de la mascota. */
         private const val TRICK_PAPER_DP = 150
         private const val QUICK_SETTLE_MS = 50L
-        private const val QUICK_RESTORE_STEPS = 16
+        /** Al cerrar: lo que tarda la mascota dibujada en volver y cuánto esperar, como mucho, a la de verdad. */
+        private const val QUICK_BACK_MS = 220L
+        private const val QUICK_CLOSE_STEPS = 30
         /** Menos que esto no es el teclado (diferencias de barras del sistema). */
         private const val QUICK_IME_MIN_DP = 80
         private const val MORNING_CARD_MS = 6_000L

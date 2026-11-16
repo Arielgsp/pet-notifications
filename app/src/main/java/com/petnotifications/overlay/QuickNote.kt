@@ -100,6 +100,9 @@ enum class QuickWhen(val labelRes: Int) {
  */
 data class PetSpot(val x: Int, val top: Int, val width: Int, val height: Int, val mouthX: Float)
 
+/** Cómo se ve la mascota, para dibujarla dentro de la ventana del recordatorio rápido. */
+data class PetLook(val pet: com.petnotifications.PetType, val coat: Int, val outfit: com.petnotifications.Outfit, val alpha: Float)
+
 /**
  * Recordatorio rápido (tirón hacia abajo sobre la mascota), pedido de Cowork del 06/11: la mascota
  * sostiene una cartita de papel al costado, con "(nombre) anota", el texto sobre una línea punteada y
@@ -113,8 +116,11 @@ data class PetSpot(val x: Int, val top: Int, val width: Int, val height: Int, va
 fun QuickNoteCard(
     who: String,
     pet: PetSpot,
+    look: PetLook,
     petTop: androidx.compose.runtime.IntState,
     ime: androidx.compose.runtime.IntState,
+    closing: androidx.compose.runtime.State<Boolean>,
+    onShown: () -> Unit,
     onResize: (Int) -> Unit,
     onSave: (String, Long) -> Unit,
     onCancel: () -> Unit,
@@ -142,6 +148,14 @@ fun QuickNoteCard(
         focus.requestFocus()
         keyboard?.show()
     }
+    // Con la mascota ya dibujada acá (un cuadro después), se esconde la de verdad.
+    LaunchedEffect(Unit) {
+        androidx.compose.runtime.withFrameNanos { }
+        androidx.compose.runtime.withFrameNanos { }
+        onShown()
+    }
+    // La mascota sube (y vuelve) de a poco, y la cartita con ella.
+    val shownTop by androidx.compose.animation.core.animateIntAsState(petTop.intValue, tween(200), label = "petTop")
     val appear = remember { Animatable(0f) }
     LaunchedEffect(Unit) { appear.animateTo(1f, tween(320)) }
     fun save() {
@@ -171,7 +185,18 @@ fun QuickNoteCard(
         val screenH = minOf(windowH, maxOf(fullH, windowH) - ime.intValue)
         // La mascota donde quedó (sube con el teclado si estaba en la mitad de abajo).
         @Suppress("NAME_SHADOWING")
-        val pet = pet.copy(top = petTop.intValue - windowTop)
+        val pet = pet.copy(top = shownTop - windowTop)
+        // La mascota, dibujada en esta ventana: la de verdad queda invisible mientras tanto.
+        androidx.compose.foundation.Image(
+            com.petnotifications.petPainter(look.pet, com.petnotifications.PetView.FRONT, look.coat, look.outfit),
+            contentDescription = null,
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+            modifier = Modifier
+                .offset { IntOffset(pet.x, pet.top) }
+                .size(with(density) { pet.width.toDp() }, with(density) { pet.height.toDp() })
+                .graphicsLayer { alpha = look.alpha },
+        )
+        if (closing.value) return@BoxWithConstraints
         val margin = with(density) { 8.dp.toPx() }.roundToInt()
         val cardW = with(density) { 262.dp.toPx() }.roundToInt().coerceAtMost(screenW - 2 * margin)
         var cardH by remember { mutableIntStateOf(0) }
