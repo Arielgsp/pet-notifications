@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -103,12 +104,21 @@ data class PetSpot(val x: Int, val top: Int, val width: Int, val height: Int, va
  * Recordatorio rápido (tirón hacia abajo sobre la mascota), pedido de Cowork del 06/11: la mascota
  * sostiene una cartita de papel al costado, con "(nombre) anota", el texto sobre una línea punteada y
  * las horas en fichas (10 min, 30 min, 1 hora, Mañana 9:00 y el calendario, que abre día y hora).
- * "Anotado" (o el Enter del teclado) lo guarda. Si la mascota está en la mitad de abajo, la cartita va
- * arriba de ella, para que no la tape el teclado. Tocar afuera la cierra.
+ * "Anotado" (o el Enter del teclado) lo guarda. Si la mascota está en la mitad de abajo de la pantalla,
+ * sube con la cartita lo que mide el teclado ([petTop] dice dónde quedó); en la mitad de arriba no se
+ * mueve. La cartita va siempre pegada a ella. Tocar afuera la cierra.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun QuickNoteCard(who: String, pet: PetSpot, onSave: (String, Long) -> Unit, onCancel: () -> Unit) {
+fun QuickNoteCard(
+    who: String,
+    pet: PetSpot,
+    petTop: androidx.compose.runtime.IntState,
+    ime: androidx.compose.runtime.IntState,
+    onResize: (Int) -> Unit,
+    onSave: (String, Long) -> Unit,
+    onCancel: () -> Unit,
+) {
     var text by remember { mutableStateOf("") }
     var whenIndex by remember { mutableIntStateOf(QuickWhen.HOUR_1.ordinal) }
     val custom = whenIndex == CUSTOM
@@ -138,15 +148,30 @@ fun QuickNoteCard(who: String, pet: PetSpot, onSave: (String, Long) -> Unit, onC
         if (canSave) onSave(text.trim(), at!!)
     }
     val font = TextStyle(fontFamily = Nunito)
+    // La ventana puede no empezar arriba de todo: las medidas de la mascota son de la pantalla.
+    val window = androidx.compose.ui.platform.LocalView.current
+    var windowTop by remember { mutableIntStateOf(0) }
+    var fullH by remember { mutableIntStateOf(0) }
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
+            .onGloballyPositioned { windowTop = IntArray(2).also(window::getLocationOnScreen)[1] }
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onCancel)
             .onPreviewKeyEvent { if (it.key == Key.Back) { onCancel(); true } else false },
     ) {
         val density = LocalDensity.current
         val screenW = constraints.maxWidth
-        val screenH = constraints.maxHeight // se achica cuando aparece el teclado
+        // Lo que queda libre arriba del teclado. Según el celular, la ventana se achica sola o no:
+        // si se achica, se avisa cuánto (así la mascota sube igual); si no, se le resta el teclado.
+        val windowH = constraints.maxHeight
+        LaunchedEffect(windowH) {
+            if (windowH > fullH) fullH = windowH
+            onResize(fullH - windowH)
+        }
+        val screenH = minOf(windowH, maxOf(fullH, windowH) - ime.intValue)
+        // La mascota donde quedó (sube con el teclado si estaba en la mitad de abajo).
+        @Suppress("NAME_SHADOWING")
+        val pet = pet.copy(top = petTop.intValue - windowTop)
         val margin = with(density) { 8.dp.toPx() }.roundToInt()
         val cardW = with(density) { 262.dp.toPx() }.roundToInt().coerceAtMost(screenW - 2 * margin)
         var cardH by remember { mutableIntStateOf(0) }
@@ -161,14 +186,13 @@ fun QuickNoteCard(who: String, pet: PetSpot, onSave: (String, Long) -> Unit, onC
         val maxX = (screenW - cardW - margin).coerceAtLeast(margin)
         val x = if (sideFits) (if (right) petRight else petLeft - cardW).coerceIn(margin, maxX)
         else (pet.x + pet.width / 2 - cardW / 2).coerceIn(margin, maxX)
-        // Mitad de abajo: arriba de la mascota, para que no la tape el teclado. Si no, a la altura de su cabeza.
-        val lowerHalf = pet.top + pet.height / 2 > (screenH.coerceAtLeast(pet.top + pet.height)) / 2
+        // Pegada a la mascota, sin hueco: al costado a la altura de su cabeza; si no entra, justo arriba
+        // de ella, o justo debajo si arriba no hay lugar.
         val headTop = pet.top + (pet.height * 0.12f).roundToInt()
         val aboveFits = headTop - cardH >= topMargin
         val wantedY = when {
-            sideFits && lowerHalf -> pet.top + (pet.height * 0.3f).roundToInt() - cardH
             sideFits -> headTop
-            aboveFits || lowerHalf -> headTop - cardH
+            aboveFits -> headTop - cardH
             else -> pet.top + (pet.height * 0.92f).roundToInt()
         }
         val y = wantedY.coerceIn(topMargin, (screenH - cardH - margin).coerceAtLeast(topMargin))

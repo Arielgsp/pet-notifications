@@ -391,8 +391,10 @@ fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, modifier: M
     val mirrored = side > 0
     val shape = remember(mirrored) { FoldedPaperShape(18.dp, 14.dp, mirrored) }
     val time = remember(phase.id) {
-        DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(phase.alert.eventBegin ?: System.currentTimeMillis()))
+        phase.head ?: DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(phase.alert?.eventBegin ?: System.currentTimeMillis()))
     }
+    // El saludo de buenos días (sin aviso): "¡Buen día!" arriba y lo de hoy abajo, en hasta dos renglones.
+    val greeting = phase.alert == null
     val text = TextStyle(fontFamily = Nunito)
     Box(modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp)) {
         Column(
@@ -417,9 +419,9 @@ fun SlipNote(phase: FxPhase.Peek, side: Int, actions: BubbleActions, modifier: M
         ) {
             Text(time, style = text, fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
             Text(
-                phase.alert.peekText(), style = text,
+                phase.text ?: phase.alert?.peekText().orEmpty(), style = text,
                 fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.ExtraBold, color = Ink,
-                maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
+                maxLines = if (greeting) 2 else 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp),
             )
         }
     }

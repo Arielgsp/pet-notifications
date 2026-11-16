@@ -402,14 +402,16 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val card = state.phase is FxPhase.Bubble
         // El globito con el mensaje: la ventana mide lo que él (ya medido), para no tapar los toques a la app de abajo.
         val peek = state.phase as? FxPhase.Peek
-        fxParams.height = if (peek != null) bubbleHeightPx.takeIf { it > 0 } ?: dp(PEEK_WINDOW_DP) else dp(FX_HEIGHT_DP)
+        // El saludo de buenos días puede ocupar dos renglones: su ventana arranca más alta.
+        val peekRoom = dp(if (peek?.alert == null) PEEK_WINDOW_DP + PEEK_GREETING_EXTRA_DP else PEEK_WINDOW_DP)
+        fxParams.height = if (peek != null) bubbleHeightPx.takeIf { it > 0 } ?: peekRoom else dp(FX_HEIGHT_DP)
         // Arriba: el globo apunta a la coronilla (el dibujo de cuerpo entero deja ~15 % arriba de la
         // cabeza) y el sonido sale de la boca. Abajo: todo sale de los pies. Medido desde abajo.
         val anchorAbove = if (bubble || peek != null) petParams.y + (height * 0.85f).roundToInt()
         else petParams.y + ((1f - pet.mouthY) * height).roundToInt()
         val anchorBelow = petParams.y + (height * 0.05f).roundToInt()
         val needed = when {
-            peek != null -> dp(PEEK_WINDOW_DP)
+            peek != null -> peekRoom
             bubble -> bubbleHeightPx.takeIf { it > 0 } ?: dp(BUBBLE_GUESS_DP)
             call != null || state.phase is FxPhase.Sound -> dp(StickerHeight.value.toInt())
             else -> dp(HEARTS_HEIGHT_DP)
@@ -672,7 +674,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         if (kotlin.math.abs(dx) > kotlin.math.abs(dy)) {
             if (dx < 0) showUpcoming() else toggleMute()
         } else if (dy > 0) {
-            showQuickNote()
+            // Después de que vuelva a su lugar (se inclinó con el tirón): la cartita se ubica midiéndola.
+            main.postDelayed(::showQuickNote, SETTLE_MS + 40)
         } else {
             pausePet()
         }
@@ -700,14 +703,28 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         if (state.sleeping) state.sleeping = false
     }
 
-    private var quickView: ComposeView? = null
+    private var quickView: View? = null
+
+    /** Recordatorio rápido: alto del teclado (px) y dónde queda la mascota (px desde arriba de la pantalla). */
+    private val quickIme = androidx.compose.runtime.mutableIntStateOf(0)
+    private val quickPetTop = androidx.compose.runtime.mutableIntStateOf(0)
+    /** Dónde estaba la mascota al abrirlo: la "y" de su ventana y su borde de arriba en la pantalla. */
+    private var quickY0 = 0
+    private var quickTop0 = 0
+    /** Teclado según la ventana de la cartita (márgenes del sistema o lo que se achicó). */
+    private var quickInset = 0
+    /** Vueltas a esperar después de mover la mascota, hasta que la pantalla refleje el cambio. */
+    private var quickSkip = 0
+    private var quickJob: Job? = null
+    private var quickRestore: Job? = null
 
     /**
      * Recordatorio rápido flotante (tirón hacia abajo): una ventana propia que sí recibe el teclado,
      * con un texto y cuándo avisar. No abre la app.
      */
     private fun showQuickNote() {
-        if (quickView != null) return
+        if (quickView != null || quickRestore?.isActive == true) return
+        val petWindow = petView ?: return
         closeCurrent()
         val params = LayoutParams(
             LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -718,28 +735,108 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             // La cartita aparece sola (crece desde la mascota); sin la animación de diálogo.
             windowAnimations = R.style.PetWindowNoAnimation
         }
-        // Dónde está la mascota, medido desde arriba de la pantalla: la cartita va a su lado.
-        val (_, sh) = screenSize()
-        val spot = PetSpot(petParams.x, sh - petParams.y - petParams.height, petParams.width, petParams.height, state.pet.mouthX)
+        // Dónde está la mascota de verdad en la pantalla (medido, no calculado): la cartita va a su lado.
+        val at = IntArray(2).also(petWindow::getLocationOnScreen)
+        quickY0 = petParams.y
+        quickTop0 = at[1]
+        quickInset = 0
+        quickSkip = 0
+        quickIme.intValue = 0
+        quickPetTop.intValue = at[1]
+        val spot = PetSpot(at[0], at[1], petParams.width, petParams.height, state.pet.mouthX)
         val who = state.pet.subject(this)
-        val view = ComposeView(this).apply {
+        val compose = ComposeView(this).apply {
             owner.attach(this)
             setContent {
                 QuickNoteCard(
                     who = who,
                     pet = spot,
-                    onSave = { title, at -> saveQuickNote(title, at) },
+                    petTop = quickPetTop,
+                    ime = quickIme,
+                    onResize = { quickInset = maxOf(quickInset, it) },
+                    onSave = { title, time -> saveQuickNote(title, time) },
                     onCancel = ::closeQuickNote,
                 )
             }
         }
+        val view = android.widget.FrameLayout(this).apply {
+            // Compose busca al dueño del ciclo de vida en la raíz de la ventana.
+            owner.attach(this)
+            addView(compose, android.widget.FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                quickInset = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
+                insets
+            }
+        }
         quickView = view
         runCatching { wm.addView(view, params) }.onFailure { quickView = null }
+        quickJob?.cancel()
+        quickJob = scope.launch {
+            while (quickView != null) {
+                delay(QUICK_SETTLE_MS)
+                settleQuickPet()
+            }
+        }
+    }
+
+    /**
+     * Con el recordatorio rápido abierto, la mascota y la cartita van juntas (pedido de Ariel, 16/11).
+     * En algunos celulares (Xiaomi) el sistema sube la ventana de la mascota cuando aparece el teclado y
+     * en otros no; por eso se mide dónde quedó de verdad y se la lleva adonde tiene que estar:
+     * - mitad de arriba de la pantalla: no se mueve;
+     * - mitad de abajo: sube lo que mide el teclado, y la cartita con ella.
+     * El alto del teclado sale de la ventana de la cartita o de cuánto empujó el sistema a la mascota.
+     */
+    private fun settleQuickPet() {
+        val petWindow = petView ?: return
+        if (quickSkip > 0) {
+            quickSkip--
+            return
+        }
+        val at = IntArray(2).also(petWindow::getLocationOnScreen)
+        val (_, sh) = screenSize()
+        val pushed = quickTop0 - (petParams.y - quickY0) - at[1]
+        val ime = maxOf(quickInset, pushed).takeIf { it >= dp(QUICK_IME_MIN_DP) } ?: 0
+        quickIme.intValue = ime
+        val lowerHalf = quickTop0 + petParams.height / 2 > sh / 2
+        val want = if (lowerHalf && ime > 0) (quickTop0 - ime).coerceAtLeast(statusBarHeight() + dp(8)) else quickTop0
+        quickPetTop.intValue = want
+        movePetBy(petWindow, at[1] - want)
+    }
+
+    /** Sube la mascota [up] px en la pantalla (negativo: la baja). */
+    private fun movePetBy(petWindow: View, up: Int) {
+        if (kotlin.math.abs(up) <= 2) return
+        petParams.y += up
+        runCatching { wm.updateViewLayout(petWindow, petParams) }
+        layoutFx()
+        quickSkip = 3
     }
 
     private fun closeQuickNote() {
-        quickView?.let { runCatching { wm.removeView(it) } }
+        val open = quickView ?: return
+        runCatching { wm.removeView(open) }
         quickView = null
+        quickJob?.cancel()
+        // La mascota vuelve a donde estaba; mientras el teclado se va, se sigue midiendo dónde quedó.
+        quickRestore?.cancel()
+        quickRestore = scope.launch {
+            quickSkip = 0
+            repeat(QUICK_RESTORE_STEPS) {
+                delay(QUICK_SETTLE_MS)
+                val petWindow = petView ?: return@launch
+                if (touching) return@launch
+                if (quickSkip > 0) quickSkip-- else {
+                    val at = IntArray(2).also(petWindow::getLocationOnScreen)
+                    movePetBy(petWindow, at[1] - quickTop0)
+                }
+            }
+            val petWindow = petView ?: return@launch
+            if (touching || petParams.y == quickY0) return@launch
+            petParams.y = quickY0
+            runCatching { wm.updateViewLayout(petWindow, petParams) }
+            layoutFx()
+        }
     }
 
     private fun saveQuickNote(title: String, at: Long) {
@@ -1197,8 +1294,8 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     /**
-     * "¡Buen día!": la onomatopeya (sin voz si los avisos están en silencio) y un papelito encima de la
-     * mascota con lo que hay hoy. Tocarlo abre la app; se va solo a los 6 s.
+     * "¡Buen día!": la onomatopeya (sin voz si los avisos están en silencio) y el papelito de los avisos,
+     * al costado de la mascota, con lo que hay hoy. Tocarlo abre la app; se va solo a los 6 s.
      */
     private suspend fun morning(force: Boolean) {
         if (!force) Bond.markGreeted(this)
@@ -1224,7 +1321,30 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             1 -> getString(R.string.bond_morning_one)
             else -> getString(R.string.bond_morning_some, today)
         }
-        showCard(BondCard.Morning(SystemClock.uptimeMillis(), text), MORNING_CARD_MS, onTap = { openApp(null) }) { }
+        // Mismo papelito que el segundo paso de un aviso, al costado de la mascota (pedido de Ariel,
+        // 16/11: el saludo tiene que usar una de las formas de los avisos). "¡Buen día!" va donde va la hora.
+        if (state.phase !is FxPhase.None || current != null || quickView != null) return
+        val cut = text.indexOf("! ").takeIf { it > 0 }
+        val id = SystemClock.uptimeMillis()
+        state.phase = FxPhase.Peek(
+            null, id, head = if (cut != null) text.substring(0, cut + 1) else null,
+            text = if (cut != null) text.substring(cut + 2) else text,
+        )
+        bubbleHeightPx = 0
+        layoutFx()
+        scope.launch {
+            delay(MORNING_CARD_MS)
+            if ((state.phase as? FxPhase.Peek)?.id == id) closeGreeting()
+        }
+    }
+
+    /** Saca el papelito del saludo de buenos días, si está. */
+    private fun closeGreeting(): Boolean {
+        val peek = state.phase as? FxPhase.Peek ?: return false
+        if (peek.alert != null) return false
+        state.phase = FxPhase.None
+        layoutFx()
+        return true
     }
 
     /** Baile suelto de vez en cuando (máximo 2 por día), nunca con un aviso abierto. */
@@ -1261,19 +1381,12 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, LayoutParams.TYPE_APPLICATION_OVERLAY,
             LayoutParams.FLAG_NOT_FOCUSABLE or LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT,
         ).apply {
-            if (card is BondCard.Trick || card is BondCard.Morning) {
-                // El papelito del truco o del buen día, encima de la mascota (o debajo, si no entra arriba).
+            if (card is BondCard.Trick) {
+                // El papelito del truco, encima de la mascota (o debajo, si no entra arriba).
                 gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-                val paper = dp(if (card is BondCard.Morning) MORNING_PAPER_DP else TRICK_PAPER_DP)
                 val above = petParams.y + petParams.height + dp(4)
                 val roomAbove = resources.displayMetrics.heightPixels - statusBarHeight() - above
-                y = if (roomAbove >= paper) above else (petParams.y - paper).coerceAtLeast(dp(8))
-                if (card is BondCard.Morning) {
-                    // Centrado sobre la mascota, sin salirse de la pantalla (medio papelito ≈ 122 dp).
-                    val half = resources.displayMetrics.widthPixels / 2
-                    val limit = (half - dp(MORNING_HALF_DP)).coerceAtLeast(0)
-                    x = (petParams.x + petParams.width / 2 - half).coerceIn(-limit, limit)
-                }
+                y = if (roomAbove >= dp(TRICK_PAPER_DP)) above else (petParams.y - dp(TRICK_PAPER_DP)).coerceAtLeast(dp(8))
             } else {
                 gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                 y = statusBarHeight() + dp(8)
@@ -1608,6 +1721,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
             closeUpcoming()
             return true
         }
+        if (closeGreeting()) return true
         val alert = current ?: return false
         // Una carta abierta se vuelve a guardar a sus pies.
         if ((state.phase as? FxPhase.Bubble)?.letter != null) {
@@ -1626,7 +1740,14 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val phase = state.phase
         if (phase is FxPhase.Upcoming) return closeUpcoming()
         if (phase is FxPhase.Call) return openCard(phase.alert)
-        if (phase is FxPhase.Peek) return openCard(phase.alert)
+        if (phase is FxPhase.Peek) {
+            // El saludo de buenos días no tiene aviso: tocarlo abre la app.
+            val alert = phase.alert ?: run {
+                closeGreeting()
+                return openApp(null)
+            }
+            return openCard(alert)
+        }
         val alert = current ?: return
         val letter = (phase as? FxPhase.Bubble)?.letter
         // Carta de una frase amigable o de un aviso de prueba: tocarla es darla por leída.
@@ -1801,6 +1922,7 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val PEEK_SIDE_MIN_DP = 150
         private const val PEEK_MAX_DP = 200
         private const val PEEK_WINDOW_DP = 84
+        private const val PEEK_GREETING_EXTRA_DP = 24
         /** Del borde de arriba de su ventana al centro del papelito (va a la altura de la boca). */
         private const val PEEK_CENTER_DP = 36
         /** Dónde empieza el globito, en fracción del ancho de la ventana de la mascota desde la boca. */
@@ -1857,8 +1979,10 @@ class PetOverlayService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         private const val CARD_MS = 10_000L
         /** Alto aproximado del papelito del truco, para ver si entra arriba de la mascota. */
         private const val TRICK_PAPER_DP = 150
-        private const val MORNING_PAPER_DP = 100
-        private const val MORNING_HALF_DP = 122
+        private const val QUICK_SETTLE_MS = 50L
+        private const val QUICK_RESTORE_STEPS = 16
+        /** Menos que esto no es el teclado (diferencias de barras del sistema). */
+        private const val QUICK_IME_MIN_DP = 80
         private const val MORNING_CARD_MS = 6_000L
         private const val UNLOCK_GREET_DELAY_MS = 900L
         private const val UNLOCK_CELEBRATE_DELAY_MS = 3_000L

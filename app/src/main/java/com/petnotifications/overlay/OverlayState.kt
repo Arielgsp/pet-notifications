@@ -47,7 +47,7 @@ sealed interface FxPhase {
      */
     data class Call(val alert: PetAlert, val text: String, val id: Long, val lifeMs: Long) : FxPhase
     /** Después de la onomatopeya: solo el mensaje, en un globito al costado. Tocarlo abre la tarjeta. */
-    data class Peek(val alert: PetAlert, val id: Long) : FxPhase
+    data class Peek(val alert: PetAlert?, val id: Long, val head: String? = null, val text: String? = null) : FxPhase
     /** La tarjeta con el aviso; [letter]: se abrió desde una carta (cerrarla no la saca de sus pies). */
     data class Bubble(val alert: PetAlert, val autoHideMs: Long?, val hint: String, val letter: Letter? = null) : FxPhase
     /** Panel con los próximos avisos (tirón hacia la izquierda sobre la mascota). */
@@ -146,8 +146,6 @@ sealed interface BondCard {
         val secondary: String,
     ) : BondCard
 
-    /** "¡Buen día! Hoy tenemos 3 cosas." Tocarla abre la app. */
-    data class Morning(override val id: Long, val text: String) : BondCard
 }
 
 /**

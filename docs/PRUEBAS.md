@@ -1071,7 +1071,7 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 78.3 | Lo mismo con la mascota pegada al borde derecho. | La pelotita entra y sale por el borde sin cortes raros. | |
 
 ---
-## 79. Saludo de buenos días como papelito (versión 1.0.71)
+## 79. Saludo de buenos días como papelito (versión 1.0.71; reemplazada por la 80)
 
 | # | Prueba | Qué tiene que pasar | Resultado |
 |---|---|---|---|
@@ -1079,6 +1079,20 @@ Para probarlo antes del 1/12: Herramientas de dueño → «Recibir el gorro navi
 | 79.2 | Lo mismo con la mascota cerca de un costado. | El papelito queda arriba de la mascota sin salirse de la pantalla. | |
 | 79.3 | Con la mascota pegada arriba. | El papelito va debajo de ella. | |
 | 79.4 | Tocar el papelito. No tocarlo. | Tocarlo abre la app. Si no se toca, se va solo a los 6 s. | |
+
+---
+## 80. Saludo de buenos días al costado y recordatorio rápido pegado a la mascota (versión 1.0.72)
+
+Reemplaza a la sección 79: el saludo ya no va encima ni debajo de la mascota.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 80.1 | Primer desbloqueo del día a la mañana. | La mascota dice su sonido y sale el **mismo papelito de los avisos, al costado de su cara**: «¡Buen día!» donde va la hora y debajo lo de hoy, en hasta dos renglones, sin cortarse. | |
+| 80.2 | Tocar el papelito. Tocar la mascota. No tocar nada. | El papelito abre la app. Tocar la mascota lo cierra. Solo, se va a los 6 s. | |
+| 80.3 | Con la mascota en la **mitad de arriba** de la pantalla, tirón hacia abajo. | La mascota **no se mueve**. La cartita aparece pegada a ella (al costado, o justo arriba o debajo si al costado no entra), sin hueco, y el teclado no la tapa. | |
+| 80.4 | Con la mascota en la **mitad de abajo**, tirón hacia abajo. | La mascota y la cartita **suben juntas** y quedan arriba del teclado, pegadas. | |
+| 80.5 | Cerrar la cartita (tocar afuera, o «Anotado»). | La mascota vuelve exactamente a donde estaba. | |
+| 80.6 | Con la cartita abierta, esconder el teclado con Atrás. | La mascota y la cartita bajan juntas a donde estaba la mascota. | |
 
 ---
 
