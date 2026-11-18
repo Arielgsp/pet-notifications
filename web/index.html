@@ -65,16 +65,16 @@ section { padding: 72px 0; }
 .btn:not(.soon):hover { transform: translateY(-2px); }
 
 /* Portada */
-.hero { background: var(--blush-soft); padding: 56px 0 0; overflow: hidden; }
+.hero { background: var(--blush-soft); padding: 40px 0 0; overflow: hidden; }
 .hero .wrap { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: end; }
 .hero .ask { font-size: clamp(20px, 2.6vw, 28px); font-weight: 900; color: var(--cocoa); margin-bottom: 8px; }
-.hero h1 { font-size: clamp(54px, 9.4vw, 122px); }
-.hero .lead { color: var(--ink); font-size: 20px; }
+.hero h1 { font-size: clamp(42px, 6.2vw, 78px); }
+.hero .lead { color: var(--ink); font-size: 19px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-.small { font-size: 14px; color: var(--muted); margin-top: 12px; padding-bottom: 40px; font-weight: 700; }
+.small { font-size: 14px; color: var(--muted); margin-top: 12px; padding-bottom: 32px; font-weight: 700; }
 
 /* Celular de la portada */
-.phone { position: relative; width: min(330px, 100%); height: 560px; justify-self: center; margin-bottom: -60px; background: var(--sage-soft); border: 9px solid var(--ink); border-bottom: 0; border-radius: 42px 42px 0 0; overflow: hidden; }
+.phone { position: relative; width: min(330px, 100%); height: 490px; justify-self: center; margin-bottom: -30px; background: var(--sage-soft); border: 9px solid var(--ink); border-bottom: 0; border-radius: 42px 42px 0 0; overflow: hidden; }
 .phone .clock { text-align: center; font-size: 56px; font-weight: 900; letter-spacing: -.03em; padding-top: 34px; color: #4d7359; font-variant-numeric: tabular-nums; }
 .phone .day { text-align: center; color: #4d7359; font-weight: 800; }
 .phone .demo-pet { position: absolute; width: 118px; right: 14px; top: 196px; cursor: pointer; background: none; border: 0; padding: 0; }
@@ -87,7 +87,7 @@ section { padding: 72px 0; }
 .phone .sticker-spot { position: absolute; right: 103px; top: 178px; }
 .phone .sticker-spot .sticker { right: 0; top: 0; }
 /* El aviso como en la app: globo con el sonido, papelito con la esquina doblada y, al tocarlo, la cartita con la mascota asomada. */
-.slip { position: absolute; left: 12px; right: 122px; top: 208px; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; color: var(--ink); filter: drop-shadow(0 5px 9px rgba(58, 46, 39, .22)); transition: opacity .25s, transform .25s; transform: rotate(-2deg); }
+.slip { position: absolute; left: 12px; right: 122px; top: 208px; padding: 0; background: none; border: 0; cursor: pointer; font: inherit; text-align: left; color: var(--ink); filter: drop-shadow(0 5px 9px rgba(58, 46, 39, .22)); transition: opacity .25s, transform .25s; transform: rotate(-2deg); }
 .slip span { position: relative; display: block; padding: 10px 14px 11px 22px; background: var(--paper); border-radius: 15px; clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px); }
 .slip span::before { content: ""; position: absolute; left: 0; top: 0; width: 18px; height: 18px; background: #ecd9bc; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
 .slip small { display: block; color: var(--cocoa); font-size: 12px; font-weight: 900; line-height: 16px; }
@@ -108,10 +108,14 @@ section { padding: 72px 0; }
 .thanks.on { opacity: 1; }
 
 /* Desfile */
-.parade { background: var(--ink); padding: 26px 0 0; overflow-x: auto; position: relative; z-index: 1; }
-.parade div { display: flex; justify-content: center; min-width: 900px; padding: 0 20px; }
-.parade img { width: 9.09%; min-width: 76px; margin-bottom: -5px; transition: transform .18s; }
-.parade img:hover { transform: translateY(-12px) rotate(-3deg); }
+.parade { background: var(--ink); padding: 10px 0 0; overflow: auto hidden; position: relative; z-index: 1; }
+.parade p { position: sticky; left: 0; text-align: center; color: #fff1dc; font-size: 15px; font-weight: 800; }
+#parade { display: flex; justify-content: center; min-width: 600px; padding: 12px 20px 0; }
+.parade button { position: relative; width: 9.09%; min-width: 76px; margin-bottom: -5px; padding: 0; background: none; border: 0; cursor: pointer; transition: transform .18s; }
+.parade button img { width: 100%; }
+.parade button:hover { transform: translateY(-8px); }
+.parade button:focus-visible { outline-color: var(--honey); outline-offset: -3px; border-radius: 16px; }
+.parade button[aria-pressed="true"]::before { content: "♥"; position: absolute; left: 0; right: 0; top: -8px; text-align: center; color: var(--blush); font-size: 16px; line-height: 1; }
 
 /* Mascotas */
 .pets-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 34px; }
@@ -199,7 +203,10 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 #buddy-word.show { opacity: 1; transition: none; }
 #buddy-word .sticker { top: calc(38% - 67px); right: 82%; }
 #buddy-word .sticker.flip { right: auto; left: 82%; }
-#buddy-tip { position: fixed; right: 124px; bottom: 34px; z-index: 29; background: #fff1dc; border: 1px solid var(--line); border-radius: 16px; padding: 7px 12px; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(58, 46, 39, .14); max-width: 210px; line-height: 1.25; }
+#buddy-try { position: absolute; left: 50%; top: -18px; transform: translateX(-50%) rotate(-3deg); padding: 4px 12px; border-radius: 99px; background: var(--cocoa); color: #fff; font: 900 14px/1.25 var(--font); white-space: nowrap; pointer-events: none; box-shadow: 0 4px 12px rgba(58, 46, 39, .25); }
+#buddy-try::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 12px; height: 12px; margin-left: -6px; background: var(--cocoa); border-radius: 2px; transform: rotate(45deg); z-index: -1; }
+#buddy-try.gone { display: none; }
+#buddy-tip { position: fixed; right: 124px; bottom: 34px; z-index: 29; pointer-events: none; background: #fff1dc; border: 1px solid var(--line); border-radius: 16px; padding: 7px 12px; font-size: 14px; font-weight: 800; box-shadow: 0 8px 24px rgba(58, 46, 39, .14); max-width: 210px; line-height: 1.25; }
 #buddy-tip.gone { display: none; }
 .heart { position: fixed; z-index: 31; color: var(--pro); font-size: 26px; pointer-events: none; }
 
@@ -215,6 +222,8 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   .sticker-word i { animation: letter-hop 3.2s linear infinite; animation-delay: var(--d); }
   .tw1, .tw2 { animation: twinkle .9s linear infinite alternate; }
   .tw2 { animation-delay: -.9s; }
+  @keyframes try-me { 0%, 70%, 100% { transform: translateX(-50%) rotate(-3deg); } 80% { transform: translate(-50%, -7px) rotate(3deg); } 90% { transform: translate(-50%, 0) rotate(-3deg); } }
+  #buddy-try { animation: try-me 2.4s ease-in-out infinite; }
   @keyframes hop { 40% { transform: translateY(-26px); } }
   #buddy.hop { animation: hop .36s ease; }
   @keyframes rise { to { transform: translateY(-90px) scale(1.3); opacity: 0; } }
@@ -223,7 +232,6 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 }
 @media (max-width: 860px) {
   .hero .wrap { grid-template-columns: 1fr; }
-  .phone { margin-bottom: -90px; }
   .pets-grid { grid-template-columns: repeat(3, 1fr); }
   .does-grid, .plan-grid, .quick .wrap { grid-template-columns: 1fr; }
   .dress-row { grid-template-columns: repeat(3, 1fr); }
@@ -274,7 +282,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     <div class="wrap">
       <div>
         <p class="ask" data-t="ask">¿Ignoras las notificaciones?</p>
-        <h1 data-t="h1">A tu mascota no la vas a ignorar.</h1>
+        <h1 data-t="h1">A tu mascota no la vas a querer ignorar.</h1>
         <p class="lead" data-t="hero_lead">Una mascota tierna vive en tu pantalla, encima de cualquier app. Cuando llega la hora, te avisa con su propia voz y te dice qué tienes que hacer.</p>
         <div class="actions">
           <span id="play-slot"></span>
@@ -298,7 +306,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       </div>
     </div>
   </section>
-  <div class="parade" aria-hidden="true"><div id="parade"></div></div>
+  <div class="parade"><p data-t="parade_hint">Toca una para probarla</p><div id="parade" role="group" aria-label="Elegir la mascota de prueba" data-t-aria="parade_group"></div></div>
 
   <section id="mascotas">
     <div class="wrap">
@@ -424,6 +432,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 <button id="buddy" type="button" aria-label="Mascota de la página: tócala para ver corazones" data-t-aria="buddy">
   <img id="buddy-img" src="pets/dog_front.svg" alt="">
   <span id="buddy-word" aria-hidden="true"></span>
+  <span id="buddy-try" aria-hidden="true" data-t="try_me">¡Pruébame!</span>
 </button>
 
 <script src="datos.js"></script>
@@ -450,7 +459,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     var TEXT = {
       nav_pets: "Pets", nav_videos: "Videos", nav_plans: "Plans", nav_social: "Social",
       voice: "Pet voices", sections: "Sections",
-      ask: "Do you ignore notifications?", h1: "You won’t ignore your pet.",
+      ask: "Do you ignore notifications?", h1: "You won’t want to ignore your pet.",
       hero_lead: "A cute pet lives on your screen, on top of any app. When it’s time, it alerts you in its own voice and tells you what to do.",
       meet: "Meet all 7", android: "Android only. iPhone doesn’t let an app float on top of others.",
       phone: "Example of a MimuPet alert", day: "Appointment time", touch_dog: "Touch the puppy",
@@ -482,6 +491,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       private_lead: "The app has no internet access. No accounts, no ads, no tracking. Every permission is explained before it’s requested.",
       privacy_more: "Read the privacy policy", privacy: "Privacy",
       social_h: "Follow us.", footer: "MimuPet. A cute pet that reminds you of what matters.",
+      parade_hint: "Tap one to try it", parade_group: "Choose the pet to try", try_me: "Try me!",
       tip: "Hi, I’m Dog. Tap me or drag me.", buddy: "The page’s pet: tap it to see hearts",
       a_duck: "Happy duck", a_pig: "Happy pig", a_chick: "Sleeping chick", a_rabbit: "Happy rabbit", a_cow: "Cow", a_dog: "Happy dog", a_cat: "Sleeping cat",
       d_dog: "Dog with a wool hat and scarf", d_pig: "Pig with a scarf", d_rabbit: "Rabbit with a flower crown",
@@ -521,8 +531,27 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   else slot.appendChild(el("span", "btn soon", tr("Muy pronto en Google Play", "Coming soon to Google Play")));
 
   /* Desfile */
-  var parade = document.getElementById("parade");
-  PETS.forEach(function (p) { parade.appendChild(pic(p[0], "front")); });
+  var parade = document.getElementById("parade"), paradeBtns = {};
+  function calm() { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  PETS.forEach(function (p) {
+    var b = el("button"), face = pic(p[0], "front"), turning = false;
+    b.type = "button";
+    b.setAttribute("aria-label", tr("Probar " + p[1], "Try " + p[1]));
+    b.setAttribute("aria-pressed", p[0] === "dog" ? "true" : "false");
+    b.appendChild(face);
+    function warm() { loadSpin(p[0]); }
+    b.addEventListener("pointerenter", warm);
+    b.addEventListener("focus", warm);
+    b.addEventListener("click", function () {
+      if (!turning && !calm()) {
+        turning = true;
+        turn(face, p[0], 85, function () { return true; }, function () { face.src = "pets/" + p[0] + "_front.svg"; turning = false; });
+      }
+      choose(p[0]);
+    });
+    paradeBtns[p[0]] = b;
+    parade.appendChild(b);
+  });
 
   /* Videos */
   var published = (D.videos || []).filter(function (v) { return v.enlace; }).length;
@@ -627,6 +656,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   /* La mascota de la página */
   var buddy = document.getElementById("buddy"), img = document.getElementById("buddy-img"), word = document.getElementById("buddy-word"), tip = document.getElementById("buddy-tip");
   var current = "dog", asleep = false, idle, wordTimer;
+  var tryMe = document.getElementById("buddy-try");
   function hideTip() { tip.classList.add("gone"); }
   function art(view) { img.src = "pets/" + current + "_" + view + ".svg"; }
   function wake() {
@@ -651,18 +681,23 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     spinFrames[id] = [];
     for (var i = 0; i < STEPS; i++) { var f = new Image(); f.src = frameUrl(id, i); spinFrames[id].push(f); }
   }
-  function spin() {
-    if (spinning || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    spinning = true; loadSpin(current);
-    var i = 0, id = current;
+  function turn(target, id, ms, keepGoing, done) {
+    loadSpin(id);
+    var i = 0;
     var timer = setInterval(function () {
       i++;
-      if (i >= STEPS) { clearInterval(timer); spinning = false; art("front"); return; }
-      img.src = frameUrl(id, i);
-    }, 170);
+      if (i >= STEPS || !keepGoing()) { clearInterval(timer); done(); return; }
+      target.src = frameUrl(id, i);
+    }, ms);
+  }
+  function spin() {
+    if (spinning || calm()) return;
+    spinning = true;
+    var id = current;
+    turn(img, id, 170, function () { return id === current; }, function () { spinning = false; art("front"); });
   }
   function hearts(from) {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (calm()) return;
     var r = from.getBoundingClientRect();
     for (var i = 0; i < 5; i++) (function (i) {
       setTimeout(function () {
@@ -680,6 +715,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     Object.keys(cards).forEach(function (k) {
       cards[k].classList.toggle("on", k === id);
       cards[k].setAttribute("aria-pressed", k === id ? "true" : "false");
+      paradeBtns[k].setAttribute("aria-pressed", k === id ? "true" : "false");
     });
     hideTip(); loadSpin(id);
     say(byId[id][2]); speak(id); play("hop"); wake();
@@ -713,14 +749,14 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
     if (!start) return;
     var dx = e.clientX - start.x, dy = e.clientY - start.y;
     if (!moved && Math.hypot(dx, dy) < 6) return;
-    moved = true; buddy.classList.add("drag"); hideTip();
+    moved = true; buddy.classList.add("drag"); hideTip(); tryMe.classList.add("gone");
     var w = buddy.offsetWidth, h = buddy.offsetHeight;
     buddy.style.left = Math.max(0, Math.min(innerWidth - w, start.l + dx)) + "px";
     buddy.style.top = Math.max(0, Math.min(innerHeight - h, start.t + dy)) + "px";
     buddy.style.right = "auto"; buddy.style.bottom = "auto";
   });
   function tap() {
-    hideTip(); wake();
+    hideTip(); tryMe.classList.add("gone"); wake();
     var now = Date.now();
     if (now - lastTap < 320) {
       clearTimeout(tapTimer); lastTap = 0; spin(); return;
@@ -741,22 +777,30 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 
   /* El aviso de la portada */
   var note = document.getElementById("note"), slip = document.getElementById("slip"), thanks = document.getElementById("thanks"), demo = document.getElementById("demo-pet");
-  var demoWord = document.getElementById("demo-word"), wordTimer;
-  /* Primero el globo con el sonido; después, el papelito. Tocarlo abre la cartita. */
+  var demoWord = document.getElementById("demo-word"), demoTimer;
+  /* Primero el globo con el sonido; después, el papelito; y si nadie lo toca, la cartita se abre sola. */
+  function openNote() {
+    clearTimeout(demoTimer);
+    slip.classList.add("gone"); note.classList.remove("gone");
+  }
   function demoCall() {
     slip.classList.add("gone");
     demoWord.textContent = "";
     demoWord.appendChild(sticker(callWord(byId.dog[2]), false));
-    clearTimeout(wordTimer);
-    wordTimer = setTimeout(function () { demoWord.textContent = ""; slip.classList.remove("gone"); }, 1800);
+    clearTimeout(demoTimer);
+    demoTimer = setTimeout(function () {
+      demoWord.textContent = ""; slip.classList.remove("gone");
+      demoTimer = setTimeout(openNote, 4000);
+    }, 1800);
   }
   function answer(text, withHearts) {
+    clearTimeout(demoTimer);
     note.classList.add("gone");
     thanks.textContent = text; thanks.classList.add("on");
     if (withHearts) hearts(demo);
-    setTimeout(function () { thanks.classList.remove("on"); demoCall(); }, 2600);
+    demoTimer = setTimeout(function () { thanks.classList.remove("on"); demoCall(); }, 2600);
   }
-  slip.addEventListener("click", function () { slip.classList.add("gone"); note.classList.remove("gone"); });
+  slip.addEventListener("click", openNote);
   document.getElementById("note-ok").addEventListener("click", function () { answer(tr("¡Bien hecho! +1 corazón", "Well done! +1 heart"), true); });
   document.getElementById("note-later").addEventListener("click", function () { answer(tr("De acuerdo, te aviso más tarde", "Okay, I’ll remind you later"), false); });
   demoCall();
