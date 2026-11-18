@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.LocalFlorist
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Cake
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -305,12 +306,12 @@ fun SettingsScreen(
         calendars = withContext(Dispatchers.IO) { CalendarSource.calendars(ctx) }
     }
 
-    /** Eventos de los próximos 7 días para la lista de Avisos (solo si el calendario está activo). */
+    /** Eventos de las semanas que se pueden recorrer en Avisos (solo si el calendario está activo). */
     var events by remember { mutableStateOf(emptyList<PetAlert>()) }
     suspend fun reloadEvents() {
         events = if (prefs.calendarEnabled && CalendarSource.hasPermission(ctx)) withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
-            runCatching { CalendarSource.alertsBetween(ctx, now, now + 7 * Prefs.DAY_MS, 0, prefs.calendarIds, now) }.getOrDefault(emptyList())
+            runCatching { CalendarSource.alertsBetween(ctx, now, now + (WEEKS_AHEAD + 1) * 7 * Prefs.DAY_MS, 0, prefs.calendarIds, now) }.getOrDefault(emptyList())
         } else emptyList()
     }
     LaunchedEffect(calEnabled, calIds, hasCalendar) { reloadEvents() }
@@ -843,14 +844,14 @@ fun SettingsScreen(
         draft = Reminder(title = ctx.getString(t.title), timeMillis = 0, repeat = t.repeat.name)
     }
 
-    /** La semana desde hoy: hoy en cocoa, un punto en los días con algo, el elegido con borde. */
+    /** Una semana: hoy en cocoa, un punto en los días con algo, el elegido con borde. */
     @Composable
-    fun WeekStrip(days: List<java.time.LocalDate>, busy: Set<java.time.LocalDate>, selected: java.time.LocalDate, onPick: (java.time.LocalDate) -> Unit) {
+    fun WeekStrip(days: List<java.time.LocalDate>, busy: Set<java.time.LocalDate>, selected: java.time.LocalDate, current: java.time.LocalDate, onPick: (java.time.LocalDate) -> Unit) {
         val locale = ctx.resources.configuration.locales[0]
         val fmt = remember(locale) { java.time.format.DateTimeFormatter.ofPattern("EEE", locale) }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth()) {
-            days.forEachIndexed { i, d ->
-                val today = i == 0
+            days.forEach { d ->
+                val today = d == current
                 val shape = RoundedCornerShape(14.dp)
                 val fg = if (today) c.surface else c.ink
                 Column(
@@ -874,6 +875,39 @@ fun SettingsScreen(
                     )
                 }
             }
+        }
+    }
+
+    /** Título de la semana a la vista, con flechas para pasar de semana y "Hoy" para volver. */
+    @Composable
+    fun WeekHeader(page: Int, days: List<java.time.LocalDate>, onPage: (Int) -> Unit) {
+        val locale = ctx.resources.configuration.locales[0]
+        val fmt = remember(locale) {
+            java.time.format.DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM"), locale)
+        }
+        @Composable
+        fun Arrow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, enabled: Boolean, target: Int) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(44.dp).clip(CircleShape).clickable(enabled = enabled) { onPage(target) },
+            ) {
+                Icon(icon, label, tint = if (enabled) c.cocoa else c.line, modifier = Modifier.size(24.dp))
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Arrow(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, stringResource(R.string.home_week_prev), page > 0, page - 1)
+            Text(
+                if (page == 0) stringResource(R.string.home_week_this) else "${days.first().format(fmt)} – ${days.last().format(fmt)}",
+                fontSize = 14.sp, fontWeight = FontWeight(800), color = c.ink, textAlign = TextAlign.Center, modifier = Modifier.weight(1f),
+            )
+            if (page > 0) {
+                Text(
+                    stringResource(R.string.today), fontSize = 13.sp, fontWeight = FontWeight(800), color = c.cocoa,
+                    modifier = Modifier.clip(RoundedCornerShape(50)).background(c.blushSoft).clickable { onPage(0) }
+                        .padding(horizontal = 12.dp, vertical = 7.dp),
+                )
+            }
+            Arrow(Icons.AutoMirrored.Outlined.KeyboardArrowRight, stringResource(R.string.home_week_next), page < WEEKS_AHEAD, page + 1)
         }
     }
 
@@ -940,9 +974,16 @@ fun SettingsScreen(
         val zone = java.time.ZoneId.systemDefault()
         val today = java.time.LocalDate.now(zone)
         fun dayOf(at: Long) = java.time.Instant.ofEpochMilli(at).atZone(zone).toLocalDate()
-        val days = remember(today) { (0L..6L).map { today.plusDays(it) } }
+        // Las semanas se recorren deslizando la tira o con las flechas (pedido de Ariel, 18/11).
+        fun weekAt(page: Int) = (0L..6L).map { today.plusDays(page * 7L + it) }
+        val days = remember(today) { weekAt(0) }
+        val weeks = rememberPagerState { WEEKS_AHEAD + 1 }
         var selected by remember { mutableStateOf(today) }
-        if (selected !in days) selected = today
+        if (selected.isBefore(today)) selected = today
+        LaunchedEffect(weeks.settledPage, today) {
+            val shown = weekAt(weeks.settledPage)
+            if (selected !in shown) selected = shown.first()
+        }
         /** Lo que hay un día: los recordatorios que se repiten aparecen en cada día que les toca. */
         fun itemsOn(day: java.time.LocalDate): List<HomeItem> {
             val mine = reminders.filter { !it.fired }.mapNotNull { r ->
@@ -960,8 +1001,10 @@ fun SettingsScreen(
         val byDay = remember(reminders, events, today) { days.associateWith(::itemsOn) }
         val later = remember(reminders, events, today) {
             val end = today.plusDays(6)
+            // Los eventos lejanos se ven recorriendo las semanas: acá solo los del próximo mes, para no alargar la lista.
+            val nearEvents = events.filter { e -> e.eventBegin?.let { !dayOf(it).isAfter(today.plusDays(LATER_EVENT_DAYS)) } == true }
             (reminders.filter { !it.fired && Repeat.from(it.repeat) == Repeat.NONE }.map { HomeItem(it.timeMillis, it.title, it, null) } +
-                events.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).filter { dayOf(it.at).isAfter(end) }.sortedBy { it.at }
+                nearEvents.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).filter { dayOf(it.at).isAfter(end) }.sortedBy { it.at }
         }
         val firedToday = reminders.filter { it.fired && dayOf(it.timeMillis) == today }
         val todayCount = byDay[today].orEmpty().count { it.at >= System.currentTimeMillis() || it.event != null }
@@ -977,10 +1020,14 @@ fun SettingsScreen(
         val dayName = when (selected) {
             today -> stringResource(R.string.today)
             today.plusDays(1) -> stringResource(R.string.tomorrow)
-            else -> selected.format(java.time.format.DateTimeFormatter.ofPattern(stringResource(R.string.home_day_pattern), locale))
-                .replaceFirstChar { it.titlecase(locale) }
+            else -> selected.format(
+                java.time.format.DateTimeFormatter.ofPattern(
+                    // Más allá de esta semana hace falta el mes.
+                    stringResource(if (selected in days) R.string.home_day_pattern else R.string.home_date_pattern), locale,
+                ),
+            ).replaceFirstChar { it.titlecase(locale) }
         }
-        val chosen = byDay[selected].orEmpty()
+        val chosen = remember(selected, reminders, events, today) { itemsOn(selected) }
         val density = LocalDensity.current
         val range = with(density) { (SCENE_MAX_DP - SCENE_MIN_DP).dp.toPx() }
         // 0 = escena entera; range = encabezado fijo. Se achica antes de que la lista suba y se
@@ -1016,7 +1063,20 @@ fun SettingsScreen(
         ) {
             trying?.let { (p, coat) -> item { TryCard(p, coat) } }
             item { AlertCard() }
-            item { WeekStrip(days, days.filter { byDay[it].orEmpty().isNotEmpty() }.toSet(), selected) { selected = it } }
+            item {
+                fun goTo(page: Int) {
+                    if (page == 0) selected = today
+                    scope.launch { weeks.animateScrollToPage(page) }
+                }
+                Column {
+                    WeekHeader(weeks.currentPage, weekAt(weeks.currentPage), ::goTo)
+                    HorizontalPager(weeks, pageSpacing = 8.dp, modifier = Modifier.fillMaxWidth()) { page ->
+                        val week = remember(page, today) { weekAt(page) }
+                        val busy = remember(week, reminders, events) { week.filter { itemsOn(it).isNotEmpty() }.toSet() }
+                        WeekStrip(week, busy, selected, today) { selected = it }
+                    }
+                }
+            }
 
             item { SectionLabel(dayName, Modifier.padding(top = 2.dp)) }
             when {
@@ -2359,6 +2419,12 @@ private const val SUB_HELP = "help"
 private const val SUB_PATH = "path"
 
 /** Algo que va a sonar: un recordatorio propio o un evento del calendario. */
+/** Semanas que se pueden recorrer en Avisos, además de la actual. */
+private const val WEEKS_AHEAD = 52
+
+/** Hasta dónde entran los eventos del calendario en "Más adelante". */
+private const val LATER_EVENT_DAYS = 30L
+
 private data class HomeItem(val at: Long, val title: String, val reminder: Reminder?, val event: PetAlert?)
 
 /** Plantilla de Avisos: lo que dice el chip, el título que pone y la repetición sugerida. */

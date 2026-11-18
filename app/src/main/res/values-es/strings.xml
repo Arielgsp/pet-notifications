@@ -451,6 +451,9 @@
     <string name="home_in_days">en %1$d días</string>
     <string name="home_week">Esta semana</string>
     <string name="home_later">Más adelante</string>
+    <string name="home_week_this">Esta semana</string>
+    <string name="home_week_prev">Semana anterior</string>
+    <string name="home_week_next">Semana siguiente</string>
     <string name="home_calendar_meta">Calendario</string>
     <string name="home_fired_today">Ya avisados hoy (%1$d)</string>
     <string name="home_empty_title">Todavía no tengo nada para recordarte</string>

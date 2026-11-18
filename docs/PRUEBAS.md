@@ -1139,6 +1139,17 @@ Abrí la app una vez con esta versión antes de empezar: ahí toma nota del arra
 | 84.5 | Ajustes → pasos de batería. | En Xiaomi hay un botón «Abrir Inicio automático». | |
 
 ---
+## 85. Ver las próximas semanas en Avisos (versión 1.0.77)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 85.1 | En Avisos, tocar la flecha › al lado de «Esta semana». | Pasa a la semana siguiente, muestra el rango de fechas y selecciona su primer día. | |
+| 85.2 | Deslizar la tira de días hacia la izquierda y la derecha. | Cambia de semana sin cambiar de pestaña. | |
+| 85.3 | Crear un recordatorio para dentro de 10 días o más y buscar ese día. | El día tiene punto y, al tocarlo, se ve el recordatorio, con el nombre del día y del mes. Sigue apareciendo en «Más adelante». | |
+| 85.4 | Con Google Calendar activo, buscar un evento de dentro de varias semanas. | Aparece en su día. | |
+| 85.5 | Tocar «Hoy». | Vuelve a esta semana con hoy elegido. | |
+
+---
 
 ## Si algo falla
 
