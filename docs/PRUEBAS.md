@@ -1117,6 +1117,15 @@ Reemplaza a la sección 79: el saludo ya no va encima ni debajo de la mascota.
 | 82.6 | Elegir una hora con las flechitas, escribir un texto y tocar «Anotado». | El aviso queda guardado y llega a esa hora. | |
 
 ---
+## 83. Ícono rosa (versión 1.0.75)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 83.1 | Instalar y mirar el ícono en la pantalla de inicio y en el cajón de apps. | Perrito con borde blanco sobre fondo rosa, con corazones y puntitos, ocupando todo el ícono. **Sin un aro más claro alrededor** (en el emulador apareció en la pantalla de inicio, no en Ajustes). Si no cambia, reiniciar el launcher o el celular. | |
+| 83.2 | Ajustes de Android → Apps → MimuPet. | El mismo ícono, completo y sin cortes en la cara ni en las orejas. | |
+| 83.3 | Si el celular tiene íconos temáticos, activarlos. | El perrito se ve en líneas de un solo color. | |
+
+---
 
 ## Si algo falla
 

@@ -4,7 +4,8 @@ Pasa el ícono de Cowork (SVG de 108 x 108 dp) a VectorDrawable para el ícono a
   python tools/icon/export_icon.py <carpeta adaptive/ del zip de Cowork>
 
 Escribe drawable/ic_launcher_foreground.xml, ic_launcher_background.xml e ic_launcher_monochrome.xml.
-Entiende lo que usan esos SVG: g, path, ellipse, rect, translate/scale/rotate, clipPath y un radialGradient.
+Entiende lo que usan esos SVG: g, path, ellipse, circle, rect, translate/scale/rotate, clipPath, opacidades
+y degradés lineales y radiales (también con stops transparentes).
 """
 import os, re, sys
 import xml.etree.ElementTree as ET
@@ -59,7 +60,7 @@ def walk(el, style, clips, grads, out):
     if tag in ("clipPath", "defs", "radialGradient", "linearGradient"):
         return
     st = dict(style)
-    for k in ("fill", "stroke", "stroke-width", "opacity"):
+    for k in ("fill", "stroke", "stroke-width", "opacity", "fill-opacity", "stroke-opacity"):
         if k in el.attrib:
             st[k] = el.attrib[k]
     opens = groups_for(el.attrib.get("transform"))
@@ -75,6 +76,8 @@ def walk(el, style, clips, grads, out):
             walk(ch, st, clips, grads, out)
     else:
         alpha = float(st.get("opacity", 1))
+        fill_alpha = alpha * float(st.get("fill-opacity", 1))
+        stroke_alpha = alpha * float(st.get("stroke-opacity", 1))
         fill = st.get("fill", "#000000")
         stroke = st.get("stroke", "none")
         sw = float(st.get("stroke-width", 1))
@@ -86,34 +89,53 @@ def walk(el, style, clips, grads, out):
             inner = grads[g.group(1)]
         elif fill != "none":
             attrs.append(f'android:fillColor="{fill.upper()}"')
-            if alpha < 1:
-                attrs.append(f'android:fillAlpha="{num(alpha)}"')
+            if fill_alpha < 1:
+                attrs.append(f'android:fillAlpha="{num(fill_alpha)}"')
         if has_stroke:
             attrs += [f'android:strokeColor="{stroke.upper()}"', f'android:strokeWidth="{num(sw)}"',
                       'android:strokeLineCap="round"', 'android:strokeLineJoin="round"']
-            if alpha < 1:
-                attrs.append(f'android:strokeAlpha="{num(alpha)}"')
+            if stroke_alpha < 1:
+                attrs.append(f'android:strokeAlpha="{num(stroke_alpha)}"')
         if fill != "none" or has_stroke:
             out.append("<path " + " ".join(attrs) + (f">{inner}</path>" if inner else " />"))
     out.extend("</group>" for _ in opens)
 
 
-def radial(el, w, h):
-    cx = float(el.get("cx", "50%").rstrip("%")) / 100 * w
-    cy = float(el.get("cy", "50%").rstrip("%")) / 100 * h
-    r = float(el.get("r", "50%").rstrip("%")) / 100 * max(w, h)
-    items = "".join(
-        f'<item android:offset="{num(s.get("offset"))}" android:color="#FF{s.get("stop-color").lstrip("#").upper()}" />'
-        for s in el.iter(SVG + "stop"))
-    return (f'<aapt:attr name="android:fillColor"><gradient android:type="radial" android:centerX="{num(cx)}" '
-            f'android:centerY="{num(cy)}" android:gradientRadius="{num(r)}">{items}</gradient></aapt:attr>')
+def coord(el, name, default, size):
+    """Una coordenada del degradé: en porcentaje, o tal cual con gradientUnits="userSpaceOnUse"."""
+    v = el.get(name, default)
+    return float(v.rstrip("%")) / 100 * size if v.endswith("%") else float(v)
+
+
+def stops(el):
+    out = []
+    for s in el.iter(SVG + "stop"):
+        a = round(float(s.get("stop-opacity", 1)) * 255)
+        out.append((float(s.get("offset")), f'#{a:02X}{s.get("stop-color").lstrip("#").upper()}'))
+    # Android no siempre sigue el último color hasta el final: se lo repite en 1.
+    if out[-1][0] < 1:
+        out.append((1.0, out[-1][1]))
+    return "".join(f'<item android:offset="{num(o)}" android:color="{c}" />' for o, c in out)
+
+
+def gradient(el, w, h):
+    if el.tag == SVG + "linearGradient":
+        kind = (f'android:type="linear" android:startX="{num(coord(el, "x1", "0%", w))}" '
+                f'android:startY="{num(coord(el, "y1", "0%", h))}" android:endX="{num(coord(el, "x2", "100%", w))}" '
+                f'android:endY="{num(coord(el, "y2", "0%", h))}"')
+    else:
+        kind = (f'android:type="radial" android:centerX="{num(coord(el, "cx", "50%", w))}" '
+                f'android:centerY="{num(coord(el, "cy", "50%", h))}" '
+                f'android:gradientRadius="{num(coord(el, "r", "50%", max(w, h)))}"')
+    return f'<aapt:attr name="android:fillColor"><gradient {kind}>{stops(el)}</gradient></aapt:attr>'
 
 
 def convert(src, dst):
     root = ET.parse(src).getroot()
     w, h = (float(x) for x in root.get("viewBox").split()[2:])
     clips = {c.get("id"): list(c) for c in root.iter(SVG + "clipPath")}
-    grads = {g.get("id"): radial(g, w, h) for g in root.iter(SVG + "radialGradient")}
+    grads = {g.get("id"): gradient(g, w, h) for g in root.iter()
+             if g.tag in (SVG + "radialGradient", SVG + "linearGradient")}
     body = []
     walk(root, {}, clips, grads, body)
     aapt = ' xmlns:aapt="http://schemas.android.com/aapt"' if grads else ""
