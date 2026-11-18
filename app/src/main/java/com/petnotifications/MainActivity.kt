@@ -23,7 +23,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.petnotifications.overlay.PetOverlayService
+import com.petnotifications.ui.BootMissedDialog
 import com.petnotifications.ui.OnboardingScreen
+import com.petnotifications.ui.openAutoStartSettings
 import com.petnotifications.ui.TutorialScreen
 import com.petnotifications.ui.PetTheme
 import com.petnotifications.ui.SettingsScreen
@@ -58,12 +60,16 @@ class MainActivity : ComponentActivity() {
         if (prefs.petEnabled && !prefs.petPaused() && Settings.canDrawOverlays(this) && !PetOverlayService.running) {
             PetOverlayService.start(this)
         }
+        // Si el celular se reinició sin avisarnos: reprograma los avisos y ofrece activar el permiso.
+        BootWatch.check(this)
         setContent {
             // Tema elegido en Ajustes (o el del celular); cambia en el momento, sin reabrir la app.
             var theme by remember { mutableIntStateOf(prefs.theme) }
+            var bootMissed by remember { mutableStateOf(prefs.sp.getBoolean(BootWatch.KEY_MISSED, false)) }
             DisposableEffect(Unit) {
                 val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, k ->
                     if (k == Prefs.KEY_THEME) theme = prefs.theme
+                    if (k == BootWatch.KEY_MISSED) bootMissed = prefs.sp.getBoolean(BootWatch.KEY_MISSED, false)
                 }
                 prefs.sp.registerOnSharedPreferenceChangeListener(listener)
                 onDispose { prefs.sp.unregisterOnSharedPreferenceChangeListener(listener) }
@@ -105,6 +111,16 @@ class MainActivity : ComponentActivity() {
                         openBondPath = bondPath.value,
                         onBondPathShown = { bondPath.value = false },
                     ) }
+                    if (bootMissed) {
+                        val close = { prefs.sp.edit().putBoolean(BootWatch.KEY_MISSED, false).apply() }
+                        BootMissedDialog(
+                            onOpen = {
+                                close()
+                                openAutoStartSettings(this@MainActivity)
+                            },
+                            onDismiss = close,
+                        )
+                    }
                 }
             }
         }

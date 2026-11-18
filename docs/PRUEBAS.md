@@ -1126,6 +1126,19 @@ Reemplaza a la sección 79: el saludo ya no va encima ni debajo de la mascota.
 | 83.3 | Si el celular tiene íconos temáticos, activarlos. | El perrito se ve en líneas de un solo color. | |
 
 ---
+## 84. Volver después de reiniciar el celular (versión 1.0.76)
+
+Abrí la app una vez con esta versión antes de empezar: ahí toma nota del arranque actual.
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 84.1 | Con «Inicio automático» **apagado** para MimuPet, reiniciar, esperar 3 minutos y abrir la app. | Sale «No pude volver después del reinicio». La mascota vuelve al abrir la app y los recordatorios quedan programados. | |
+| 84.2 | Tocar «Abrir ajustes». | Se abre la lista de Inicio automático de Xiaomi; si no se puede, la ficha de la app. | |
+| 84.3 | Activar «Inicio automático» para MimuPet y reiniciar. **Sin abrir la app**, esperar hasta un par de minutos. | La mascota aparece sola. Al abrir la app no sale el cartel. | |
+| 84.4 | Crear un recordatorio para dentro de 10 minutos, reiniciar y no abrir la app. | Suena a horario. | |
+| 84.5 | Ajustes → pasos de batería. | En Xiaomi hay un botón «Abrir Inicio automático». | |
+
+---
 
 ## Si algo falla
 

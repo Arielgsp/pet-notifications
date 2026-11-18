@@ -154,6 +154,11 @@
     <string name="battery_guide_title_generic">Steps for your phone</string>
     <string name="battery_open_app_settings">Open app settings</string>
     <string name="battery_open_web_guide">See the web guide</string>
+    <string name="battery_open_autostart">Open Autostart</string>
+    <string name="boot_missed_title">I could not come back after the restart</string>
+    <string name="boot_missed_body">Your phone did not let me start. Allow MimuPet to use Autostart (or start in the background). Otherwise, after each restart your alerts will not arrive until you open the app.</string>
+    <string name="boot_missed_open">Open settings</string>
+    <string name="boot_missed_later">Not now</string>
     <string name="battery_steps_samsung">1. Tap “Open app settings” › Battery › choose “Unrestricted”.\n2. In Settings › Device care (or Battery and device care) › Battery › Background usage limits: remove this app from “Sleeping apps” and “Deep sleeping apps”, and add it to “Never sleeping apps”.</string>
     <string name="battery_steps_motorola">1. Tap “Open app settings” › Battery › choose “Unrestricted” (on some models: “Battery optimization” › “Don’t optimize”).\n2. If it still disappears, check in Settings › Battery that Battery Saver is not always on.</string>
     <string name="battery_steps_xiaomi">1. Tap “Open app settings” and turn on “Autostart”.\n2. In “Battery saver”, choose “No restrictions”.\n3. In “Other permissions”, turn on “Display pop-up windows while running in the background” and “Show on Lock screen”.\n4. In the recent apps view, long-press this app and tap the lock so it is not closed.</string>

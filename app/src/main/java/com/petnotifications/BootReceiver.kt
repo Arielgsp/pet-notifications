@@ -20,6 +20,7 @@ class BootReceiver : BroadcastReceiver() {
         val action = intent.action
         if (action !in HANDLED) return
         val ctx = context.applicationContext
+        if (action == Intent.ACTION_BOOT_COMPLETED) BootWatch.markBoot(ctx)
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {

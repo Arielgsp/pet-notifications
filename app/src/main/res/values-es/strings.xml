@@ -153,6 +153,11 @@
     <string name="battery_guide_title_generic">Pasos para tu celular</string>
     <string name="battery_open_app_settings">Abrir ajustes de la app</string>
     <string name="battery_open_web_guide">Ver guía en la web</string>
+    <string name="battery_open_autostart">Abrir Inicio automático</string>
+    <string name="boot_missed_title">No pude volver después del reinicio</string>
+    <string name="boot_missed_body">Tu celular no me dejó arrancar. Permítele a MimuPet el «Inicio automático» (o iniciar en segundo plano). Si no, después de cada reinicio tampoco llegan los avisos hasta que abras la app.</string>
+    <string name="boot_missed_open">Abrir ajustes</string>
+    <string name="boot_missed_later">Ahora no</string>
     <string name="battery_steps_samsung">1. Toca “Abrir ajustes de la app” › Batería › elige “Sin restricciones”.\n2. En Ajustes › Cuidado del dispositivo (o Mantenimiento) › Batería › Límites de uso en segundo plano: saca esta app de “Apps en suspensión” y “Apps en suspensión profunda”, y agrégala a “Apps que nunca se suspenden”.</string>
     <string name="battery_steps_motorola">1. Toca “Abrir ajustes de la app” › Batería › elige “Sin restricciones” (en algunos modelos: “Optimización de batería” › “No optimizar”).\n2. Si aun así desaparece, revisa en Ajustes › Batería que el ahorro de energía no esté siempre activado.</string>
     <string name="battery_steps_xiaomi">1. Toca “Abrir ajustes de la app” y activa “Inicio automático”.\n2. En “Ahorro de batería”, elige “Sin restricciones”.\n3. En “Otros permisos”, activa “Mostrar ventanas emergentes mientras se ejecuta en segundo plano” y “Mostrar en pantalla de bloqueo”.\n4. En la vista de apps recientes, mantén presionada esta app y toca el candado para que no se cierre.</string>

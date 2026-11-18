@@ -1,5 +1,6 @@
 package com.petnotifications.ui
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -10,9 +11,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -65,6 +68,9 @@ fun BatteryGuide(modifier: Modifier = Modifier) {
         )
         Text(stringResource(brand.steps), style = MaterialTheme.typography.bodyMedium)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (brand == PhoneBrand.XIAOMI) {
+                OutlinedButton(onClick = { openAutoStartSettings(ctx) }) { Text(stringResource(R.string.battery_open_autostart)) }
+            }
             OutlinedButton(onClick = { openAppSettings(ctx) }) { Text(stringResource(R.string.battery_open_app_settings)) }
             OutlinedButton(onClick = { openGuidePage(ctx) }) { Text(stringResource(R.string.battery_open_web_guide)) }
         }
@@ -76,6 +82,30 @@ fun openAppSettings(ctx: Context) {
     ctx.startActivity(
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${ctx.packageName}"))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+    )
+}
+
+/** La lista de "Inicio automático" de Xiaomi; si no se puede abrir, la ficha de la app. */
+fun openAutoStartSettings(ctx: Context) {
+    val opened = PhoneBrand.current() == PhoneBrand.XIAOMI && runCatching {
+        ctx.startActivity(
+            Intent().setComponent(
+                ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"),
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+    }.isSuccess
+    if (!opened) openAppSettings(ctx)
+}
+
+/** El celular se reinició y no dejó arrancar a la app. */
+@Composable
+fun BootMissedDialog(onOpen: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.boot_missed_title)) },
+        text = { Text(stringResource(R.string.boot_missed_body)) },
+        confirmButton = { TextButton(onClick = onOpen) { Text(stringResource(R.string.boot_missed_open)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.boot_missed_later)) } },
     )
 }
 
