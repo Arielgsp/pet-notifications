@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MimuPet</title>
 <meta name="description" content="Una mascota tierna vive en tu pantalla y te recuerda lo importante. App para Android.">
+<link rel="icon" type="image/png" sizes="48x48" href="icon-48.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MimuPet">
+<meta property="og:description" content="Una mascota tierna vive en tu pantalla y te recuerda lo importante. App para Android.">
+<meta property="og:image" content="icon-512.png">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900;1000&display=swap" rel="stylesheet">
@@ -36,7 +43,7 @@ section { padding: 72px 0; }
 .bar { position: sticky; top: 0; z-index: 20; background: rgba(251, 246, 238, .94); border-bottom: 1px solid var(--line); }
 .bar .wrap { display: flex; align-items: center; gap: 22px; height: 60px; }
 .logo { display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 1000; letter-spacing: -.03em; text-decoration: none; }
-.logo img { width: 38px; }
+.logo img { width: 38px; border-radius: 11px; }
 .bar nav { display: flex; gap: 20px; margin-left: auto; font-weight: 800; font-size: 15px; }
 .bar nav a { text-decoration: none; color: var(--muted); }
 .bar nav a:hover { color: var(--cocoa); }
@@ -79,14 +86,24 @@ section { padding: 72px 0; }
 .sticker-word i { display: inline-block; font-style: normal; transform: rotate(var(--r)); }
 .phone .sticker-spot { position: absolute; right: 103px; top: 178px; }
 .phone .sticker-spot .sticker { right: 0; top: 0; }
-.note { position: absolute; left: 12px; right: 12px; top: 322px; background: #fff1dc; border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(58, 46, 39, .14); transition: opacity .25s, transform .25s; }
+/* El aviso como en la app: globo con el sonido, papelito con la esquina doblada y, al tocarlo, la cartita con la mascota asomada. */
+.slip { position: absolute; left: 12px; right: 122px; top: 208px; padding: 0; background: none; border: 0; cursor: pointer; text-align: left; color: var(--ink); filter: drop-shadow(0 5px 9px rgba(58, 46, 39, .22)); transition: opacity .25s, transform .25s; transform: rotate(-2deg); }
+.slip span { position: relative; display: block; padding: 10px 14px 11px 22px; background: var(--paper); border-radius: 15px; clip-path: polygon(18px 0, 100% 0, 100% 100%, 0 100%, 0 18px); }
+.slip span::before { content: ""; position: absolute; left: 0; top: 0; width: 18px; height: 18px; background: #ecd9bc; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.slip small { display: block; color: var(--cocoa); font-size: 12px; font-weight: 900; line-height: 16px; }
+.slip b { display: block; font-size: 15px; font-weight: 900; line-height: 19px; }
+.slip.gone { opacity: 0; transform: translateX(-10px) rotate(-2deg); pointer-events: none; }
+.note { position: absolute; left: 12px; right: 12px; top: 306px; background: var(--paper); border-radius: 18px; padding: 16px 16px 14px; box-shadow: 0 8px 24px rgba(58, 46, 39, .2); transition: opacity .25s, transform .25s; }
 .note.gone { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.note .paw { position: absolute; top: -8px; width: 25px; height: 16px; background: #f2c38b; border: 2.5px solid #4a3228; border-radius: 50%; }
+.note .paw.l { right: 71px; }
+.note .paw.r { right: 27px; }
 .note small { display: block; color: var(--muted); font-weight: 700; font-size: 12px; }
 .note b { font-size: 18px; font-weight: 900; }
 .note div { display: flex; gap: 6px; margin-top: 8px; }
-.note button { min-height: 34px; padding: 0 16px; border-radius: 99px; font: 800 14px var(--font); cursor: pointer; }
-.note .ok { background: var(--blush-soft); border: 0; color: var(--cocoa); }
-.note .later { background: none; border: 1px solid var(--muted); color: var(--cocoa); }
+.note button { min-height: 36px; padding: 0 16px; border-radius: 99px; font: 800 14px var(--font); cursor: pointer; }
+.note .ok { background: var(--cocoa); border: 1px solid var(--cocoa); color: #fff; }
+.note .later { background: none; border: 1px solid var(--line); color: var(--cocoa); }
 .thanks { position: absolute; left: 0; right: 0; top: 350px; text-align: center; font-weight: 900; color: #4d7359; opacity: 0; transition: opacity .25s; }
 .thanks.on { opacity: 1; }
 
@@ -118,6 +135,19 @@ section { padding: 72px 0; }
 .card p { color: var(--muted); }
 
 /* Vestidor */
+/* Recordatorio rápido */
+.quick { background: var(--blush-soft); }
+.quick .wrap { display: grid; grid-template-columns: 1fr minmax(0, 380px); gap: 40px; align-items: center; }
+.quick-demo { position: relative; padding-top: 92px; }
+.quick-demo > img { position: absolute; top: 0; right: 26px; width: 118px; }
+.qcard { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 8px 24px rgba(58, 46, 39, .16); transform: rotate(-1.5deg); }
+.qcard small { display: block; color: var(--muted); font-size: 13px; font-weight: 800; }
+.qcard p { margin: 8px 0 12px; padding: 4px 2px 7px; font-size: 18px; font-weight: 900; border-bottom: 2px dashed #c98a55; }
+.qchips { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.qchips button { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); border-radius: 99px; background: none; color: var(--muted); font: 800 14px var(--font); cursor: pointer; }
+.qchips button[aria-pressed="true"] { background: var(--blush-soft); border-color: var(--blush); color: var(--cocoa); }
+.qchips .save { margin-left: auto; background: var(--cocoa); border-color: var(--cocoa); color: #fff; }
+
 .dress { background: var(--sage-soft); }
 .dress-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 34px; }
 .dress-row img { width: 100%; transition: transform .18s; }
@@ -195,7 +225,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   .hero .wrap { grid-template-columns: 1fr; }
   .phone { margin-bottom: -90px; }
   .pets-grid { grid-template-columns: repeat(3, 1fr); }
-  .does-grid, .plan-grid { grid-template-columns: 1fr; }
+  .does-grid, .plan-grid, .quick .wrap { grid-template-columns: 1fr; }
   .dress-row { grid-template-columns: repeat(3, 1fr); }
   .bar nav a.opt { display: none; }
 }
@@ -225,7 +255,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
 
 <header class="bar">
   <div class="wrap">
-    <a class="logo" href="#inicio"><img src="pets/dog_front.svg" alt="">MimuPet</a>
+    <a class="logo" href="#inicio"><img src="icon-180.png" alt="">MimuPet</a>
     <nav aria-label="Secciones" data-t-aria="sections">
       <a href="#mascotas" data-t="nav_pets">Mascotas</a>
       <a class="opt2" href="#videos" data-t="nav_videos">Videos</a>
@@ -257,10 +287,12 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
         <div class="day" data-t="day">Hora de la cita</div>
         <div class="sticker-spot" id="demo-word" aria-hidden="true"></div>
         <button class="demo-pet" id="demo-pet" type="button" aria-label="Tocar al perrito" data-t-aria="touch_dog"><img src="pets/dog_front.svg" alt=""></button>
-        <div class="note" id="note">
+        <button class="slip" id="slip" type="button" aria-label="Abrir el aviso" data-t-aria="open_note"><span><small>9:41</small><b data-t="note_title">Cita con la dentista</b></span></button>
+        <div class="note gone" id="note">
+          <i class="paw l"></i><i class="paw r"></i>
           <small data-t="note_who">Perrito te avisa · 9:41</small>
           <b data-t="note_title">Cita con la dentista</b>
-          <div><button class="ok" id="note-ok" type="button" data-t="done">Listo</button><button class="later" id="note-later" type="button" data-t="later">Aplazar</button></div>
+          <div><button class="ok" id="note-ok" type="button" data-t="done">Listo</button><button class="later" id="note-later" type="button" data-t="later">Más tarde</button></div>
         </div>
         <div class="thanks" id="thanks" role="status"></div>
       </div>
@@ -283,9 +315,32 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
         <article class="card"><img src="pets/duck_happy.svg" alt="Pato contento" data-t-alt="a_duck"><h3 data-t="c1h">Te avisa y no se olvida</h3><p data-t="c1">Recordatorios de una vez, diarios o semanales. Si no respondes, vuelve a avisarte.</p></article>
         <article class="card"><img src="pets/pig_happy.svg" alt="Cerdito contento" data-t-alt="a_pig"><h3 data-t="c2h">Le gustan los mimos</h3><p data-t="c2">Tócala y te tira corazones. Con dos toques se da una vuelta.</p></article>
         <article class="card"><img src="pets/chick_sleep.svg" alt="Pollito dormido" data-t-alt="a_chick"><h3 data-t="c3h">Se duerme cuando no la usas</h3><p data-t="c3">Se estira, bosteza y se acuesta. Cuando vuelves, se despierta.</p></article>
-        <article class="card"><img src="pets/rabbit_happy.svg" alt="Conejo contento" data-t-alt="a_rabbit"><h3 data-t="c4h">Cada «Listo» los hace más amigos</h3><p data-t="c4">Suma corazones y con ellos aprende trucos, como dar la patita, y estrena regalos.</p></article>
+        <article class="card"><img src="pets/rabbit_happy.svg" alt="Conejo contento" data-t-alt="a_rabbit"><h3 data-t="c4h">Cada «Listo» los hace más amigos</h3><p data-t="c4">Suma corazones y con ellos aprende trucos, como dar la patita o bailar, y estrena regalos.</p></article>
         <article class="card"><img src="pets/cow_front.svg" alt="Vaca" data-t-alt="a_cow"><h3 data-t="c5h">No molesta de más</h3><p data-t="c5">Se esconde en llamadas, videos y juegos. Lo que no urge te lo deja en una carta a sus pies.</p></article>
         <article class="card"><img src="pets/dog_happy.svg" alt="Perro contento" data-t-alt="a_dog"><h3 data-t="c6h">Te deja una frase bonita</h3><p data-t="c6">«Aquí te dejo un corazoncito». «Un mimo, por si acaso». De vez en cuando, sin insistir.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="quick">
+    <div class="wrap">
+      <div>
+        <h2 data-t="quick_h">Anótalo antes de olvidarlo.</h2>
+        <p class="lead" data-t="quick_lead">Desliza a la mascota hacia abajo, escribe qué te recuerda y elige cuándo: en 10 minutos, en una hora, mañana o el día y la hora que quieras. Sin abrir la app.</p>
+      </div>
+      <div class="quick-demo">
+        <img src="pets/dog_happy.svg" alt="">
+        <div class="qcard" id="qcard">
+          <small data-t="quick_who">Perrito anota</small>
+          <p data-t="quick_text">Comprar el pan</p>
+          <div class="qchips">
+            <button type="button" aria-pressed="false">10 min</button>
+            <button type="button" aria-pressed="false">30 min</button>
+            <button type="button" aria-pressed="true" data-t="quick_1h">1 hora</button>
+            <button type="button" aria-pressed="false" data-t="quick_tomorrow">Mañana 9:00</button>
+            <button class="save" id="quick-save" type="button" data-t="quick_save">Anotado</button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -293,7 +348,7 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   <section class="dress">
     <div class="wrap">
       <h2 data-t="dress_h">Y le queda todo bien.</h2>
-      <p class="lead" data-t="dress_lead">Pañuelo, gorrito, corona y camita: se los gana contigo, con cada «Listo».</p>
+      <p class="lead" data-t="dress_lead">Pañuelo, camita, pelotita, gorrito, chapita y corona: se los gana contigo, con cada «Listo».</p>
       <div class="dress-row">
         <img src="pets/dog_dressed.svg" alt="Perro con gorrito de lana y pañuelo" data-t-alt="d_dog">
         <img src="pets/pig_dressed.svg" alt="Cerdito con pañuelo" data-t-alt="d_pig">
@@ -399,18 +454,21 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
       hero_lead: "A cute pet lives on your screen, on top of any app. When it’s time, it alerts you in its own voice and tells you what to do.",
       meet: "Meet all 7", android: "Android only. iPhone doesn’t let an app float on top of others.",
       phone: "Example of a MimuPet alert", day: "Appointment time", touch_dog: "Touch the puppy",
-      note_who: "Puppy is alerting you · 9:41", note_title: "Dentist appointment", done: "Done", later: "Snooze",
+      note_who: "Puppy is alerting you · 9:41", note_title: "Dentist appointment", done: "Done", later: "Later", open_note: "Open the alert",
       pets_h: "Seven friends.<br>Each with its own voice.",
       pets_lead: "Tap one to hear it. Then it stays in the corner of this page, just like on your phone: drag it, tap it, let it sleep.",
       does_h: "A pet with a life of its own.",
       c1h: "It alerts you and doesn’t forget", c1: "One-time, daily or weekly reminders. If you don’t answer, it reminds you again.",
       c2h: "It loves cuddles", c2: "Tap it and it throws you hearts. Tap twice and it spins around.",
       c3h: "It sleeps when you’re not using it", c3: "It stretches, yawns and lies down. When you come back, it wakes up.",
-      c4h: "Every “Done” makes you better friends", c4: "It earns hearts and, with them, learns tricks like giving you its paw, and gets new gifts.",
+      c4h: "Every “Done” makes you better friends", c4: "It earns hearts and, with them, learns tricks like giving you its paw or dancing, and gets new gifts.",
       c5h: "It knows when to stay out of the way", c5: "It hides during calls, videos and games. What isn’t urgent, it leaves in a letter at its feet.",
       c6h: "It leaves you sweet notes", c6: "“Here’s a little heart for you.” “A cuddle, just in case.” Now and then, never pushy.",
       dress_h: "And everything looks good on it.",
-      dress_lead: "Scarf, wool hat, crown and little bed: it earns them with you, with every “Done”.",
+      dress_lead: "Scarf, little bed, ball, wool hat, tag and crown: it earns them with you, with every “Done”.",
+      quick_h: "Write it down before you forget.",
+      quick_lead: "Pull your pet down, type what to remember and choose when: in 10 minutes, in an hour, tomorrow or any day and time you like. Without opening the app.",
+      quick_who: "Puppy takes a note", quick_text: "Buy bread", quick_1h: "1 hour", quick_tomorrow: "Tomorrow 9:00", quick_save: "Got it",
       video_h: "On video.",
       plans_h: "Start free.<br>Pay for Pro just once.",
       plans_lead: "Try all of Pro free for 7 days. Then you choose: stay free or buy Pro with a single payment, no subscription.",
@@ -682,19 +740,36 @@ footer { padding: 30px 0 110px; color: var(--muted); font-size: 15px; font-weigh
   wake(); loadSpin(current);
 
   /* El aviso de la portada */
-  var note = document.getElementById("note"), thanks = document.getElementById("thanks"), demo = document.getElementById("demo-pet");
+  var note = document.getElementById("note"), slip = document.getElementById("slip"), thanks = document.getElementById("thanks"), demo = document.getElementById("demo-pet");
+  var demoWord = document.getElementById("demo-word"), wordTimer;
+  /* Primero el globo con el sonido; después, el papelito. Tocarlo abre la cartita. */
+  function demoCall() {
+    slip.classList.add("gone");
+    demoWord.textContent = "";
+    demoWord.appendChild(sticker(callWord(byId.dog[2]), false));
+    clearTimeout(wordTimer);
+    wordTimer = setTimeout(function () { demoWord.textContent = ""; slip.classList.remove("gone"); }, 1800);
+  }
   function answer(text, withHearts) {
     note.classList.add("gone");
     thanks.textContent = text; thanks.classList.add("on");
     if (withHearts) hearts(demo);
-    setTimeout(function () { thanks.classList.remove("on"); note.classList.remove("gone"); }, 2600);
+    setTimeout(function () { thanks.classList.remove("on"); demoCall(); }, 2600);
   }
+  slip.addEventListener("click", function () { slip.classList.add("gone"); note.classList.remove("gone"); });
   document.getElementById("note-ok").addEventListener("click", function () { answer(tr("¡Bien hecho! +1 corazón", "Well done! +1 heart"), true); });
-  document.getElementById("note-later").addEventListener("click", function () { answer(tr("De acuerdo, te aviso en un rato", "Okay, I’ll remind you in a bit"), false); });
-  var demoWord = document.getElementById("demo-word");
-  function demoSay() { demoWord.textContent = ""; demoWord.appendChild(sticker(callWord(byId.dog[2]), false)); }
-  demoSay();
-  demo.addEventListener("click", function () { hearts(demo); speak("dog"); demoSay(); });
+  document.getElementById("note-later").addEventListener("click", function () { answer(tr("De acuerdo, te aviso más tarde", "Okay, I’ll remind you later"), false); });
+  demoCall();
+  demo.addEventListener("click", function () { hearts(demo); speak("dog"); });
+
+  /* El recordatorio rápido de ejemplo */
+  var chips = [].slice.call(document.querySelectorAll(".qchips button:not(.save)")), save = document.getElementById("quick-save");
+  chips.forEach(function (c) {
+    c.addEventListener("click", function () {
+      chips.forEach(function (o) { o.setAttribute("aria-pressed", o === c ? "true" : "false"); });
+    });
+  });
+  save.addEventListener("click", function () { hearts(document.querySelector(".quick-demo > img")); });
 })();
 </script>
 </body>
