@@ -182,6 +182,7 @@ import com.petnotifications.Prefs
 import com.petnotifications.TapAction
 import com.petnotifications.alerts.AlertScheduler
 import com.petnotifications.alerts.CalendarAlarms
+import com.petnotifications.alerts.toAlert
 import com.petnotifications.calendar.CalendarSource
 import com.petnotifications.calendar.DeviceCalendar
 import com.petnotifications.data.AppDatabase
@@ -311,7 +312,9 @@ fun SettingsScreen(
     suspend fun reloadEvents() {
         events = if (prefs.calendarEnabled && CalendarSource.hasPermission(ctx)) withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
-            runCatching { CalendarSource.alertsBetween(ctx, now, now + (WEEKS_AHEAD + 1) * 7 * Prefs.DAY_MS, 0, prefs.calendarIds, now) }.getOrDefault(emptyList())
+            // Desde el principio de hoy: la línea del día muestra también lo que ya pasó.
+            val from = java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli() - 1
+            runCatching { CalendarSource.alertsBetween(ctx, from, now + (WEEKS_AHEAD + 1) * 7 * Prefs.DAY_MS, 0, prefs.calendarIds, now) }.getOrDefault(emptyList())
         } else emptyList()
     }
     LaunchedEffect(calEnabled, calIds, hasCalendar) { reloadEvents() }
@@ -379,7 +382,9 @@ fun SettingsScreen(
     var tab by rememberSaveable { mutableIntStateOf(TAB_ALERTS) }
     var sub by rememberSaveable { mutableStateOf<String?>(null) }
     var detailId by remember { mutableStateOf<Long?>(null) }
-    var showFiredToday by remember { mutableStateOf(false) }
+    /** Cada "Listo" tocado en la línea del día: corazones sobre la mascota de la escena. */
+    var listoBurst by remember { mutableIntStateOf(0) }
+    var listoGained by remember { mutableStateOf(false) }
     var tipDismissedDay by remember { mutableLongStateOf(prefs.tipDismissedDay) }
     BackHandler(enabled = sub != null) { sub = null }
     BackHandler(enabled = sub == null && tab != TAB_ALERTS) { tab = TAB_ALERTS }
@@ -583,6 +588,38 @@ fun SettingsScreen(
                     modifier = Modifier.offset(16.dp, ((SCENE_MIN_DP - 40f) / 2).dp).size(40.dp).alpha(small).then(tap),
                 )
             }
+            if (listoBurst > 0) androidx.compose.runtime.key(listoBurst) {
+                val rise = remember { Animatable(0f) }
+                LaunchedEffect(Unit) { rise.animateTo(1f, tween(1_500)) }
+                val a = (if (rise.value < 0.7f) 1f else (1f - rise.value) / 0.3f).coerceIn(0f, 1f)
+                if (rise.value < 1f) {
+                    // Sobre la mascota grande o, con la escena achicada, dentro del encabezado.
+                    val x = w - lerp(70f, 83f)
+                    val y = lerp(16f, h - 90f)
+                    val climb = lerp(8f, 54f)
+                    listOf(-44f to 0.1f, -18f to 0.3f, 16f to 0.05f, 42f to 0.22f).forEach { (dx, delayPart) ->
+                        val t = ((rise.value - delayPart) / (1f - delayPart)).coerceIn(0f, 1f)
+                        Icon(
+                            Icons.Filled.Favorite, contentDescription = null, tint = c.blush,
+                            modifier = Modifier.offset((x + dx - 8f).dp, (y - climb * t).dp).size(16.dp).alpha(if (t > 0f) a else 0f),
+                        )
+                    }
+                    if (listoGained) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .offset((x - 24f).dp, (y - lerp(0f, 26f) - lerp(2f, 30f) * rise.value).dp)
+                                .alpha(a)
+                                .background(c.surfaceRaised, RoundedCornerShape(50))
+                                .border(1.dp, c.blush, RoundedCornerShape(50))
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        ) {
+                            Text("+1", fontSize = 13.sp, fontWeight = FontWeight(900), color = c.cocoa)
+                            Icon(Icons.Filled.Favorite, contentDescription = null, tint = c.blush, modifier = Modifier.padding(start = 3.dp).size(12.dp))
+                        }
+                    }
+                }
+            }
             Column(
                 Modifier
                     .offset((16f + 50f * small).dp, lerp(10f, 16f).dp)
@@ -719,7 +756,7 @@ fun SettingsScreen(
     }
 
     @Composable
-    fun ItemRow(item: HomeItem, showDay: Boolean, faded: Boolean = false) {
+    fun ItemRow(item: HomeItem, showDay: Boolean, faded: Boolean = false, whenText: String? = null) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -733,7 +770,7 @@ fun SettingsScreen(
                 Text(item.title, fontSize = 14.sp, fontWeight = FontWeight(700), color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 val repeat = item.reminder?.let { Repeat.from(it.repeat) } ?: Repeat.NONE
                 val meta = listOfNotNull(
-                    if (showDay) formatWhen(item.at).substringBefore(" · ") else null,
+                    whenText ?: if (showDay) formatWhen(item.at).substringBefore(" · ") else null,
                     if (item.event != null) stringResource(R.string.home_calendar_meta) else null,
                     if (repeat != Repeat.NONE) stringResource(repeat.labelRes) else null,
                 )
@@ -975,6 +1012,23 @@ fun SettingsScreen(
         val today = java.time.LocalDate.now(zone)
         fun dayOf(at: Long) = java.time.Instant.ofEpochMilli(at).atZone(zone).toLocalDate()
         // Las semanas se recorren deslizando la tira o con las flechas (pedido de Ariel, 18/11).
+        val db = remember { AppDatabase.get(ctx) }
+        val dayStart = remember(today) { today.atStartOfDay(zone).toInstant().toEpochMilli() }
+        val completions by remember(dayStart) { db.completions().observeSince(dayStart) }.collectAsStateWithLifecycle(emptyList())
+        val deliveries by remember(dayStart) { db.deliveries().observeSince(dayStart) }.collectAsStateWithLifecycle(emptyList())
+        val snoozes by remember { db.snoozes().observeAll() }.collectAsStateWithLifecycle(emptyList())
+        // La marca "Ahora" y la cuenta regresiva se actualizan con cada minuto.
+        var nowMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(60_000 - System.currentTimeMillis() % 60_000)
+                nowMs = System.currentTimeMillis()
+            }
+        }
+        val doneKeys = remember(completions) { completions.map { com.petnotifications.alerts.Insist.baseKey(it.alertKey) }.toSet() }
+        // Los aplazados (no las repeticiones de "insistir"): el aviso pasa a la hora nueva.
+        val moved = remember(snoozes) { snoozes.filter { it.alertKey == com.petnotifications.alerts.Insist.baseKey(it.alertKey) } }
+        val movedKeys = remember(moved) { moved.map { it.alertKey }.toSet() }
         fun weekAt(page: Int) = (0L..6L).map { today.plusDays(page * 7L + it) }
         val days = remember(today) { weekAt(0) }
         val weeks = rememberPagerState { WEEKS_AHEAD + 1 }
@@ -984,8 +1038,8 @@ fun SettingsScreen(
             val shown = weekAt(weeks.settledPage)
             if (selected !in shown) selected = shown.first()
         }
-        /** Lo que hay un día: los recordatorios que se repiten aparecen en cada día que les toca. */
-        fun itemsOn(day: java.time.LocalDate): List<HomeItem> {
+        /** Lo que le toca a un día: los recordatorios que se repiten aparecen en cada día que les corresponde. */
+        fun scheduledOn(day: java.time.LocalDate): List<HomeItem> {
             val mine = reminders.filter { !it.fired }.mapNotNull { r ->
                 val first = java.time.Instant.ofEpochMilli(r.timeMillis).atZone(zone)
                 val hits = when (Repeat.from(r.repeat)) {
@@ -993,22 +1047,129 @@ fun SettingsScreen(
                     Repeat.DAILY -> !day.isBefore(first.toLocalDate())
                     Repeat.WEEKLY -> !day.isBefore(first.toLocalDate()) && day.dayOfWeek == first.dayOfWeek
                 }
-                if (hits) HomeItem(first.with(day).toInstant().toEpochMilli(), r.title, r, null) else null
+                if (hits) first.with(day).toInstant().toEpochMilli().let { HomeItem(it, r.title, r, null, "local:${r.id}:$it") } else null
             }
-            val cal = events.filter { e -> e.eventBegin?.let { dayOf(it) == day } == true }.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }
-            return (mine + cal).sortedBy { it.at }
+            val cal = events.filter { e -> e.eventBegin?.let { dayOf(it) == day } == true }.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it, it.key) }
+            return mine + cal
         }
-        val byDay = remember(reminders, events, today) { days.associateWith(::itemsOn) }
+        /** Lo de hoy que ya sonó o se marcó: un recordatorio que se repite ya apunta a su próxima vez. */
+        fun pastToday(): List<HomeItem> {
+            val once = reminders.filter { it.fired && Repeat.from(it.repeat) == Repeat.NONE && dayOf(it.timeMillis) == today }
+                .map { HomeItem(it.timeMillis, it.title, it, null, "local:${it.id}:${it.timeMillis}") }
+            val logged = (deliveries.map { it.alertKey } + completions.map { it.alertKey })
+                .map(com.petnotifications.alerts.Insist::baseKey).distinct().mapNotNull { key ->
+                    val parts = key.split(":")
+                    val id = parts.getOrNull(1)?.toLongOrNull()
+                    val at = parts.getOrNull(2)?.toLongOrNull()
+                    val r = reminders.firstOrNull { it.id == id }
+                    if (parts.size != 3 || parts[0] != "local" || r == null || at == null || dayOf(at) != today) null
+                    else if (Repeat.from(r.repeat) == Repeat.NONE && r.timeMillis != at) null
+                    else HomeItem(at, r.title, r, null, key)
+                }
+            return once + logged
+        }
+        /** Lo que se ve un día: los aplazados aparecen en su hora nueva. */
+        fun itemsOn(day: java.time.LocalDate): List<HomeItem> {
+            val base = scheduledOn(day) + if (day == today) pastToday() else emptyList()
+            val movedHere = moved.filter { dayOf(it.atMillis) == day }.map { s ->
+                val event = if (s.eventId != null) {
+                    PetAlert(s.alertKey, s.title, s.body, PetAlert.Source.CALENDAR, eventId = s.eventId, eventBegin = s.eventBegin, repeating = s.repeating)
+                } else null
+                HomeItem(s.atMillis, s.title, reminders.firstOrNull { it.id == s.reminderId }, event, s.alertKey)
+            }.filter { it.reminder != null || it.event != null }
+            return (base.filter { it.key !in movedKeys } + movedHere).distinctBy { it.key }.sortedBy { it.at }
+        }
+        val byDay = remember(reminders, events, today, completions, deliveries, snoozes) { days.associateWith(::itemsOn) }
+        // "Más adelante": los próximos 3 después de mañana (lo que se repite ya está en cada día).
         val later = remember(reminders, events, today) {
-            val end = today.plusDays(6)
-            // Los eventos lejanos se ven recorriendo las semanas: acá solo los del próximo mes, para no alargar la lista.
-            val nearEvents = events.filter { e -> e.eventBegin?.let { !dayOf(it).isAfter(today.plusDays(LATER_EVENT_DAYS)) } == true }
+            val end = today.plusDays(1)
             (reminders.filter { !it.fired && Repeat.from(it.repeat) == Repeat.NONE }.map { HomeItem(it.timeMillis, it.title, it, null) } +
-                nearEvents.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).filter { dayOf(it.at).isAfter(end) }.sortedBy { it.at }
+                events.map { HomeItem(it.eventBegin ?: 0L, it.title, null, it) }).filter { dayOf(it.at).isAfter(end) }.sortedBy { it.at }.take(3)
         }
-        val firedToday = reminders.filter { it.fired && dayOf(it.timeMillis) == today }
-        val todayCount = byDay[today].orEmpty().count { it.at >= System.currentTimeMillis() || it.event != null }
+        val todayCount = byDay[today].orEmpty().count { it.key !in doneKeys }
         val repeating = reminders.filter { Repeat.from(it.repeat) != Repeat.NONE }
+
+        /** El aviso tal como lo manejan la mascota y las notificaciones. */
+        fun alertOf(item: HomeItem): PetAlert? =
+            item.event ?: item.reminder?.let { it.toAlert(ctx, System.currentTimeMillis()).copy(key = item.key) }
+
+        suspend fun quietAlert(item: HomeItem, alert: PetAlert) {
+            com.petnotifications.alerts.AlertNotifier.cancel(ctx, alert)
+            if (PetOverlayService.running) PetOverlayService.dismiss(ctx, alert.key)
+            val snoozeDao = db.snoozes()
+            snoozeDao.all().filter { it.alertKey == item.key }.forEach {
+                AlertScheduler.cancelSnooze(ctx, it.id)
+                snoozeDao.delete(it.id)
+            }
+        }
+
+        /** "Listo" desde la línea: cuenta igual que el del papelito. Si todavía no sonó, ya no suena. */
+        fun markDone(item: HomeItem) {
+            val alert = alertOf(item) ?: return
+            scope.launch {
+                val gained = withContext(Dispatchers.IO) {
+                    quietAlert(item, alert)
+                    val won = com.petnotifications.alerts.Insist.done(ctx, alert)
+                    item.reminder?.let { dao.get(it.id) }?.let { r ->
+                        val repeat = Repeat.from(r.repeat)
+                        val next = when {
+                            repeat == Repeat.NONE -> r.copy(fired = true).takeIf { !r.fired }
+                            item.key == "local:${r.id}:${r.timeMillis}" -> r.copy(timeMillis = nextOccurrence(r.timeMillis, repeat, r.timeMillis))
+                            else -> null
+                        }
+                        next?.let {
+                            dao.update(it)
+                            AlertScheduler.schedule(ctx, it)
+                        }
+                    }
+                    won
+                }
+                listoGained = gained
+                listoBurst++
+            }
+        }
+
+        /** "Hoy, HH:00" o "Mañana": un recordatorio de una vez cambia de hora; lo demás se aplaza. */
+        fun moveTo(item: HomeItem, target: Long) {
+            val alert = alertOf(item) ?: return
+            scope.launch(Dispatchers.IO) {
+                quietAlert(item, alert)
+                com.petnotifications.alerts.Insist.cancel(ctx, alert.key)
+                val r = item.reminder?.let { dao.get(it.id) }
+                if (r != null && Repeat.from(r.repeat) == Repeat.NONE) {
+                    val moved2 = r.copy(timeMillis = target, fired = false)
+                    dao.update(moved2)
+                    AlertScheduler.schedule(ctx, moved2)
+                } else {
+                    val minutes = ((target - System.currentTimeMillis() + 59_999) / 60_000).toInt().coerceAtLeast(1)
+                    AlertScheduler.snooze(ctx, alert.copy(key = item.key), minutes)
+                }
+            }
+        }
+
+        @Composable
+        fun DayTimeline(list: List<HomeItem>, isToday: Boolean) {
+            val repeatLabels = Repeat.entries.associateWith { stringResource(it.labelRes) }
+            val lines = list.map { item ->
+                val repeat = item.reminder?.let { Repeat.from(it.repeat) } ?: Repeat.NONE
+                LineItem(
+                    item.key, item.at, item.title,
+                    repeatLabel = if (repeat != Repeat.NONE) repeatLabels[repeat] else null,
+                    calendar = item.event != null,
+                    done = item.key in doneKeys,
+                    canMoveToTomorrow = repeat != Repeat.DAILY,
+                )
+            }
+            val byKey = list.associateBy { it.key }
+            DayLine(
+                lines, nowMs, isToday,
+                petHead = petPainter(pet, PetView.HAPPY, coatOf(pet), outfit),
+                timeText = ::hhmmOf,
+                onOpen = { l -> byKey[l.key]?.let { it.reminder?.let { r -> detailId = r.id } ?: it.event?.let(::openEvent) } },
+                onDone = { l -> byKey[l.key]?.let(::markDone) },
+                onMove = { l, at -> byKey[l.key]?.let { moveTo(it, at) } },
+            )
+        }
         @Composable
         fun DayList(list: List<HomeItem>) = PetCard(padding = 0.dp) {
             list.forEachIndexed { i, it ->
@@ -1027,7 +1188,7 @@ fun SettingsScreen(
                 ),
             ).replaceFirstChar { it.titlecase(locale) }
         }
-        val chosen = remember(selected, reminders, events, today) { itemsOn(selected) }
+        val chosen = remember(selected, reminders, events, today, completions, deliveries, snoozes) { itemsOn(selected) }
         val density = LocalDensity.current
         val range = with(density) { (SCENE_MAX_DP - SCENE_MIN_DP).dp.toPx() }
         // 0 = escena entera; range = encabezado fijo. Se achica antes de que la lista suba y se
@@ -1080,7 +1241,7 @@ fun SettingsScreen(
 
             item { SectionLabel(dayName, Modifier.padding(top = 2.dp)) }
             when {
-                chosen.isNotEmpty() -> item { DayList(chosen) }
+                chosen.isNotEmpty() -> item { DayTimeline(chosen, selected == today) }
                 selected == today -> item { TemplatesCard() }
                 else -> item {
                     PetCard {
@@ -1101,30 +1262,12 @@ fun SettingsScreen(
                         PetCard(padding = 0.dp) {
                             later.forEachIndexed { i, it ->
                                 if (i > 0) RowDivider()
-                                ItemRow(it, showDay = true)
+                                val day = dayOf(it.at)
+                                val short = day.format(java.time.format.DateTimeFormatter.ofPattern("EEE d", locale)).replace(".", "")
+                                    .replaceFirstChar { ch -> ch.titlecase(locale) }
+                                val left = stringResource(R.string.later_in_days, java.time.temporal.ChronoUnit.DAYS.between(today, day).toInt())
+                                ItemRow(it, showDay = true, whenText = "$short · $left")
                             }
-                        }
-                    }
-                }
-            }
-            if (firedToday.isNotEmpty()) {
-                item {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().clickable { showFiredToday = !showFiredToday }.padding(vertical = 6.dp),
-                    ) {
-                        SectionLabel(stringResource(R.string.home_fired_today, firedToday.size), Modifier.weight(1f))
-                        Icon(
-                            if (showFiredToday) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = null, tint = c.inkMuted,
-                        )
-                    }
-                }
-                if (showFiredToday) item {
-                    PetCard(padding = 0.dp) {
-                        firedToday.forEachIndexed { i, r ->
-                            if (i > 0) RowDivider()
-                            ItemRow(HomeItem(r.timeMillis, r.title, r, null), showDay = false, faded = true)
                         }
                     }
                 }
@@ -2422,10 +2565,7 @@ private const val SUB_PATH = "path"
 /** Semanas que se pueden recorrer en Avisos, además de la actual. */
 private const val WEEKS_AHEAD = 52
 
-/** Hasta dónde entran los eventos del calendario en "Más adelante". */
-private const val LATER_EVENT_DAYS = 30L
-
-private data class HomeItem(val at: Long, val title: String, val reminder: Reminder?, val event: PetAlert?)
+private data class HomeItem(val at: Long, val title: String, val reminder: Reminder?, val event: PetAlert?, val key: String = "")
 
 /** Plantilla de Avisos: lo que dice el chip, el título que pone y la repetición sugerida. */
 private class Template(@androidx.annotation.StringRes val label: Int, @androidx.annotation.StringRes val title: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector, val repeat: Repeat)

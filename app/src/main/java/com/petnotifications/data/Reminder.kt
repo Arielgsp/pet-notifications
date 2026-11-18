@@ -85,6 +85,9 @@ interface CompletionDao {
     @Query("SELECT * FROM completions ORDER BY doneAt DESC")
     suspend fun all(): List<Completion>
 
+    @Query("SELECT * FROM completions WHERE doneAt >= :since")
+    fun observeSince(since: Long): Flow<List<Completion>>
+
     @Query("SELECT COUNT(*) FROM completions WHERE alertKey = :key")
     suspend fun countForKey(key: String): Int
 }
@@ -97,6 +100,9 @@ interface DeliveryDao {
     @Query("SELECT * FROM deliveries ORDER BY deliveredAt DESC")
     suspend fun all(): List<Delivery>
 
+    @Query("SELECT * FROM deliveries WHERE scheduledAt >= :since")
+    fun observeSince(since: Long): Flow<List<Delivery>>
+
     /** Se guardan solo los últimos 90 días. */
     @Query("DELETE FROM deliveries WHERE deliveredAt < :before")
     suspend fun deleteOlderThan(before: Long)
@@ -106,6 +112,9 @@ interface DeliveryDao {
 interface SnoozeDao {
     @Query("SELECT * FROM snoozes")
     suspend fun all(): List<Snooze>
+
+    @Query("SELECT * FROM snoozes")
+    fun observeAll(): Flow<List<Snooze>>
 
     @Query("SELECT * FROM snoozes WHERE id = :id")
     suspend fun get(id: Long): Snooze?

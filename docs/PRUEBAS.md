@@ -1150,6 +1150,23 @@ Abrí la app una vez con esta versión antes de empezar: ahí toma nota del arra
 | 85.5 | Tocar «Hoy». | Vuelve a esta semana con hoy elegido. | |
 
 ---
+## 86. Línea del día en Avisos (versión 1.0.78)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 86.1 | Tener avisos de hoy antes y después de la hora actual. | Salen en orden de hora sobre una línea, con «Ahora · hora» y la cabecita de la mascota entre lo pasado y lo que viene. | |
+| 86.2 | Mirar el primer aviso que viene. | Tarjeta destacada con «En 1 h 8 min» (se actualiza cada minuto) y botón redondo con tilde. Solo ese lleva cuenta regresiva. | |
+| 86.3 | Tocar el tilde. | Queda tachado con «Listo» en su lugar, salen corazones y «+1» sobre la mascota, baja la cuenta de la escena y el siguiente pasa a destacado. A esa hora **ya no suena**. | |
+| 86.4 | Dejar pasar un aviso sin tocar «Listo». | Tarjeta color miel: «Se te pasó. ¿Qué hacemos?». Nada en rojo. | |
+| 86.5 | En esa tarjeta, tocar «Hoy, HH:00». | El aviso pasa a esa hora en punto y suena entonces. | |
+| 86.6 | En un aviso de una vez o semanal, tocar «Mañana». | Sale de hoy, aparece mañana a la misma hora y suena. En los diarios este botón no aparece, porque ya vuelven solos. | |
+| 86.7 | Marcar «Listo» desde el papelito de la mascota. | En la línea aparece como hecho. | |
+| 86.8 | Tocar otro día en la tira. | Misma línea, sin «Ahora», «Se te pasó» ni cuenta regresiva. | |
+| 86.9 | Títulos con llamar, basura, pastilla, agua, regar, cumpleaños, pagar, comprar, reunión, y uno cualquiera. | Cada uno con su ícono; el cualquiera, con la huellita. Los de Google Calendar, con el calendario. | |
+| 86.10 | Mirar «Más adelante». | Los próximos 3 después de mañana, con «Sáb 21 · En 3 días». Los que se repiten no entran. | |
+| 86.11 | Con TalkBack, recorrer la lista. | Lee cada fila completa y el botón dice «Marcar … como listo». | |
+
+---
 
 ## Si algo falla
 
