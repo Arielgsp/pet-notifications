@@ -333,6 +333,8 @@
     <string name="quick_past">Elige un día y una hora que todavía no pasaron.</string>
     <string name="quick_hour">Hora</string>
     <string name="quick_minute">Min</string>
+    <string name="quick_step_up">Subir: %1$s</string>
+    <string name="quick_step_down">Bajar: %1$s</string>
 
     <!-- Aviso fijo de Android “se muestra sobre otras apps” -->
     <string name="ob_notice_title">Un aviso de Android</string>

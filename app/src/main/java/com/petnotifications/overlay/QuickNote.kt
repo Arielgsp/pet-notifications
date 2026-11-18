@@ -52,6 +52,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -59,6 +63,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -77,6 +83,10 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 private const val CUSTOM = -1
+private const val MINUTES_IN_DAY = 24 * 60
+private const val MINUTE_STEP = 5
+private const val STEP_HOLD_MS = 400L
+private const val STEP_REPEAT_MS = 110L
 
 /** Cuándo avisar en el recordatorio rápido: opciones fijas, o día y hora a elección (el calendario). */
 enum class QuickWhen(val labelRes: Int) {
@@ -300,10 +310,25 @@ fun QuickNoteCard(
                     )
                     ArrowButton("›", dayOffset < 365) { dayOffset++ }
                 }
+                // Flechitas a los dos lados de cada número (pedido de Ariel, 18/11): un toque cambia, mantener
+                // apretado corre rápido. El número se puede seguir escribiendo si se lo toca.
+                fun setTime(total: Int) {
+                    val t = stepTime(total)
+                    hourText = "%02d".format(t / 60)
+                    minuteText = "%02d".format(t % 60)
+                }
+                fun hour() = hourText.toIntOrNull()?.coerceIn(0, 23) ?: 0
+                fun minute() = minuteText.toIntOrNull()?.coerceIn(0, 59) ?: 0
+                val hourLabel = stringResource(R.string.quick_hour)
+                val minuteLabel = stringResource(R.string.quick_minute)
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                    TimeField(hourText, stringResource(R.string.quick_hour)) { hourText = it }
-                    Text(":", style = font, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Ink, modifier = Modifier.padding(horizontal = 6.dp))
-                    TimeField(minuteText, stringResource(R.string.quick_minute)) { minuteText = it }
+                    StepArrow("‹", stringResource(R.string.quick_step_down, hourLabel)) { hourText = "%02d".format((hour() + 23) % 24) }
+                    TimeField(hourText, hourLabel) { hourText = it }
+                    StepArrow("›", stringResource(R.string.quick_step_up, hourLabel)) { hourText = "%02d".format((hour() + 1) % 24) }
+                    Text(":", style = font, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Ink, modifier = Modifier.padding(horizontal = 2.dp))
+                    StepArrow("‹", stringResource(R.string.quick_step_down, minuteLabel)) { setTime(minutesDown(hour(), minute())) }
+                    TimeField(minuteText, minuteLabel) { minuteText = it }
+                    StepArrow("›", stringResource(R.string.quick_step_up, minuteLabel)) { setTime(minutesUp(hour(), minute())) }
                 }
                 if (!valid) {
                     Text(stringResource(R.string.quick_past), style = font, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFFB3261E))
@@ -378,6 +403,50 @@ private fun ArrowButton(text: String, enabled: Boolean, onClick: () -> Unit) {
     }
 }
 
+/** Minutos del día, dentro de las 24 h. */
+internal fun stepTime(total: Int) = ((total % MINUTES_IN_DAY) + MINUTES_IN_DAY) % MINUTES_IN_DAY
+
+/** Al múltiplo de 5 siguiente (14:07 → 14:10, 14:55 → 15:00). */
+internal fun minutesUp(hour: Int, minute: Int) = hour * 60 + minute + MINUTE_STEP - minute % MINUTE_STEP
+
+/** Al múltiplo de 5 anterior (14:07 → 14:05, 14:00 → 13:55). */
+internal fun minutesDown(hour: Int, minute: Int) =
+    hour * 60 + minute - (minute % MINUTE_STEP).let { if (it == 0) MINUTE_STEP else it }
+
+/** Flechita de la hora: cambia al apoyar el dedo y, si sigue apretada, repite cada vez que puede. */
+@Composable
+private fun StepArrow(text: String, label: String, onStep: () -> Unit) {
+    val step by androidx.compose.runtime.rememberUpdatedState(onStep)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(width = 36.dp, height = 48.dp)
+            .semantics {
+                contentDescription = label
+                role = Role.Button
+                onClick { step(); true }
+            }
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown().consume()
+                    step()
+                    var wait = STEP_HOLD_MS
+                    var released = false
+                    while (!released) {
+                        withTimeoutOrNull(wait) {
+                            waitForUpOrCancellation()?.consume()
+                            released = true
+                        }
+                        if (!released) step()
+                        wait = STEP_REPEAT_MS
+                    }
+                }
+            },
+    ) {
+        Text(text, fontFamily = Nunito, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Cocoa)
+    }
+}
+
 /** "Hoy", "Mañana" o el día de la semana con la fecha ("Vie 2 oct"), en el idioma del teléfono. */
 @Composable
 private fun dayLabel(offset: Int): String = when (offset) {
@@ -403,7 +472,7 @@ private fun TimeField(value: String, label: String, onChange: (String) -> Unit) 
         cursorBrush = SolidColor(Cocoa),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         modifier = Modifier
-            .width(56.dp)
+            .width(36.dp)
             .semantics { contentDescription = label }
             .drawBehind {
                 val y0 = size.height - 1.dp.toPx()

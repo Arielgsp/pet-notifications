@@ -333,6 +333,8 @@ S = [
 ('quick_past', 'Elegí un día y una hora que todavía no pasaron.', 'Pick a day and time that has not passed yet.'),
 ('quick_hour', 'Hora', 'Hour'),
 ('quick_minute', 'Min', 'Min'),
+('quick_step_up', 'Subir: %1$s', 'Increase: %1$s'),
+('quick_step_down', 'Bajar: %1$s', 'Decrease: %1$s'),
 
 ("#", 'Aviso fijo de Android “se muestra sobre otras apps”', ""),
 ('ob_notice_title', 'Un aviso de Android', 'A notice from Android'),

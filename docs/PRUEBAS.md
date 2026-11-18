@@ -1105,6 +1105,18 @@ Reemplaza a la sección 79: el saludo ya no va encima ni debajo de la mascota.
 | 81.4 | Mientras la cartita está abierta. | La mascota se ve parada y sin las cartas a sus pies (es un dibujo dentro de la cartita); al cerrar vuelve todo. Con transparencia o modo fantasma, se ve igual de transparente. | |
 
 ---
+## 82. Flechitas para la hora en el recordatorio rápido (versión 1.0.74)
+
+| # | Prueba | Qué tiene que pasar | Resultado |
+|---|---|---|---|
+| 82.1 | Tirón hacia abajo y tocar el calendario. | Debajo del día, la hora y los minutos tienen una flechita a cada lado (‹ ›) y entran en la cartita sin cortarse. | |
+| 82.2 | Tocar las flechitas de la hora. | Cambia de a 1 hora. Después de 23 sigue 00, y antes de 00 viene 23. | |
+| 82.3 | Tocar las flechitas de los minutos. | Cambian de a 5 (de 07 pasa a 10 o a 05). De 55 a 00 suma una hora, y de 00 a 55 la resta. | |
+| 82.4 | Mantener apretada una flechita. | Después de un instante los números corren solos hasta soltar. | |
+| 82.5 | Tocar un número. | Se abre el teclado numérico y se puede escribir a mano. | |
+| 82.6 | Elegir una hora con las flechitas, escribir un texto y tocar «Anotado». | El aviso queda guardado y llega a esa hora. | |
+
+---
 
 ## Si algo falla
 
